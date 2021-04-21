@@ -1,0 +1,328 @@
+# Used for project1 by Scott Lorberbaum
+#
+# This makefile includes an entry "depend" which will automatically
+# generate complete include file dependencies (including nested
+# includes.  To update dependencies, simply update the SRCS variable
+# (and OBJS) and type "make depend"
+#
+TARGETDIR = .
+#
+# Use gcc for Motif compilations.
+
+#CC = /usr/local/bin/gcc-8
+CC = /usr/bin/gcc
+#BISON = /usr/local/opt/bison@2.7/bin/bison
+BISON = /usr/bin/bison
+#FLEX = /usr/local/opt/flex/bin/flex
+FLEX = /usr/bin/flex
+
+MYUCC = "./ucc"
+
+
+#CFLAGS = -g  -ggdb -I/usr/local/opt/bison@2.7/include -D DEBUGON
+#CFLAGS = -g  -ggdb -D DEBUGOFF
+#CFLAGS = -g  -ggdb -D DEBUGON
+
+CFLAGS0 = -O0
+CFLAGS1 = -O1
+CFLAGS2 = -O2
+CFLAGS3 = -O3
+CFLAGSF = -Ofast
+CFLAGSS = -Os
+CFLAGSZ = -Oz
+CFLAGSG = -Og
+
+#LDFLAGS =  -g -L/usr/local/opt/bison@2.7/lib -lc -L/usr/local/opt/flex/lib
+
+#LDFLAGS =  -g -lc 
+
+FLOP =
+BISOP = -vytdg
+#LIBS = -lfl -lm
+LIBS = -ll -lm
+
+all: ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg
+
+
+main.c : ucc.tab.c main.h
+
+
+trans0.o: trans.c trans.h
+	$(CC) -c trans.c -o trans0.o $(CFLAGS0)
+
+trans1.o: trans.c trans.h
+	$(CC) -c trans.c -o trans1.o $(CFLAGS1)
+
+trans2.o: trans.c trans.h
+	$(CC) -c trans.c -o trans2.o $(CFLAGS2)
+
+trans3.o: trans.c trans.h
+	$(CC) -c trans.c -o trans3.o $(CFLAGS3)
+
+transf.o: trans.c trans.h
+	$(CC) -c trans.c -o transf.o $(CFLAGSF)
+
+transs.o: trans.c trans.h
+	$(CC) -c trans.c -o transs.o $(CFLAGSS)
+
+transz.o: trans.c trans.h
+	$(CC) -c trans.c -o transz.o $(CFLAGSZ)
+
+transg.o: trans.c trans.h
+	$(CC) -c trans.c -o transg.o $(CFLAGSG)
+
+ucc.tab.c : ucc.y
+	$(BISON) $(BISOP) ucc.y
+
+lex.yy.c : ucc.l ucc.tab.c
+	$(FLEX) $(FLOP) ucc.l
+
+lex0.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lex0.yy.o $(CFLAGS0)
+
+lex1.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lex1.yy.o $(CFLAGS1)
+
+lex2.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lex2.yy.o $(CFLAGS2)
+
+lex3.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lex3.yy.o $(CFLAGS3)
+
+lexf.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lexf.yy.o $(CFLAGSF)
+
+lexs.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lexs.yy.o $(CFLAGSS)
+
+lexz.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lexz.yy.o $(CFLAGSZ)
+
+lexg.yy.o: lex.yy.c
+	$(CC) -c lex.yy.c -o lexg.yy.o $(CFLAGSG)
+
+ucc0.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o ucc0.tab.o $(CFLAGS0)
+
+ucc1.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o ucc1.tab.o $(CFLAGS1)
+
+ucc2.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o ucc2.tab.o $(CFLAGS2)
+
+ucc3.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o ucc3.tab.o $(CFLAGS3)
+
+uccf.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o uccf.tab.o $(CFLAGSF)
+
+uccs.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o uccs.tab.o $(CFLAGSS)
+
+uccz.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o uccz.tab.o $(CFLAGSZ)
+
+uccg.tab.o: ucc.tab.c
+	$(CC) -c ucc.tab.c -o uccg.tab.o $(CFLAGSG)
+
+symtab0.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtab0.o $(CFLAGS0)
+
+symtab1.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtab1.o $(CFLAGS1)
+
+symtab2.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtab2.o $(CFLAGS2)
+
+symtab3.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtab3.o $(CFLAGS3)
+
+symtabf.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtabf.o $(CFLAGSF)
+
+symtabs.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtabs.o $(CFLAGSS)
+
+symtabz.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtabz.o $(CFLAGSZ)
+
+symtabg.o: symtab.h symtab.c
+	$(CC) -c symtab.c -o symtabg.o $(CFLAGSG)
+
+List0.o: List.c
+	$(CC) -c List.c -o List0.o $(CFLAGS0)
+
+List1.o: List.c
+	$(CC) -c List.c -o List1.o $(CFLAGS1)
+
+List2.o: List.c
+	$(CC) -c List.c -o List2.o $(CFLAGS2)
+
+List3.o: List.c
+	$(CC) -c List.c -o List3.o $(CFLAGS3)
+
+Listf.o: List.c
+	$(CC) -c List.c -o Listf.o $(CFLAGSF)
+
+Lists.o: List.c
+	$(CC) -c List.c -o Lists.o $(CFLAGSS)
+
+Listz.o: List.c
+	$(CC) -c List.c -o Listz.o $(CFLAGSZ)
+
+Listg.o: List.c
+	$(CC) -c List.c -o Listg.o $(CFLAGSG)
+
+command0.o: command.c command.h
+	$(CC) -c command.c -o command0.o $(CFLAGS0)
+
+command1.o: command.c command.h
+	$(CC) -c command.c -o command1.o $(CFLAGS1)
+
+command2.o: command.c command.h
+	$(CC) -c command.c -o command2.o $(CFLAGS2)
+
+command3.o: command.c command.h
+	$(CC) -c command.c -o command3.o $(CFLAGS3)
+
+commandf.o: command.c command.h
+	$(CC) -c command.c -o commandf.o $(CFLAGSF)
+
+commands.o: command.c command.h
+	$(CC) -c command.c -o commands.o $(CFLAGSS)
+
+commandz.o: command.c command.h
+	$(CC) -c command.c -o commandz.o $(CFLAGSZ)
+
+commandg.o: command.c command.h
+	$(CC) -c command.c -o commandg.o $(CFLAGSG)
+
+MAIN = main.c
+
+SRCS  = lex.yy.c \
+	ucc.tab.c \
+	main.c \
+	symtab.c \
+	List.c  \
+	command.c \
+	trans.c
+
+OBJS0  = lex0.yy.o  \
+	ucc0.tab.o \
+	symtab0.o \
+	List0.o \
+	command0.o \
+	trans0.o 
+
+OBJS1  = lex1.yy.o  \
+	ucc1.tab.o \
+	symtab1.o \
+	List1.o \
+	command1.o \
+	trans1.o 
+
+OBJS2  = lex2.yy.o  \
+	ucc2.tab.o \
+	symtab2.o \
+	List2.o \
+	command2.o \
+	trans2.o 
+
+OBJS3  = lex3.yy.o  \
+	ucc3.tab.o \
+	symtab3.o \
+	List3.o \
+	command3.o \
+	trans3.o 
+
+OBJSF  = lexf.yy.o  \
+	uccf.tab.o \
+	symtabf.o \
+	Listf.o \
+	commandf.o \
+	transf.o 
+
+OBJSS  = lexs.yy.o  \
+	uccs.tab.o \
+	symtabs.o \
+	Lists.o \
+	commands.o \
+	transs.o 
+
+OBJSZ  = lexz.yy.o  \
+	uccz.tab.o \
+	symtabz.o \
+	Listz.o \
+	commandz.o \
+	transz.o 
+
+OBJSG  = lexg.yy.o  \
+	uccg.tab.o \
+	symtabg.o \
+	Listg.o \
+	commandg.o \
+	transg.o 
+
+sample$(NUM) : sample$(NUM).c
+	$(MYUCC) sample$(NUM).c
+
+clean :
+	rm *.o lex.yy.c ucc.tab.* ucc.output ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg example core test *.out *.asm; rm -rf *.dSYM;
+
+
+ucc0 : $(OBJS0) $(MAIN)
+	$(CC) $(CFLAGS0) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJS0) $(MAIN) $(LIBS)
+
+ucc1 : $(OBJS1) $(MAIN)
+	$(CC) $(CFLAGS1) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJS1) $(MAIN) $(LIBS)
+
+ucc2 : $(OBJS2) $(MAIN)
+	$(CC) $(CFLAGS2) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJS2) $(MAIN) $(LIBS)
+
+ucc3 : $(OBJS3) $(MAIN)
+	$(CC) $(CFLAGS3) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJS3) $(MAIN) $(LIBS)
+
+uccf : $(OBJSF) $(MAIN)
+	$(CC) $(CFLAGSF) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJSF) $(MAIN) $(LIBS)
+
+uccs : $(OBJSS) $(MAIN)
+	$(CC) $(CFLAGSS) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJSS) $(MAIN) $(LIBS)
+
+uccz : $(OBJSZ) $(MAIN)
+	$(CC) $(CFLAGSZ) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJSZ) $(MAIN) $(LIBS)
+
+uccg : $(OBJSG) $(MAIN)
+	$(CC) $(CFLAGSG) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJSG) $(MAIN) $(LIBS)
+
+example: $(OBJS) $(MAIN) symtab.o example.c List.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGETDIR)/$@ $(OBJS) example.c $(LIBS)
+
+
+#	if (/bin/test -w $@) then (rm $@) else (:) fi
+#
+# make depend
+#
+# The depend switch varies (unfortunately) for different C compilers.
+#        -Em is used by DEC,
+#	 -M by Sun
+#DEPEND = -Em
+#DEPEND = -M
+DEPEND = -MM
+depend:
+	sed -e "/^#=====DO NOT DELETE THIS LINE=====/q" Makefile > Makefile.new
+	$(CC) $(CFLAGS) $(DEPEND) $(SRCS) >> Makefile.new
+#	gcc $(CFLAGS) $(DEPEND) $(SRCS) >> Makefile.new
+	mv Makefile.new Makefile
+
+#=====DO NOT DELETE THIS LINE=====
+lex.yy.o: lex.yy.c List.h type.h expr.h symtab.h main.h data.h trans.h \
+  ucc.tab.h ucc.l.h
+ucc.tab.o: ucc.tab.c type.h List.h expr.h symtab.h main.h data.h trans.h \
+  ucc.l.h
+main.o: main.c data.h symtab.h List.h type.h expr.h main.h trans.h \
+  ucc.tab.h command.h ucc.l.h
+symtab.o: symtab.c symtab.h List.h type.h expr.h main.h data.h trans.h \
+  ucc.l.h
+List.o: List.c List.h type.h expr.h ucc.l.h
+command.o: command.c command.h
+trans.o: trans.c trans.h
