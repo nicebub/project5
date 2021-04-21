@@ -37,7 +37,7 @@ CFLAGSG = -Og
 #LDFLAGS =  -g -lc 
 
 FLOP =
-BISOP = -vytdg
+BISOP = -vytdg -o ucc.tab.c
 #LIBS = -lfl -lm
 LIBS = -ll -lm
 
