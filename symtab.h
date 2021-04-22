@@ -1,19 +1,23 @@
 #ifndef _SYMTABH
 #define _SYMTABH
+#include <search.h>
+#include <cstdio>
+
 #include "List.h"
 #include "type.h"
-#include <search.h>
-#include <stdio.h>
 #include "main.h"
 
-extern int Line_Number;
-extern FILE *infile;
-extern int offset_counter;
-extern int globalcount;
+//extern int Line_Number;
+//extern FILE *infile;
+//extern int offset_counter;
+//extern int globalcount;
 
 //extern int warning(char*, char*);
 
 //extern int error(char*,char*);
+
+
+namespace ucc{
 
 int Ecmp(const void *Entry1, const void *Entry2);  //comparison function
 
@@ -51,4 +55,5 @@ void addtosymtab(Symtab* mysymtab, type mytype, List * myList);
 
 int getleveldif(char *name, Symtab *mysymtab);
 
+}
 #endif

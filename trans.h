@@ -1,15 +1,15 @@
 #ifndef _MYTRANS
 #define _MYTRANS
-#include <stdio.h>
+#include <cstdio>
 
-typedef struct {
+struct Pair{
 	int one;
 	int two;
-} Pair;
-int globalcount;
-int localcount;
-int labelcounter;
-extern FILE *infile;
+};
+//int globalcount;
+//int localcount;
+//int labelcounter;
+//extern FILE *infile;
 
 void initializelabel(void);
 

@@ -2,11 +2,14 @@
 #define _MYEXPRH
 #include "type.h"
 
-typedef struct{
+
+namespace ucc{
+
+struct exprtype{
 	bool lval;
 	type type;
 	bool numeric;
-} exprtype;
+};
 
-
+}
 #endif

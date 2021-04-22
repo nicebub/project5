@@ -1,6 +1,6 @@
 #ifndef _MYCOMMANDH
 #define _MYCOMMANDH
-#include <stdio.h>
+#include <cstdio>
 
 extern FILE *yyin;
 FILE *infile;

@@ -11,12 +11,13 @@
 #include "List.h"
 #include "symtab.h"
 #include "data.h"
+using namespace ucc;
 #define YYSTYPE data
 #include "ucc.tab.h"
 #include "ucc.l.h"
 #include "main.h"
-#include <stdint.h>
-int Line_Number = 1;
+#include <cstdint>
+//int Line_Number = 1;
 %}
 
 %option stack

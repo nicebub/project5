@@ -4,7 +4,8 @@
 #include "List.h"
 #include "trans.h"
 
-typedef struct {
+namespace ucc {
+struct data{
 	union {
 		char cvalue;
 		char *svalue;
@@ -34,7 +35,8 @@ typedef struct {
 	Entry* entry;
 	Funcb* funcbinding;
 	int params;
-} data;
+};
 
+}
 
 #endif

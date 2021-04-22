@@ -15,14 +15,14 @@ track of the line number, and some of the operators have their precedence specif
 #include "symtab.h"
 #include "data.h"
 #include "trans.h"
-#include <stdio.h>
+#include <cstdio>
 //#define yyerrok
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 1
 #define YYSTYPE data
 #include "ucc.l.h"
 #include "main.h"
-#include <string.h>
+#include <string>
 extern int Line_Number;
 bool founderror=FALSE;
 extern int globalcount;

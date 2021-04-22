@@ -10,11 +10,12 @@ TARGETDIR = .
 # Use gcc for Motif compilations.
 
 #CC = /usr/local/bin/gcc-8
-CC = /usr/bin/gcc
+#CC = /usr/bin/gcc
+CC = /usr/bin/g++ -std=c++14
 #BISON = /usr/local/opt/bison@2.7/bin/bison
 BISON = /usr/bin/bison
 #FLEX = /usr/local/opt/flex/bin/flex
-FLEX = /usr/bin/flex
+FLEX = /usr/bin/flex++
 
 MYUCC = "./ucc"
 
@@ -74,32 +75,32 @@ transg.o: trans.c trans.h
 ucc.tab.c : ucc.y
 	$(BISON) $(BISOP) ucc.y
 
-lex.yy.c : ucc.l ucc.tab.c
+lex.yy.cc : ucc.l ucc.tab.c
 	$(FLEX) $(FLOP) ucc.l
 
-lex0.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lex0.yy.o $(CFLAGS0)
+lex0.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lex0.yy.o $(CFLAGS0)
 
-lex1.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lex1.yy.o $(CFLAGS1)
+lex1.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lex1.yy.o $(CFLAGS1)
 
-lex2.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lex2.yy.o $(CFLAGS2)
+lex2.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lex2.yy.o $(CFLAGS2)
 
-lex3.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lex3.yy.o $(CFLAGS3)
+lex3.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lex3.yy.o $(CFLAGS3)
 
-lexf.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lexf.yy.o $(CFLAGSF)
+lexf.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lexf.yy.o $(CFLAGSF)
 
-lexs.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lexs.yy.o $(CFLAGSS)
+lexs.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lexs.yy.o $(CFLAGSS)
 
-lexz.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lexz.yy.o $(CFLAGSZ)
+lexz.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lexz.yy.o $(CFLAGSZ)
 
-lexg.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c -o lexg.yy.o $(CFLAGSG)
+lexg.yy.o: lex.yy.cc
+	$(CC) -c lex.yy.cc -o lexg.yy.o $(CFLAGSG)
 
 ucc0.tab.o: ucc.tab.c
 	$(CC) -c ucc.tab.c -o ucc0.tab.o $(CFLAGS0)
@@ -199,7 +200,7 @@ commandg.o: command.c command.h
 
 MAIN = main.c
 
-SRCS  = lex.yy.c \
+SRCS  = lex.yy.cc \
 	ucc.tab.c \
 	main.c \
 	symtab.c \
@@ -267,7 +268,7 @@ sample$(NUM) : sample$(NUM).c
 	$(MYUCC) sample$(NUM).c
 
 clean :
-	rm *.o lex.yy.c ucc.tab.* ucc.output ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg example core test *.out *.asm; rm -rf *.dSYM;
+	rm *.o lex.yy.cc ucc.tab.* ucc.output ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg example core test *.out *.asm; rm -rf *.dSYM;
 
 
 ucc0 : $(OBJS0) $(MAIN)
@@ -315,7 +316,7 @@ depend:
 	mv Makefile.new Makefile
 
 #=====DO NOT DELETE THIS LINE=====
-lex.yy.o: lex.yy.c List.h type.h expr.h symtab.h main.h data.h trans.h \
+lex.yy.o: lex.yy.cc List.h type.h expr.h symtab.h main.h data.h trans.h \
   ucc.tab.h ucc.l.h
 ucc.tab.o: ucc.tab.c type.h List.h expr.h symtab.h main.h data.h trans.h \
   ucc.l.h

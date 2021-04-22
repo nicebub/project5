@@ -1,7 +1,7 @@
+#include <cstdio>
+#include <cstdlib>
+#include <string>
 #include "trans.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 void initializelabel(){
 	labelcounter=1;
 }

@@ -1,3 +1,7 @@
+#include <string>
+#include <cstdio>
+#include <cstdlib>
+#include <search.h>
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
@@ -7,11 +11,7 @@
 #include "type.h"
 #include "List.h"
 #include "data.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <search.h>
 #include "ucc.l.h"
-#include <string.h>
 
 int offset_counter;
 

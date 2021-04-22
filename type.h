@@ -1,34 +1,37 @@
 #ifndef _MYTYPEH
 #define _MYTYPEH
-typedef enum {
+
+namespace ucc{
+
+enum class addtype{
 	PLS,
 	MIN
-} addtype;
+};
 
-typedef enum {
+enum class multype{
 	DIV,
 	MULT
-} multype;
+};
 
-typedef enum {
+enum class eqtype{
 	NEQ,
 	EQEQ
-} eqtype;
+};
 
-typedef enum {
+enum class reltype{
 	LES,
 	LEQ,
 	GRE,
 	GEQ
-} reltype;
+};
 
-typedef enum {
+enum class btype{
 	FUNC,
 	VAR,
 	PARAM
-} btype;
+};
 
-typedef enum {
+enum class type{
 	INT,
 	FLOAT,
 	VOID,
@@ -37,14 +40,14 @@ typedef enum {
 	REFINT,
 	REFFLOAT,
 	REFSTR
-} type;
+};
 
-typedef enum {
+enum class mbool{
 	TRUE,
 	FALSE
-} bool;
+};
 
-typedef struct {
+struct Funcb {
 	type returntype;
 	int num_param;
 	type* param_type;
@@ -52,28 +55,30 @@ typedef struct {
 	int label;
 	int localcount;
 	int actual_num;
-} Funcb;
+};
 
-typedef struct {
+struct Varb {
 	type type;
 	int offset;
-} Varb;
+};
 
-typedef struct {
+struct Paramb {
 	type type;
 	int offset;
-} Paramb;
+};
 
-typedef struct {
+struct Entry{
 	char * name;
 	void * binding;
 	btype self;
-} Entry;
+};
 
-typedef struct {
+struct Symtab {
 	Entry ** Stack; //Stack of Binary Search Trees
 	int actualStacksize; //used to keep size and top of stack
 	int Stacksize; //default of 100
-} Symtab;
+};
+
+}
 
 #endif

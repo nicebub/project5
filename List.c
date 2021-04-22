@@ -1,3 +1,7 @@
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
@@ -5,12 +9,33 @@
 #endif
 #include "List.h"
 #include "type.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "ucc.l.h"
 //extern int warning(char*,char*);
 //extern int error(char*,char*);
+
+using namespace ucc;
+List::List(){}
+List::~List(){}
+List& List::List(const List& cp){}
+List::operator=(const List& in){}
+void List::deleteList(List * inList){}
+List * List::mklist(char * inVal){}
+
+List * List::appendList(List * inList, char* inVal){}
+
+void List::deleteListP(ListP * inList){}
+
+ListP * List::mklistP(char* inName, type intype){}
+
+ListP * List::appendListP(ListP *inList, char* inName, type intype){}
+
+void List::deleteListE(ListE *inList){}
+
+ListE * List::mklistE(exprtype* expr){}
+
+ListE * List::appendListE(ListE * inList, exprtype* expr){}
+
+void List::printListP(ListP * inList){}
 
 List * mklist(char * inVal){
 	List* temp;
