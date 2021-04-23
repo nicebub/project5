@@ -17,7 +17,7 @@ struct Pair{
 class CodeGenerator{
 	public:
 	
-		void initializelabel(void);
+		static void initializelabel(void);
 		static int getlabel(void); 	//return next available label number
 		static void gen_label(std::string name);	//generate label with label name : name
 		static std::string genlabelw(std::string name, int labelnum); //generate a label with $<labelname><labelnumber>

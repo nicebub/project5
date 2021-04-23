@@ -10,7 +10,7 @@
 
 #include "symtab.h"
 #include "type.h"
-#include "List.h"
+#include "List.hpp"
 #include "data.h"
 
 using namespace ucc;
@@ -23,7 +23,8 @@ SymbolTable::SymbolTable() : table{} {}
 SymbolTable::~SymbolTable(){
 	
 }
-//extern int error(char*,char*);
+extern int error(std::string,std::string);
+
 void SymbolTable::openmainscope(Symtab *symtab){
 	if(symtab->actualStacksize == symtab->Stacksize)
 		error("Scope Stack already too full","");

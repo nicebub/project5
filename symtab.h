@@ -3,9 +3,9 @@
 #include <search.h>
 #include <cstdio>
 #include <map>
-#include "List.h"
+#include "List.hpp"
 #include "type.h"
-#include "main.h"
+//#include "main.h"
 
 //extern int Line_Number;
 //extern FILE *infile;
@@ -36,10 +36,10 @@ namespace ucc{
 			void deleteEntry(Entry * temp);
 			void deleteTree(Symtab *symtab);
 			static Symtab * createTree(int Stacksize);
-			static Entry* createFunc(std::string name, type returntype, ListP *paramlist);
+			static Entry* createFunc(std::string name, type returntype, List* paramlist);
 			static Entry* createVar(std::string name, type t_type, int offset);
 			static Entry* createParam(std::string name, type t_type, int offset);
-			static void addtosymtab(Symtab* mysymtab, type mytype, List * myList);
+			static void addtosymtab(Symtab* mysymtab, type mytype, List* myList);
 			static int getleveldif(std::string name, Symtab *mysymtab);
 		private:
 			std::map<std::string,Entry*> table;

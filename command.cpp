@@ -10,6 +10,7 @@
 #endif
 
 #include "compiler.hpp"
+
 using namespace ucc;
 
 int Compiler::checkargs(int argc, const char** argv){

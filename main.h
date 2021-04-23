@@ -3,7 +3,6 @@
 #include "type.h"
 #include <string>
 
-extern FILE *yyin;
 
 //#define extern
 

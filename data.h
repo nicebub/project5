@@ -1,28 +1,28 @@
 #ifndef _MYDATAH
 #define _MYDATAH
 #include "symtab.h"
-#include "List.h"
+#include "List.hpp"
 #include "trans.h"
 #include <string>
 namespace ucc {
 struct data{
 	public:
 	union p1{
-		char cvalue;
-		std::string svalue;
-		int ivalue;
-		float fvalue;
-		List *lstvalue;
-		ListP *lstpvalue;
-		type tvalue;
-		addtype addopvalue;
-		multype multopvalue;
-		eqtype eqopvalue;
-		ListE *lstevalue;
-		Pair pairvalue;
-		exprtype *exprvalue;
-		reltype relopvalue;
-		funcheadertype *funcheadervalue;
+		char 					cvalue;
+		std::string 		svalue;
+		int 					ivalue;
+		float 				fvalue;
+		List*					lstvalue;
+		List* 				lstpvalue;
+		type 					tvalue;
+		addtype 				addopvalue;
+		multype 				multopvalue;
+		eqtype 				eqopvalue;
+		List* 				lstevalue;
+		Pair 					pairvalue;
+		exprtype* 			exprvalue;
+		reltype 				relopvalue;
+		funcheadertype* 	funcheadervalue;
 		//Entry *funcentvalue;
 	} value;
 	int one;

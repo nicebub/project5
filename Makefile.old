@@ -45,7 +45,7 @@ LIBS = -ll -lm
 all: ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg
 
 
-main.c : ucc.tab.cpp main.h
+main.c : main.h ucc.tab.cpp
 
 trans0.o: trans.c trans.h
 	$(CC) $(CFLAGS0) -c $< -o $@ 
@@ -149,30 +149,30 @@ symtabz.o: symtab.c symtab.h
 symtabg.o: symtab.c symtab.h
 	$(CC) $(CFLAGSG)  -c $< -o $@
 
-List0.o: List.c
-	$(CC) -c List.c -o List0.o $(CFLAGS0)
+List0.o: List.cpp List.hpp
+	$(CC) $(CFLAGS0) -c $< -o $@
 
-List1.o: List.c
-	$(CC) -c List.c -o List1.o $(CFLAGS1)
-
-List2.o: List.c
-	$(CC) -c List.c -o List2.o $(CFLAGS2)
-
-List3.o: List.c
-	$(CC) -c List.c -o List3.o $(CFLAGS3)
-
-Listf.o: List.c
-	$(CC) -c List.c -o Listf.o $(CFLAGSF)
-
-Lists.o: List.c
-	$(CC) -c List.c -o Lists.o $(CFLAGSS)
-
-Listz.o: List.c
-	$(CC) -c List.c -o Listz.o $(CFLAGSZ)
-
-Listg.o: List.c
-	$(CC) -c List.c -o Listg.o $(CFLAGSG)
-
+List1.o: List.cpp List.hpp
+	$(CC) $(CFLAGS1) -c $< -o $@
+	
+List2.o: List.cpp List.hpp
+	$(CC) $(CFLAGS2) -c $< -o $@
+	
+List3.o: List.cpp List.hpp
+	$(CC) $(CFLAGS3) -c $< -o $@
+	
+Listf.o: List.cpp List.hpp
+	$(CC) $(CFLAGSF) -c $< -o $@
+	
+Lists.o: List.cpp List.hpp
+	$(CC) $(CFLAGSS) -c $< -o $@
+	
+Listz.o: List.cpp List.hpp
+	$(CC) $(CFLAGSZ) -c $< -o $@
+	
+Listg.o: List.cpp List.hpp
+	$(CC) $(CFLAGSG) -c $< -o $@
+	
 command0.o: command.cpp command.hpp
 	$(CC) $(CFLAGS0) -c $< -o $@
 
@@ -199,69 +199,69 @@ commandg.o: command.cpp command.hpp
 
 MAIN = main.c
 
-SRCS  = lex.yy.cc \
-	ucc.tab.cpp \
-	main.c \
+SRCS  = main.c \
 	symtab.c \
-	List.c  \
+	List.cpp  \
 	command.cpp \
-	trans.c
+	trans.c \
+	lex.yy.cc \
+	ucc.tab.cpp
 
-OBJS0  = lex0.yy.o  \
-	ucc0.tab.o \
-	symtab0.o \
+OBJS0  = symtab0.o \
 	List0.o \
 	command0.o \
-	trans0.o 
+	trans0.o \
+	lex0.yy.o  \
+	ucc0.tab.o
 
-OBJS1  = lex1.yy.o  \
-	ucc1.tab.o \
-	symtab1.o \
+OBJS1  = symtab1.o \
 	List1.o \
 	command1.o \
-	trans1.o 
+	trans1.o \
+	lex1.yy.o  \
+	ucc1.tab.o
 
-OBJS2  = lex2.yy.o  \
-	ucc2.tab.o \
-	symtab2.o \
+OBJS2  = symtab2.o \
 	List2.o \
 	command2.o \
-	trans2.o 
+	trans2.o \
+	lex2.yy.o  \
+	ucc2.tab.o
 
-OBJS3  = lex3.yy.o  \
-	ucc3.tab.o \
-	symtab3.o \
+OBJS3  = symtab3.o \
 	List3.o \
 	command3.o \
-	trans3.o 
+	trans3.o \
+	lex3.yy.o  \
+	ucc3.tab.o 
 
-OBJSF  = lexf.yy.o  \
-	uccf.tab.o \
-	symtabf.o \
+OBJSF  = symtabf.o \
 	Listf.o \
 	commandf.o \
-	transf.o 
+	transf.o \
+	lexf.yy.o  \
+	uccf.tab.o
 
-OBJSS  = lexs.yy.o  \
-	uccs.tab.o \
-	symtabs.o \
+OBJSS  = symtabs.o \
 	Lists.o \
 	commands.o \
-	transs.o 
+	transs.o \
+	lexs.yy.o  \
+	uccs.tab.o
 
-OBJSZ  = lexz.yy.o  \
-	uccz.tab.o \
-	symtabz.o \
+OBJSZ  = symtabz.o \
 	Listz.o \
 	commandz.o \
-	transz.o 
+	transz.o \
+	lexz.yy.o  \
+	uccz.tab.o
 
-OBJSG  = lexg.yy.o  \
-	uccg.tab.o \
-	symtabg.o \
+OBJSG  = symtabg.o \
 	Listg.o \
 	commandg.o \
-	transg.o 
+	transg.o \
+	lexg.yy.o  \
+	uccg.tab.o
 
 sample$(NUM) : sample$(NUM).c
 	$(MYUCC) sample$(NUM).c
@@ -315,14 +315,14 @@ depend:
 	mv Makefile.new Makefile
 
 #=====DO NOT DELETE THIS LINE=====
-lex.yy.o: lex.yy.cc List.h type.h expr.h symtab.h main.h data.h trans.h \
-  ucc.tab.h ucc.l.h
-ucc.tab.o: ucc.tab.cpp type.h List.h expr.h symtab.h main.h data.h trans.h \
-  ucc.l.h
-main.o: main.c data.h symtab.h List.h type.h expr.h main.h trans.h \
-  ucc.tab.h command.hpp ucc.l.h
-symtab.o: symtab.c symtab.h List.h type.h expr.h main.h data.h trans.h \
-  ucc.l.h
-List.o: List.c List.h type.h expr.h ucc.l.h
+lex.yy.o: lex.yy.cc List.hpp type.h expr.h symtab.h main.h data.h trans.h \
+  ucc.tab.h
+ucc.tab.o: ucc.tab.cpp type.h List.hpp expr.h symtab.h main.h data.h trans.h \
+  
+main.o: main.c data.h symtab.h List.hpp type.h expr.h main.h trans.h \
+  ucc.tab.h command.hpp
+symtab.o: symtab.c symtab.h List.hpp type.h expr.h main.h data.h trans.h \
+  
+List.o: List.cpp List.hpp type.h expr.h
 command.o: command.cpp command.hpp
 trans.o: trans.c trans.h

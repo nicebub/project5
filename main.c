@@ -3,31 +3,37 @@
 #include <string>
 
 #define MAIN
-#include "Debug.h"
 
 #ifdef DEBUGON
+#include "Debug.hpp"
 #ifndef DEBUG
 #define DEBUG
 #endif
 Debug::set_yydebug(1);
 #endif
 
+#include "type.h"
 #include "data.h"
-#define YYSTYPE data
-
-#include "ucc.tab.hpp"
-#include "symtab.h"
 #include "List.h"
-#include "command.hpp"
-#include "main.h"
+#include "symtab.h"
 #include "trans.h"
-#include "ucc.l.h"
-extern int yyparse(void);
+#include "compiler.hpp"
+#ifndef YYSTYPE
+#define YYSTYPE ucc::data
+#endif
+#include "ucc.tab.hpp"
+///#include "main.h"
 
-int main(int argc, char **argv){
+extern FILE* yyin;
+extern int yyparse(void);
+extern int error(std::string s1, std::string s2);
+
+using namespace ucc;
+
+int main(int argc, const char **argv){
 	Compiler compiler{};
 
-	initializelabel();
+	CodeGenerator::initializelabel();
 
 	if(compiler.checkargs(argc,argv) == -1){
 		#ifdef DEBUG

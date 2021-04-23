@@ -9,7 +9,7 @@
 #define DEBUG
 #endif
 #endif
-#include "List.h"
+#include "List.hpp"
 using namespace ucc;
 #include "symtab.h"
 #include "data.h"
