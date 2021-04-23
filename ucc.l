@@ -1,22 +1,24 @@
 /*scott lorberbaum
    compilers spring 2004
-	This file is the flex specificiation file for the uC language.  It will recognize and return all tokens and output if there are any errors.
+	This file is the flex specificiation file for the uC language.  It will recognize and return all tokens and output if there are any ucc::errors.
 */
 %{
+#include <cstdint>
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
 #endif
 #endif
 #include "List.h"
+using namespace ucc;
 #include "symtab.h"
 #include "data.h"
-using namespace ucc;
 #define YYSTYPE data
-#include "ucc.tab.h"
-#include "ucc.l.h"
-#include "main.h"
-#include <cstdint>
+#include "ucc.tab.hpp"
+#include "lex.hpp"
+#include "compiler.hpp"
+using namespace ucc;
+Lex lexer{};
 //int Line_Number = 1;
 %}
 
@@ -47,53 +49,51 @@ ADOF	"&"
 %%
 <comment>{
 [^*\n]*
-[^*\n]*\n 	++Line_Number;
+[^*\n]*\n 	++Compiler::Line_Number;
 \*+[^*/\n]*
-\*+[^*/\n]*\n 	++Line_Number;
+\*+[^*/\n]*\n 	++Compiler::Line_Number;
 {ENDCOM} {
 		BEGIN(INITIAL);}
 <<EOF>> {
-	error("eof terminated comment","");
+	ucc::error("eof terminated comment","");
 	BEGIN(INITIAL);
 	}
 }
 
 <string>{
 \" {	BEGIN(INITIAL);
-	*string_buf_ptr ='\0';
-	yylval.value.svalue = (char*) strdup(string_buf);
+	yylval.value.svalue = lexer.string_buf;
 	return(StrConstant);
 	}
 \n {	BEGIN(INITIAL);
-	++Line_Number;
-	error("unterminated string constant","");
+	++Compiler::Line_Number;
+	ucc::error("unterminated string constant","");
 	}
 
 \\n {
-	*string_buf_ptr++ = '\\';
-	*string_buf_ptr++ = 'n';
-	}
+	lexer.string_buf += "\\n";
+}
 \\\" {
-	*string_buf_ptr++ = '\\';
-	*string_buf_ptr++ = '\"';
-	}
+	lexer.string_buf += "\\\"";
+}
 
 \\[^n\\\"] {
-		register int c;
+		int c;
 		BEGIN(INITIAL);
-		error("illegal character:%s in string",yytext);
+		ucc::error("illegal character:%s in string",yytext);
 		while(((c = input()) != '\"') && (c != EOF));
-		if(c == EOF) error("eof terminated string","");
+		if(c == EOF) ucc::error("eof terminated string","");
 		}
 
 ((\\\\{SPACE}+)*|[&@$\%^/,.+'-\[\]{}();~`|=#\!:<>]*|{LETTER}|{DIGIT}|{PERCENT}|{SPACE}|{BEGCOM}|{ENDCOM}|{QUESTION})* {
 	char *yptr = yytext;
-	while((*yptr != (int)NULL) && *yptr)
-		*string_buf_ptr++ = *yptr++;
+	while((*yptr != (int)NULL) && *yptr){
+		lexer.string_buf += *yptr++;
+	}
 	}
 
 <<EOF>> {
-	error("eof terminated string","");
+	ucc::error("eof terminated string","");
 	BEGIN(INITIAL);
 	}
 }
@@ -212,46 +212,47 @@ char { /* keyword char*/
 
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
 				yylval.ttype = STR;
-				yylval.value.svalue = (char *) strdup(yytext);
+				std::string tempstr{yytext};
+				yylval.value.svalue = tempstr;
 				return(Ident);
 				}
 
 ((0|([1-9]{DIGIT}*)))(while|if|void|return|char|int|float|else|for|extern) {
-									error("illegal token: %s", yytext);
+									ucc::error("illegal token: %s", yytext);
 							}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}+))(while|if|void|return|char|int|float|else|for|extern) {
-									error("illegal token: %s",yytext);
+									ucc::error("illegal token: %s",yytext);
 									}
 
 (0|([1-9]{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) { /* bad form*/
-						error("illegal token: %s", yytext);
+						ucc::error("illegal token: %s", yytext);
 						}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) {/*bad form*/
-							error("illegal token: %s",yytext);
+							ucc::error("illegal token: %s",yytext);
 							}
 
 
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
 					yylval.ttype = FLOAT;
-					yylval.value.fvalue=(float)atof(yytext);
+					yylval.value.fvalue=(float)std::atof(yytext);
 					return(FloatConstant);
 					}
 
 0{DIGIT}+\.{DIGIT}+		{/* bad float*/
-					error("illegal float: %s",yytext);
+					ucc::error("illegal float: %s",yytext);
 				}
 
 
 0{DIGIT}+	{/* bad integer*/
-				error("illegal integer: %s", yytext);
+				ucc::error("illegal integer: %s", yytext);
 		}
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
 				yylval.ttype = INT;
-				yylval.value.ivalue =(int)atoi(yytext);
+				yylval.value.ivalue =(int)std::atoi(yytext);
 				return(IntConstant);
 				}
 
@@ -260,13 +261,12 @@ char { /* keyword char*/
 	}
 
 \" {
-	string_buf_ptr = string_buf;
 	BEGIN(string);
 	}
 
 
 \n	{
-	++Line_Number;
+	++Compiler::Line_Number;
 	}
 
 [ \t\r]+	{ /*eat up tabs, whitespace */
@@ -277,26 +277,29 @@ char { /* keyword char*/
 	}
 
 . 	{
-	error("illegal character: %s",yytext);
+	ucc::error("illegal character: %s",yytext);
 	}
 
 %%
 
 #ifdef DEBUG
-void debugprint(char* s1, char*s2){
-	if(s1!=NULL && *s1 && s2!=NULL && *s2){
-//			fprintf(stderr,"Debug:::%s:%d-> %s \"%s\"\n",filename,Line_Number,s1,s2);
-			fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%s\"\n",filename,yylineno,s1,s2);
+void debugprint(std::string s1, std::string s2){
+	if(!s1.empty() && ~s2.empty()){
+//			fprintf(stderr,"Debug:::%s:%d-> %s \"%s\"\n",filename,Compiler::Line_Number,s1,s2);
+//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%s\"\n",filename,yylineno,s1,s2);
+			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
 	}
 	else if(s1!=NULL && *s1 && s2==NULL){
-//			fprintf(stderr,"Debug:::%s:%d-> %s\n",filename,Line_Number,s1);
-			fprintf(stderr,"Debug:::%s:%d yylineno-> %s\n",filename,yylineno,s1);
+//			fprintf(stderr,"Debug:::%s:%d-> %s\n",filename,Compiler::Line_Number,s1);
+//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s\n",filename,yylineno,s1);
+			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\n";
 	}
 }
-void debugprintd(char* s1, int s2){
-	if(s1!=NULL && *s1){
-//			fprintf(stderr,"Debug:::%s:%d-> %s \"%d\"\n",filename,Line_Number,s1, s2);
-			fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%d\"\n",filename,yylineno,s1, s2);
+void debugprintd(std::string s1, int s2){
+	if(!s1.empty()){
+//			fprintf(stderr,"Debug:::%s:%d-> %s \"%d\"\n",filename,Compiler::Line_Number,s1, s2);
+//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%d\"\n",filename,yylineno,s1, s2);
+			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
 	}
 }
 

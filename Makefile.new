@@ -23,7 +23,7 @@ MYUCC = "./ucc"
 #CFLAGS = -g  -ggdb -I/usr/local/opt/bison@2.7/include -D DEBUGON
 #CFLAGS = -g  -ggdb -D DEBUGOFF
 #CFLAGS = -g  -ggdb -D DEBUGON
-CPPFLAGS= -std=c++2a
+
 CFLAGS0 = -O0
 CFLAGS1 = -O1
 CFLAGS2 = -O2
@@ -47,34 +47,35 @@ all: ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg
 
 main.c : ucc.tab.c main.h
 
+
 trans0.o: trans.c trans.h
-	$(CC) $(CFLAGS0) -c $< -o $@ 
+	$(CC) -c trans.c -o trans0.o $(CFLAGS0)
 
 trans1.o: trans.c trans.h
-	$(CC) $(CFLAGS1) -c $< -o $@ 
+	$(CC) -c trans.c -o trans1.o $(CFLAGS1)
 
 trans2.o: trans.c trans.h
-	$(CC) $(CFLAGS2) -c $< -o $@ 
+	$(CC) -c trans.c -o trans2.o $(CFLAGS2)
 
 trans3.o: trans.c trans.h
-	$(CC) $(CFLAGS3) -c $< -o $@ 
+	$(CC) -c trans.c -o trans3.o $(CFLAGS3)
 
 transf.o: trans.c trans.h
-	$(CC) $(CFLAGSF) -c $< -o $@ 
+	$(CC) -c trans.c -o transf.o $(CFLAGSF)
 
 transs.o: trans.c trans.h
-	$(CC) $(CFLAGSS) -c $< -o $@ 
+	$(CC) -c trans.c -o transs.o $(CFLAGSS)
 
 transz.o: trans.c trans.h
-	$(CC) $(CFLAGSZ) -c $< -o $@ 
+	$(CC) -c trans.c -o transz.o $(CFLAGSZ)
 
 transg.o: trans.c trans.h
-	$(CC) $(CFLAGSG) -c $< -o $@ 
+	$(CC) -c trans.c -o transg.o $(CFLAGSG)
 
 ucc.tab.cpp : ucc.ypp
 	$(BISON) $(BISOP) $^
 
-lex.yy.cc : ucc.l ucc.tab.cpp
+lex.yy.cc : ucc.l ucc.tab.c
 	$(FLEX) $(FLOP) ucc.l
 
 lex0.yy.o: lex.yy.cc
@@ -173,29 +174,29 @@ Listz.o: List.c
 Listg.o: List.c
 	$(CC) -c List.c -o Listg.o $(CFLAGSG)
 
-command0.o: command.cpp command.hpp
-	$(CC) $(CFLAGS0) -c $< -o $@
+command0.o: command.c command.h
+	$(CC) -c command.c -o command0.o $(CFLAGS0)
 
-command1.o: command.cpp command.hpp
-	$(CC) $(CFLAGS1) -c $< -o $@
+command1.o: command.c command.h
+	$(CC) -c command.c -o command1.o $(CFLAGS1)
 
-command2.o: command.cpp command.hpp
-	$(CC) $(CFLAGS2) -c $< -o $@
+command2.o: command.c command.h
+	$(CC) -c command.c -o command2.o $(CFLAGS2)
 
-command3.o: command.cpp command.hpp
-	$(CC) $(CFLAGS3) -c $< -o $@ 
+command3.o: command.c command.h
+	$(CC) -c command.c -o command3.o $(CFLAGS3)
 
-commandf.o: command.cpp command.hpp
-	$(CC) $(CFLAGSF) -c $< -o $@ 
+commandf.o: command.c command.h
+	$(CC) -c command.c -o commandf.o $(CFLAGSF)
 
-commands.o: command.cpp command.hpp
-	$(CC) $(CFLAGSS) -c $< -o $@ 
+commands.o: command.c command.h
+	$(CC) -c command.c -o commands.o $(CFLAGSS)
 
-commandz.o: command.cpp command.hpp
-	$(CC) $(CFLAGSZ) -c $< -o $@ 
+commandz.o: command.c command.h
+	$(CC) -c command.c -o commandz.o $(CFLAGSZ)
 
-commandg.o: command.cpp command.hpp
-	$(CC) $(CFLAGSG) -c $< -o $@ 
+commandg.o: command.c command.h
+	$(CC) -c command.c -o commandg.o $(CFLAGSG)
 
 MAIN = main.c
 
@@ -204,7 +205,7 @@ SRCS  = lex.yy.cc \
 	main.c \
 	symtab.c \
 	List.c  \
-	command.cpp \
+	command.c \
 	trans.c
 
 OBJS0  = lex0.yy.o  \
@@ -315,14 +316,3 @@ depend:
 	mv Makefile.new Makefile
 
 #=====DO NOT DELETE THIS LINE=====
-lex.yy.o: lex.yy.cc List.h type.h expr.h symtab.h main.h data.h trans.h \
-  ucc.tab.h ucc.l.h
-ucc.tab.o: ucc.tab.c type.h List.h expr.h symtab.h main.h data.h trans.h \
-  ucc.l.h
-main.o: main.c data.h symtab.h List.h type.h expr.h main.h trans.h \
-  ucc.tab.h command.hpp ucc.l.h
-symtab.o: symtab.c symtab.h List.h type.h expr.h main.h data.h trans.h \
-  ucc.l.h
-List.o: List.c List.h type.h expr.h ucc.l.h
-command.o: command.cpp command.hpp
-trans.o: trans.c trans.h

@@ -2,23 +2,26 @@
 #include <cstdlib>
 #include <string>
 #include "trans.h"
-void initializelabel(){
+
+using namespace ucc;
+
+void CodeGenerator::initializelabel(){
 	labelcounter=1;
 }
 
-int getlabel(){
+int CodeGenerator::getlabel(){
 	labelcounter++;
 	return (labelcounter-1);
 }
 
-void nullout(char* name, int length){
+void CodeGenerator::nullout(char* name, int length){
 	int a;
 	for(a=0;a<length;a++){
 		name[a]=(char)NULL;
 	}
 }
 
-char* genlabelw(char* name, int labelnum){
+char* CodeGenerator::genlabelw(char* name, int labelnum){
 	char* tempstr;
 	int a;
 	char buf[30];
@@ -34,45 +37,45 @@ char* genlabelw(char* name, int labelnum){
 	return tempstr;
 }
 
-void deletelabel(char* label){
+void CodeGenerator::deletelabel(char* label){
 	if(label != NULL){
 		free(label);
 		//label=NULL;
 	}
 }
 
-void gen_instr(char* name){
+void CodeGenerator::gen_instr(char* name){
 	fprintf(infile, "\t%s\n", name);
 }
 
-void gen_instr_I(char* name, int arg){
+void CodeGenerator::gen_instr_I(char* name, int arg){
 	fprintf(infile, "\t%s\t%d\n", name, arg);
 }
 
-void gen_instr_S(char* name, char* inS){
+void CodeGenerator::gen_instr_S(char* name, char* inS){
 	if(strcmp(name,"jump")==0 || strcmp(name,"jumpz")==0)
 		fprintf(infile,"\t%s\t%s\n",name,inS);
 	else fprintf(infile,"\t%s\t\"%s\"\n",name,inS);
 }
 
-void gen_label(char* name){
+void CodeGenerator::gen_label(char* name){
 	fprintf(infile, "%s\n", name);
 }
 
-void gen_instr_F(char* name, float arg){
+void CodeGenerator::gen_instr_F(char* name, float arg){
 	fprintf(infile, "\t%s\t%f\n", name, arg);
 }
 
-void gen_call(char* funcname, int numargs){
+void CodeGenerator::gen_call(char* funcname, int numargs){
 	fprintf(infile, "\tcall\t%s, %d\n",funcname,numargs);
 }
 
-void gen_instr_tI(char * name, int arg1, int arg2){
+void CodeGenerator::gen_instr_tI(char * name, int arg1, int arg2){
 	fprintf(infile, "\t%s\t%d, %d\n",name, arg1, arg2);
 }
 
 
-char * concat(char* char1, char* char2){
+char * CodeGenerator::concat(char* char1, char* char2){
 	char* tempstr;
         int a;
         tempstr = (char*) malloc(sizeof(char)*(strlen(char1)+strlen(char2)+1));

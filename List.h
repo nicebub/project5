@@ -56,8 +56,8 @@ class List{
 	public:
 		List();
 		~List();
-		List& List(const List& cp);
-		operator=(const List& in);
+		List(const List& cp);
+		List& operator=(const List& in);
 		void deleteList(List * inList);
 		List * mklist(char * inVal);
 

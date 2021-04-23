@@ -11,6 +11,8 @@ namespace ucc{
 		private:
 			static int yydebug;
 	};
+	void debugprint(std::string,std::string);
+	void debugprintd(std::string,int);
 }
 
 #endif

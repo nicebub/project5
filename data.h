@@ -3,12 +3,12 @@
 #include "symtab.h"
 #include "List.h"
 #include "trans.h"
-
+#include <string>
 namespace ucc {
 struct data{
 	union {
 		char cvalue;
-		char *svalue;
+		std::string svalue;
 		int ivalue;
 		float fvalue;
 		List *lstvalue;
@@ -27,7 +27,7 @@ struct data{
 	int one;
 	int two;
 	int mainlabel;
-	char * name;
+	std::string name;
 	type ttype;
 	bool lval;
 	Entry *funcent;

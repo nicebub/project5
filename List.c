@@ -16,8 +16,8 @@
 using namespace ucc;
 List::List(){}
 List::~List(){}
-List& List::List(const List& cp){}
-List::operator=(const List& in){}
+List::List(const List& cp){}
+List& List::operator=(const List& in){}
 void List::deleteList(List * inList){}
 List * List::mklist(char * inVal){}
 
