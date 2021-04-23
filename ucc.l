@@ -18,14 +18,14 @@ using namespace ucc;
 #include "lex.hpp"
 #include "compiler.hpp"
 using namespace ucc;
-Lex lexer{};
+Lex lexer;
 //int Line_Number = 1;
 %}
 
 %option stack
 %option yylineno
 %s	initial
-%x	string
+%x	astring
 %x	comment
 
 DIGIT	[0-9]
@@ -60,7 +60,7 @@ ADOF	"&"
 	}
 }
 
-<string>{
+<astring>{
 \" {	BEGIN(INITIAL);
 	yylval.value.svalue = lexer.string_buf;
 	return(StrConstant);
@@ -81,7 +81,7 @@ ADOF	"&"
 		int c;
 		BEGIN(INITIAL);
 		ucc::error("illegal character:%s in string",yytext);
-		while(((c = input()) != '\"') && (c != EOF));
+		while(((c = yyinput()) != '\"') && (c != EOF));
 		if(c == EOF) ucc::error("eof terminated string","");
 		}
 
@@ -121,17 +121,17 @@ while {/*keyword while*/
 	}
 
 int { /*keyword int*/
-	yylval.ttype = INT;
+	yylval.ttype = type::INT;
 	return(intt);
 	}
 
 float {/* keyword float*/
-	yylval.ttype = FLOAT;
+	yylval.ttype = type::FLOAT;
 	return(floatt);
 	}
 
 char { /* keyword char*/
-	yylval.ttype = CHAR;
+	yylval.ttype = type::CHAR;
 	return(chart);
 	}
 
@@ -159,46 +159,46 @@ char { /* keyword char*/
 	return(comma);
 	}
 
-\< {	yylval.value.relopvalue = LES;
+\< {	yylval.value.relopvalue = reltype::LES;
 	return(lesst);
 	}
 
-\> {	yylval.value.relopvalue = GRE;
+\> {	yylval.value.relopvalue = reltype::GRE;
 	return(greatt);
 	}
 
 \= {
-	return(equal);
+	return(equalt);
 	}
 
-\+ {	yylval.value.addopvalue = PLS;
+\+ {	yylval.value.addopvalue = addtype::PLS;
 	return(plus);
 	}
 
-\- {	yylval.value.addopvalue = MIN;
+\- {	yylval.value.addopvalue = addtype::MIN;
 	return(minus);
 	}
 
-\/ {	yylval.value.multopvalue = DIV;
+\/ {	yylval.value.multopvalue =multype:: DIV;
 	return(divide);
 	}
-\* {	yylval.value.multopvalue = MULT;
+\* {	yylval.value.multopvalue = multype::MULT;
 	return(star);
 	}
 
-{GEQ} {		yylval.value.relopvalue = GEQ;
+{GEQ} {		yylval.value.relopvalue = reltype::GEQ;
 		return(geq);
 	}
 
-{LEQ} {		yylval.value.relopvalue = LEQ;
+{LEQ} {		yylval.value.relopvalue = reltype::LEQ;
 		return(leq);
 	}
 
-{NEQ} {		yylval.value.eqopvalue = NEQ;
+{NEQ} {		yylval.value.eqopvalue = eqtype::NEQ;
 		return(neq);
 	}
 
-{EQUEQU} {	yylval.value.eqopvalue = EQEQ;
+{EQUEQU} {	yylval.value.eqopvalue = eqtype::EQEQ;
 		return(equequ);
 	}
 
@@ -211,8 +211,8 @@ char { /* keyword char*/
 	}
 
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
-				yylval.ttype = STR;
-				std::string tempstr{yytext};
+				yylval.ttype = type::STR;
+				std::string tempstr(yytext);
 				yylval.value.svalue = tempstr;
 				return(Ident);
 				}
@@ -236,7 +236,7 @@ char { /* keyword char*/
 
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
-					yylval.ttype = FLOAT;
+					yylval.ttype = type::FLOAT;
 					yylval.value.fvalue=(float)std::atof(yytext);
 					return(FloatConstant);
 					}
@@ -251,7 +251,7 @@ char { /* keyword char*/
 		}
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
-				yylval.ttype = INT;
+				yylval.ttype = type::INT;
 				yylval.value.ivalue =(int)std::atoi(yytext);
 				return(IntConstant);
 				}
@@ -261,7 +261,7 @@ char { /* keyword char*/
 	}
 
 \" {
-	BEGIN(string);
+	BEGIN(astring);
 	}
 
 

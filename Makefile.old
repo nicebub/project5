@@ -11,7 +11,7 @@ TARGETDIR = .
 
 #CC = /usr/local/bin/gcc-8
 #CC = /usr/bin/gcc
-CC = /usr/bin/g++ -std=c++14
+CC = /usr/bin/g++
 #BISON = /usr/local/opt/bison@2.7/bin/bison
 BISON = /usr/bin/bison
 #FLEX = /usr/local/opt/flex/bin/flex
@@ -23,15 +23,15 @@ MYUCC = "./ucc"
 #CFLAGS = -g  -ggdb -I/usr/local/opt/bison@2.7/include -D DEBUGON
 #CFLAGS = -g  -ggdb -D DEBUGOFF
 #CFLAGS = -g  -ggdb -D DEBUGON
-CPPFLAGS= -std=c++2a
-CFLAGS0 = -O0
-CFLAGS1 = -O1
-CFLAGS2 = -O2
-CFLAGS3 = -O3
-CFLAGSF = -Ofast
-CFLAGSS = -Os
-CFLAGSZ = -Oz
-CFLAGSG = -Og
+CPPFLAGS= -std=c++11 -Wno-deprecated-register
+CFLAGS0 = -O0 $(CPPFLAGS)
+CFLAGS1 = -O1 $(CPPFLAGS)
+CFLAGS2 = -O2 $(CPPFLAGS)
+CFLAGS3 = -O3 $(CPPFLAGS)
+CFLAGSF = -Ofast $(CPPFLAGS)
+CFLAGSS = -Os $(CPPFLAGS)
+CFLAGSZ = -Oz $(CPPFLAGS)
+CFLAGSG = -Og $(CPPFLAGS)
 
 #LDFLAGS =  -g -L/usr/local/opt/bison@2.7/lib -lc -L/usr/local/opt/flex/lib
 
@@ -45,7 +45,7 @@ LIBS = -ll -lm
 all: ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg
 
 
-main.c : ucc.tab.c main.h
+main.c : ucc.tab.cpp main.h
 
 trans0.o: trans.c trans.h
 	$(CC) $(CFLAGS0) -c $< -o $@ 
@@ -78,76 +78,76 @@ lex.yy.cc : ucc.l ucc.tab.cpp
 	$(FLEX) $(FLOP) ucc.l
 
 lex0.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lex0.yy.o $(CFLAGS0)
+	$(CC) $(CFLAGS0) -c $< -o $@
 
 lex1.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lex1.yy.o $(CFLAGS1)
+	$(CC) $(CFLAGS1) -c $< -o $@
 
 lex2.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lex2.yy.o $(CFLAGS2)
+	$(CC) $(CFLAGS2) -c $< -o $@
 
 lex3.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lex3.yy.o $(CFLAGS3)
+	$(CC) $(CFLAGS3) -c $< -o $@
 
 lexf.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lexf.yy.o $(CFLAGSF)
+	$(CC) $(CFLAGSF) -c $< -o $@
 
 lexs.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lexs.yy.o $(CFLAGSS)
+	$(CC) $(CFLAGSS) -c $< -o $@
 
 lexz.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lexz.yy.o $(CFLAGSZ)
+	$(CC) $(CFLAGSZ) -c $< -o $@
 
 lexg.yy.o: lex.yy.cc
-	$(CC) -c lex.yy.cc -o lexg.yy.o $(CFLAGSG)
+	$(CC) $(CFLAGSG) -c $< -o $@
 
-ucc0.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o ucc0.tab.o $(CFLAGS0)
+ucc0.tab.o: ucc.tab.cpp
+	$(CC) $(CFLAGS0) -c $< -o $@ 
 
-ucc1.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o ucc1.tab.o $(CFLAGS1)
+ucc1.tab.o: ucc.tab.cpp
+	$(CC) $(CFLAGS1) -c $< -o $@ 
 
-ucc2.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o ucc2.tab.o $(CFLAGS2)
+ucc2.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGS2) -c $< -o $@ 
 
-ucc3.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o ucc3.tab.o $(CFLAGS3)
+ucc3.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGS3) -c $< -o $@ 
 
-uccf.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o uccf.tab.o $(CFLAGSF)
+uccf.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGSF) -c $< -o $@ 
 
-uccs.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o uccs.tab.o $(CFLAGSS)
+uccs.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGSS) -c $< -o $@ 
 
-uccz.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o uccz.tab.o $(CFLAGSZ)
+uccz.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGSZ) -c $< -o $@ 
 
-uccg.tab.o: ucc.tab.c
-	$(CC) -c ucc.tab.c -o uccg.tab.o $(CFLAGSG)
+uccg.tab.o: ucc.tab.cpp 
+	$(CC) $(CFLAGSG) -c $< -o $@ 
 
-symtab0.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtab0.o $(CFLAGS0)
+symtab0.o: symtab.c symtab.h
+	$(CC) $(CFLAGS0) -c $< -o $@ 
 
-symtab1.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtab1.o $(CFLAGS1)
+symtab1.o: symtab.c symtab.h
+	$(CC) $(CFLAGS1)  -c $< -o $@
 
-symtab2.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtab2.o $(CFLAGS2)
+symtab2.o: symtab.c symtab.h
+	$(CC) $(CFLAGS2)  -c $< -o $@
 
-symtab3.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtab3.o $(CFLAGS3)
+symtab3.o: symtab.c symtab.h
+	$(CC) $(CFLAGS3)  -c $< -o $@
 
-symtabf.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtabf.o $(CFLAGSF)
+symtabf.o: symtab.c symtab.h
+	$(CC) $(CFLAGSF)  -c $< -o $@
 
-symtabs.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtabs.o $(CFLAGSS)
+symtabs.o: symtab.c symtab.h
+	$(CC) $(CFLAGSS)  -c $< -o $@
 
-symtabz.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtabz.o $(CFLAGSZ)
+symtabz.o: symtab.c symtab.h
+	$(CC) $(CFLAGSZ)  -c $< -o $@
 
-symtabg.o: symtab.h symtab.c
-	$(CC) -c symtab.c -o symtabg.o $(CFLAGSG)
+symtabg.o: symtab.c symtab.h
+	$(CC) $(CFLAGSG)  -c $< -o $@
 
 List0.o: List.c
 	$(CC) -c List.c -o List0.o $(CFLAGS0)
@@ -200,7 +200,7 @@ commandg.o: command.cpp command.hpp
 MAIN = main.c
 
 SRCS  = lex.yy.cc \
-	ucc.tab.c \
+	ucc.tab.cpp \
 	main.c \
 	symtab.c \
 	List.c  \
@@ -317,7 +317,7 @@ depend:
 #=====DO NOT DELETE THIS LINE=====
 lex.yy.o: lex.yy.cc List.h type.h expr.h symtab.h main.h data.h trans.h \
   ucc.tab.h ucc.l.h
-ucc.tab.o: ucc.tab.c type.h List.h expr.h symtab.h main.h data.h trans.h \
+ucc.tab.o: ucc.tab.cpp type.h List.h expr.h symtab.h main.h data.h trans.h \
   ucc.l.h
 main.o: main.c data.h symtab.h List.h type.h expr.h main.h trans.h \
   ucc.tab.h command.hpp ucc.l.h

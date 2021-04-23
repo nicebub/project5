@@ -7,16 +7,24 @@
 #define DEBUG
 #endif
 #endif
+
 #include "symtab.h"
 #include "type.h"
 #include "List.h"
 #include "data.h"
-#include "ucc.l.h"
+
+using namespace ucc;
 
 int offset_counter;
 
+SymbolTable::SymbolTable() : table{} {}
+
+
+SymbolTable::~SymbolTable(){
+	
+}
 //extern int error(char*,char*);
-void openmainscope(Symtab *symtab){
+void SymbolTable::openmainscope(Symtab *symtab){
 	if(symtab->actualStacksize == symtab->Stacksize)
 		error("Scope Stack already too full","");
 	else{
@@ -28,7 +36,7 @@ void openmainscope(Symtab *symtab){
 	}
 	
 }
-void openscope(Symtab *symtab){
+void SymbolTable::openscope(Symtab *symtab){
 	if(symtab->actualStacksize == symtab->Stacksize)
 		error("Scope Stack already too full","");
 	else{
@@ -45,7 +53,7 @@ void openscope(Symtab *symtab){
 	}
 }
 
-void closescope(Symtab *symtab){
+void SymbolTable::closescope(Symtab *symtab){
 	Entry * temp;
 	if(symtab->actualStacksize == 1)
 		error("Cannot close Global scope","");
@@ -66,7 +74,7 @@ void closescope(Symtab *symtab){
 	}
 }
 
-void closemainscope(Symtab *symtab){
+void SymbolTable::closemainscope(Symtab *symtab){
 	Entry * temp;
 	if(symtab->actualStacksize == 1)
 		error("Cannot close Global scope","");
@@ -88,7 +96,7 @@ void closemainscope(Symtab *symtab){
 }
 
 
-void * lookup(const char * name, Symtab *symtab){
+void * SymbolTable::lookup(const char * name, Symtab *symtab){
 	Entry ** found;
     found = NULL;
 	Entry *temp;
@@ -137,7 +145,7 @@ void * lookup(const char * name, Symtab *symtab){
 	}
 }
 
-void install(Entry * temp,Symtab *symtab){
+void SymbolTable::install(Entry * temp,Symtab *symtab){
 	Entry ** found;
 	#ifdef DEBUG
 	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
@@ -152,19 +160,19 @@ void install(Entry * temp,Symtab *symtab){
 	#endif
 }
 
-int Ecmp(const void *Entry1, const void *Entry2){
+int SymbolTable::Ecmp(const void *Entry1, const void *Entry2){
 	return strcmp( ((Entry*)Entry1)->name, ((Entry*)Entry2)->name);
 }
 
 #ifdef DEBUG
-void printTree(Symtab *symtab){
+void SymbolTable::printTree(Symtab *symtab){
 	if(symtab->Stack[0] != NULL || symtab->Stack[symtab->actualStacksize-1] != NULL)
 		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);
 	else
 		fprintf(stderr,"Stack was null\n");
 }
 
-void Swalk(const void *node, VISIT myorder, int level){
+void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
 		Entry * temp;
 		Funcb * tempb;
 		int a=0;
@@ -289,7 +297,7 @@ void Swalk(const void *node, VISIT myorder, int level){
 	}
 }
 #endif
-Symtab * createTree(int Stacksize){
+Symtab * SymbolTable::createTree(int Stacksize){
 	Symtab *temp;
 	int a;
 	temp = (Symtab*) malloc(sizeof(Symtab));
@@ -300,7 +308,7 @@ Symtab * createTree(int Stacksize){
 	return temp;
 }
 
-void deleteTree(Symtab *symtab){
+void SymbolTable::deleteTree(Symtab *symtab){
 	Entry * temp;
 	//Entry ** found;
 	if(symtab != NULL){
@@ -329,7 +337,7 @@ void deleteTree(Symtab *symtab){
 	    symtab=NULL;
 	}
 }
-void deleteEntry(Entry * temp){
+void SymbolTable::deleteEntry(Entry * temp){
 	if(temp != NULL){
 		switch(temp->self){
 
@@ -373,7 +381,7 @@ void deleteEntry(Entry * temp){
 }
 
 
-Entry *createFunc(char * name, type returntype, ListP* paramlist){
+Entry* SymbolTable::createFunc(char * name, type returntype, ListP* paramlist){
 	Entry * temp;
 	listnodeP * tempP;
 	int a;
@@ -443,7 +451,7 @@ Entry *createFunc(char * name, type returntype, ListP* paramlist){
 	}
 }
 
-Entry *createVar(char * name, type t_type, int offset){
+Entry* SymbolTable::createVar(char * name, type t_type, int offset){
 	Entry * temp;
 	temp = (Entry*) malloc(sizeof(Entry));
 	temp->name = (char*)strdup(((const char *)name));
@@ -464,7 +472,7 @@ Entry *createVar(char * name, type t_type, int offset){
 	return temp;
 }
 
-Entry *createParam(char * name, type t_type, int offset){
+Entry* SymbolTable::createParam(char * name, type t_type, int offset){
 	Entry * temp;
 	temp = (Entry*) malloc(sizeof(Entry));
 	temp->name = (char*)strdup(((const char*)name));
@@ -484,7 +492,7 @@ Entry *createParam(char * name, type t_type, int offset){
 	return temp;
 }
 
-void addtosymtab(Symtab *mysymtab, type mytype, List * myList){
+void SymbolTable::addtosymtab(Symtab *mysymtab, type mytype, List * myList){
 	int a;
 	listnode * tempN;
 	Entry * temp;
@@ -507,7 +515,7 @@ void addtosymtab(Symtab *mysymtab, type mytype, List * myList){
 	else error("mysymtab was NULL","");
 }
 
-Entry * lookupB(const char * name, Symtab *symtab){
+Entry * SymbolTable::lookupB(const char * name, Symtab *symtab){
 	Entry ** found;
     found = NULL;
 	Entry *temp;
@@ -553,7 +561,7 @@ Entry * lookupB(const char * name, Symtab *symtab){
     return NULL;
 }
 
-bool inCscope(const char *name, Symtab *symtab){
+bool SymbolTable::inCscope(const char *name, Symtab *symtab){
         Entry ** found;
 	   found = NULL;
         Entry *temp;
@@ -594,7 +602,7 @@ bool inCscope(const char *name, Symtab *symtab){
     return FALSE;
 }
 
-int getleveldif(char *name, Symtab *symtab){
+int SymbolTable::getleveldif(char *name, Symtab *symtab){
 	        Entry ** found;
             found = NULL;
 	        Entry *temp;

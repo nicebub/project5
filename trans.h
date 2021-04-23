@@ -18,18 +18,18 @@ class CodeGenerator{
 	public:
 	
 		void initializelabel(void);
-		int getlabel(void); 	//return next available label number
-		void gen_label(char* name);	//generate label with label name : name
-		char* genlabelw(char* name, int labelnum); //generate a label with $<labelname><labelnumber>
-		void gen_instr(char* name); 	//for instructions without arguments
-		void gen_instr_I(char* name, int arg); // for instructions with arguments
-		void gen_instr_S(char *name, char* inS); 	//used for jump command
-		void gen_instr_F(char* name, float arg);	//use for float
-		void gen_call(char* funcname, int numargs);
-		void gen_instr_tI(char* name, int arg1, int arg2);
+		static int getlabel(void); 	//return next available label number
+		static void gen_label(std::string name);	//generate label with label name : name
+		static std::string genlabelw(std::string name, int labelnum); //generate a label with $<labelname><labelnumber>
+		static void gen_instr(std::string name); 	//for instructions without arguments
+		static void gen_instr_I(std::string name, int arg); // for instructions with arguments
+		static void gen_instr_S(std::string name, std::string inS); 	//used for jump command
+		static void gen_instr_F(std::string name, float arg);	//use for float
+		static void gen_call(std::string funcname, int numargs);
+		static void gen_instr_tI(std::string name, int arg1, int arg2);
 
-		char* concat(char*, char*);	//concat 2 strings and return the answer, remember to free it when done
-		void nullout(char* name, int length);
+		static std::string concat(std::string, std::string);	//concat 2 strings and return the answer, remember to free it when done
+		static void nullout(std::string name, int length);
 	
 	private:
 };

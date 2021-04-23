@@ -68,7 +68,7 @@ struct Paramb {
 };
 
 struct Entry{
-	char * name;
+	std::string name;
 	void * binding;
 	btype self;
 };

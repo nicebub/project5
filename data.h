@@ -6,7 +6,8 @@
 #include <string>
 namespace ucc {
 struct data{
-	union {
+	public:
+	union p1{
 		char cvalue;
 		std::string svalue;
 		int ivalue;

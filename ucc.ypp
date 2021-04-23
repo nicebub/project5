@@ -17,26 +17,27 @@ track of the line number, and some of the operators have their precedence specif
 #include "symtab.h"
 #include "data.h"
 #include "trans.h"
+using namespace ucc;
 //#define yyerrok
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 1
-#define YYSTYPE data
-#include "ucc.l.h"
+#define YYSTYPE ucc::data
+#include "compiler.hpp"
 #include "main.h"
-extern int Line_Number;
-bool founderror=FALSE;
-extern int globalcount;
-extern int mainlocal;
-extern int othercounter;
-extern int param_offset;
-extern int offset_counter;
+//extern int Line_Number;
+//bool founderror=FALSE;
+//extern int globalcount;
+//extern int mainlocal;
+//extern int othercounter;
+//extern int param_offset;
+//extern int offset_counter;
 extern Symtab* mysymtab;
 int mainlabel;
 Funcb* currentFunc;
-extern int yyerror(char *);
+extern int yyerror(std::string);
 extern int yylex (void);
-extern int warning(char*,char*);
-extern int error(char*,char*);
+extern int warning(std::string,std::string);
+extern int error(std::string,std::string);
 %}
 %expect 1
 
@@ -66,7 +67,7 @@ extern int error(char*,char*);
 %token comma
 %token lesst
 %token greatt
-%token equal
+%token equalt
 %token plus
 %token minus
 %token divide
@@ -95,7 +96,7 @@ extern int error(char*,char*);
 %type <value.ivalue> whilet ift elset
 %type <value.ivalue> intt
 %type <value.fvalue> floatt
-%type <value.ivalue> chart voidt adof elip lpar rpar lcbra rcbra semi comma equal
+%type <value.ivalue> chart voidt adof elip lpar rpar lcbra rcbra semi comma equalt
 %type <value.relopvalue> lesst greatt leq geq
 %type <value.addopvalue> plus minus
 %type <value.eqopvalue> equequ neq
@@ -115,13 +116,13 @@ extern int error(char*,char*);
 %%
 
 starter: translation_unit {
-			if(founderror == FALSE){
-				gen_label("main");
-				gen_instr_I("enter",0);
-				gen_instr_I("alloc",globalcount);
-				gen_instr_I("enter",0);
-				gen_call(genlabelw("main",mainlabel),0);
-				gen_instr("return");
+			if(Compiler::founderror == false){
+				CodeGenerator::gen_label("main");
+				CodeGenerator::gen_instr_I("enter",0);
+				CodeGenerator::gen_instr_I("alloc",Compiler::globalcount);
+				CodeGenerator::gen_instr_I("enter",0);
+				CodeGenerator::gen_call(CodeGenerator::genlabelw("main",mainlabel),0);
+				CodeGenerator::gen_instr("return");
 
 			}
 	}
@@ -147,8 +148,8 @@ func: funcheader {
 					#ifdef DEBUG
 					printTree(mysymtab);
 					#endif
-					bool stop=FALSE;
-					bool alreadyopen=FALSE;
+					bool stop=false;
+					bool alreadyopen=false;
                     tempnode = NULL;
 					if(strcmp("main", (char*)($1->name)) ==0){
 			                        #ifdef DEBUG
@@ -156,32 +157,32 @@ func: funcheader {
              				        #endif
 						templist = (ListP*)$1->paramlist;
 	//main function
-						if($1->returntype != INT)
+						if($1->returntype != type::INT)
 							error("Main function has to have int as return type","");
 						if(templist != NULL && templist->listsize != 1)
 							error("Main function only has one parameter","");
-						else if($1->ttype != VOID)
+						else if($1->ttype != type::VOID)
 							error("Main function has to have one parameter of void","");
 						#ifdef DEBUG							
 						fprintf(stderr, "opening up a new scope\n");
 						#endif		
-						openscope(mysymtab);
-						 alreadyopen=TRUE;
-						if(founderror==FALSE){
-							mainlabel=getlabel();
-							gen_label(genlabelw("main", mainlabel));
+						SymbolTable::openscope(mysymtab);
+						 alreadyopen=true;
+						if(Compiler::founderror==false){
+							mainlabel=CodeGenerator::getlabel();
+							CodeGenerator::gen_label(CodeGenerator::genlabelw("main", mainlabel));
 						}
 					}
 					else{
-						if((tempb=(Funcb*)lookup((char*)($1->name), mysymtab)) ==NULL)
+						if((tempb=(Funcb*)SymbolTable::lookup((char*)($1->name), mysymtab)) ==NULL)
 							error("Function name not in symbol table","");
 						else{
 							Entry *tempEn; Entry * tempEn2;
 							tempEn2 = (Entry*) malloc(sizeof(Entry));
 							tempEn2->name = $1->name;
-							tempEn = lookupB((char*)($1->name),mysymtab);
-							//tempEn = *(Entry**)tfind((void*)tempEn2, (void**) &(mysymtab->Stack[mysymtab->actualStacksize -1]),Ecmp);
-							if(tempEn!=NULL && tempEn->self == FUNC){
+							tempEn = SymbolTable::lookupB((char*)($1->name),mysymtab);
+							//tempEn = *(Entry**)tfind((void*)tempEn2, (void**) &(SymbolTable::Stack[SymbolTable::actualStacksize -1]),Ecmp);
+							if(tempEn!=NULL && tempEn->self == btype::FUNC){
 								if(tempb->returntype != $<value.funcheadervalue>1->returntype)
 									error("Function declared with different return type","");
 								else{
@@ -193,27 +194,27 @@ func: funcheader {
 									else{
 										if(templist!=NULL){
 											tempnode = (listnodeP*)templist->list;
-											for(a=0;a<templist->listsize && a<tempb->num_param &&  stop!=TRUE;a++){
+											for(a=0;a<templist->listsize && a<tempb->num_param &&  stop!=true;a++){
 												if(tempb->param_type[a] != tempnode->ttype){
-													fprintf(stderr,"Error: Line: %d: argument %d: has different parameter type than in function declaration\n",Line_Number,(a+1));
+													fprintf(stderr,"Error: Line: %d: argument %d: has different parameter type than in function declaration\n",Compiler::Line_Number,(a+1));
 													fprintf(stderr, "\nThey are %d and %d\n", tempb->param_type[a], tempnode->ttype);
-													stop=TRUE;
+													stop=true;
 												}
 												tempnode = (listnodeP*)tempnode->nextnode;
 											}
 										}
-										if(stop!= TRUE){
-											if(tempb->bodydef == TRUE){
+										if(stop!= true){
+											if(tempb->bodydef == true){
 												error("Function definition is previously declared","");
 											}
 											else{
 												//tempb->localcount=offset_counter;
-												openscope(mysymtab);
-												alreadyopen=TRUE;
+												SymbolTable::openscope(mysymtab);
+												alreadyopen=true;
 												if(templist!=NULL){
 													tempnode= (listnodeP*)templist->list;
 												#ifdef DEBUG
-												if(tempnode->ttype != VOID){
+												if(tempnode->ttype != type::VOID){
 												    fprintf(stderr,"in funcheader before funcbody, param val and type is ");
 				//								    fprintf(stderr,"%s %s\n",tempnode->val,(char*)tempnode->ttype);
 												}
@@ -225,15 +226,15 @@ func: funcheader {
 												}
 												if(templist!=NULL){
 													for(a=0;a<templist->listsize;a++){
-														tempEntry = createParam((char*)strdup((char*)tempnode->val), tempnode->ttype,(offset_counter));
-														install(tempEntry, mysymtab);
-														offset_counter++;
+														tempEntry = SymbolTable::createParam((char*)strdup((char*)tempnode->val), tempnode->ttype,(Compiler::offset_counter));
+														SymbolTable::install(tempEntry, mysymtab);
+														Compiler::offset_counter++;
 														tempnode = (listnodeP*)tempnode->nextnode;
 													}
 												}
-												if(founderror==FALSE){
+												if(Compiler::founderror==false){
 													//tempb->label=getlabel();
-													gen_label(genlabelw($1->name,tempb->label ));
+													CodeGenerator::gen_label(CodeGenerator::genlabelw($1->name,tempb->label ));
 
 												}
 											}
@@ -248,49 +249,49 @@ func: funcheader {
 							if(tempEn2!=NULL){ free(tempEn2); tempEn2=NULL;}
 						currentFunc=tempb; //fprintf(stderr,"createFunc: return type %d\ntempb: return type %d\n",currentFunc->returntype, tempb->returntype);
 						}
-						if(alreadyopen==FALSE) openscope(mysymtab);
+						if(alreadyopen==false) SymbolTable::openscope(mysymtab);
 					}
 		}
 	funcbody {
-			if(founderror==FALSE){
-				gen_instr("returnf");
+			if(Compiler::founderror==false){
+				CodeGenerator::gen_instr("returnf");
 			}
 //			if(currentFunc == NULL)
 //				closemainscope(mysymtab);
 //			else
-				closescope(mysymtab);
+				SymbolTable::closescope(mysymtab);
 	}
 	| funcheader semi{
 			   Entry * temp; Funcb* found; int a;
 			   #ifdef DEBUG
 				printTree(mysymtab);
 			   #endif
-			   temp =  createFunc((char*)strdup($1->name), $1->returntype, (ListP*)($1->paramlist));
+			   temp =  SymbolTable::createFunc((char*)strdup($1->name), $1->returntype, (ListP*)($1->paramlist));
 			   if($1->paramlist !=NULL) deleteListP((ListP*)($1->paramlist));
 			   if($1 !=NULL) free($1);
-			   if( strcmp("main", (char*)temp->name)==0){
-					if( ((Funcb*)(temp->binding))->returntype != INT)
+			   if( temp->name == "main"){
+					if( ((Funcb*)(temp->binding))->returntype != type::INT)
 						error("Main function needs return type of int","");
 					if( ((Funcb*)(temp->binding))->num_param != 1)
 						error("Main function only takes 1 parameter","");
-					if( ((Funcb*)(temp->binding))->param_type[0] != VOID)
+					if( ((Funcb*)(temp->binding))->param_type[0] != type::VOID)
 						error("Main function parameter has to be void","");
 					deleteEntry(temp);
 			   }
 			   else{
-				   found = lookup((char*)temp->name, mysymtab);
+				   found = (Funcb*)(SymbolTable::lookup(temp->name, mysymtab));
                    #ifdef DEBUG
 					if(temp->name ==NULL)
                   	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", "NULL");
 					 else
                   	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", temp->name);
 					 #endif
-                   Funcb * paramOftemp = temp->binding;
+                   Funcb * paramOftemp = (Funcb*)temp->binding;
                    #ifdef DEBUG
                    fprintf(stderr,"binding of temp as Funcb: value num_param in symbol table: %d\n", (paramOftemp->num_param));
                    fprintf(stderr,"param_type of paramOftemp as typeOftemp: value param_type in symbol table: %d\n", (paramOftemp->param_type[2]));
                    #endif
-				   if(found == NULL){ install(temp, mysymtab); /*printTree(mysymtab)*/;}
+				   if(found == NULL){ SymbolTable::install(temp, mysymtab); /*printTree(mysymtab)*/;}
 				   else{
 					if(((Funcb*)(temp->binding))->returntype != found->returntype)
 						error("Function already declared with different return type","");
@@ -325,29 +326,29 @@ func: funcheader {
 
 
 funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof(funcheadertype));
-						$$->returntype = VOID;
+						$$->returntype = type::VOID;
 						$$->name = $2;
                         $$->paramlist=NULL;
-                        if($4.ttype == VOID) $$->ttype = VOID;
+                        if($4.ttype == type::VOID) $$->ttype = type::VOID;
 						//(ListP*)($$->paramlist) = $<value.lstpvalue>4;
 						ListP * tempLP = NULL;
 						tempLP = $<value.lstpvalue>4;
                         $$->paramlist = tempLP;
 						}
 	| intt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof(funcheadertype));
-						$$->returntype = INT;
+						$$->returntype = type::INT;
 						$$->name = $2;
                         $$->paramlist = NULL;
-						if($4.ttype == VOID) $$->ttype = VOID;
+						if($4.ttype == type::VOID) $$->ttype = type::VOID;
 						//(ListP*)($$->paramlist) = $<value.lstpvalue>4;
 						ListP * tempLP = NULL;
 						tempLP = $<value.lstpvalue>4;
                         $$->paramlist = tempLP;
 						}
 	| floatt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof(funcheadertype));
-						$$->returntype = FLOAT;
+						$$->returntype = type::FLOAT;
 						$$->name = $2;
-                        if($4.ttype == VOID) $$->ttype = VOID;
+                        if($4.ttype == type::VOID) $$->ttype = type::VOID;
 						//(ListP*)($$->paramlist) = $<value.lstpvalue>4;
 						ListP * tempLP = NULL;
 						tempLP = $<value.lstpvalue>4;
@@ -356,10 +357,10 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| voidt error rpar { ListP* tempP; yyerrok;
 				$$ =(funcheadertype*) malloc(sizeof(funcheadertype));
 				$$->name ="";
-				$$->returntype=VOID;
+				$$->returntype= type::VOID;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(expecting lpar before rpar in function)","");
@@ -367,10 +368,10 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| intt error rpar { ListP* tempP; yyerrok;
 				$$ =(funcheadertype*) malloc(sizeof(funcheadertype));
 				$$->name ="";
-				$$->returntype=INT;
+				$$->returntype= type::INT;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(expecting lpar before rpar in function)","");
@@ -378,10 +379,10 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| floatt error rpar { ListP* tempP; yyerrok;
 				$$ =(funcheadertype*) malloc(sizeof(funcheadertype));
 				$$->name ="";
-				$$->returntype=FLOAT;
+				$$->returntype= type::FLOAT;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(expecting lpar before rpar in function)","");
@@ -389,13 +390,13 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| voidt Ident lpar error rpar  {ListP* tempP; yyerrok;
 				$$ =(funcheadertype*) malloc(sizeof(funcheadertype));
 				$$->name =$2;
-				$$->returntype=VOID;
+				$$->returntype= type::VOID;
 				//(ListP*)($$->paramlist) = NULL;
 				ListP * tempLP1 = (ListP *)$$->paramlist;
 				tempLP1 = NULL;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(unexpected token after lpar and before rpar in function)","");
@@ -403,13 +404,13 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| floatt Ident lpar error rpar { ListP* tempP; yyerrok;
 				$$ =(funcheadertype*) malloc(sizeof(funcheadertype));
 				$$->name =$2;
-				$$->returntype=FLOAT;
+				$$->returntype= type::FLOAT;
 				//(ListP*)($$->paramlist) = NULL;
 				ListP * tempLP1 = (ListP *)$$->paramlist;
 				tempLP1 = NULL;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(unexpected token after lpar and before rpar in function)","");
@@ -417,13 +418,13 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 	| intt Ident lpar error rpar {ListP* tempP; yyerrok;
 				$$ = (funcheadertype*)  malloc(sizeof(funcheadertype));
 				$$->name=$2;
-				$$->returntype=INT;
+				$$->returntype= type::INT;
 				//(ListP*)($$->paramlist) = NULL;
 				ListP * tempLP1 = (ListP *)$$->paramlist;
 				tempLP1 = NULL;
 				//(ListP*)($$->paramlist) = (ListP*) malloc(sizeof(ListP));
 				ListP * tempLP;
-				tempLP = (ListP*) mklistP((char*)strdup("error"), VOID);
+				tempLP = (ListP*) mklistP((char*)strdup("error"), type::VOID);
 				tempP= (ListP*)tempLP;
 				$$->paramlist= tempLP;
 				error("(unexpected token after lpar and before rpar in function)","");
@@ -434,13 +435,13 @@ funcheader: voidt Ident lpar paramdef rpar {	$$ = (funcheadertype*)malloc(sizeof
 paramdef: paramdeflist {$<value.lstpvalue>$= $1;
 				}
 	| paramdeflist comma elip {
-				$<value.lstpvalue>$ = appendListP($1, "...", VOID);
+				$<value.lstpvalue>$ = appendListP($1, "...", type::VOID);
                 #ifdef DEBUG
                 printListP($<value.lstpvalue>$);
                 #endif
 
 				}
-	| voidt {$<value.lstpvalue>$ = NULL; $$.ttype = VOID;}
+	| voidt {$<value.lstpvalue>$ = NULL; $$.ttype = type::VOID;}
 	| paramdeflist error rpar { yyerrok;
 					error("(unexpected token before rpar in parameter definition)","");
 					deleteListP($1);
@@ -452,37 +453,37 @@ paramdef: paramdeflist {$<value.lstpvalue>$= $1;
 ;
 
 paramdeflist: intt Ident  {
-				$$ = mklistP((char*)strdup($2), INT);
+				$$ = mklistP((char*)strdup($2), type::INT);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
 				}
 		| floatt Ident  {
-				$$ = mklistP((char*)strdup($2), FLOAT);
+				$$ = mklistP((char*)strdup($2), type::FLOAT);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
 				}
 		| chart star Ident {
-				$$ = mklistP((char*)strdup($3), STR);
+				$$ = mklistP((char*)strdup($3), type::STR);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
                 }
 	| paramdeflist comma intt Ident {
-				$$ = appendListP($1, (char*)strdup($4),INT);
+				$$ = appendListP($1, (char*)strdup($4),type::INT);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
 				}
 	| paramdeflist comma floatt Ident {
-				$$ = appendListP($1, (char*)strdup($4), FLOAT);
+				$$ = appendListP($1, (char*)strdup($4), type::FLOAT);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
 				}
 	| paramdeflist comma chart star Ident {
-				$$ = appendListP($1, (char*)strdup($5), STR);
+				$$ = appendListP($1, (char*)strdup($5), type::STR);
                 #ifdef DEBUG
                 printListP($$);
                 #endif
@@ -492,13 +493,13 @@ paramdeflist: intt Ident  {
 
 funcbody: lcbra
 	decls {
-			if(founderror==FALSE){
+			if(Compiler::founderror==false){
 				mainlocal=offset_counter-5;
 				if(currentFunc==NULL)
-					gen_instr_I("alloc", mainlocal);
+					CodeGenerator::gen_instr_I("alloc", mainlocal);
 				else{
 					currentFunc->localcount=offset_counter-5-currentFunc->num_param;
-					gen_instr_I("alloc",currentFunc->localcount);
+					CodeGenerator::gen_instr_I("alloc",currentFunc->localcount);
 				}
 			}
 		}
@@ -522,13 +523,13 @@ decls:  /*empty*/
 ;
 
 
-variabledecl: intt identlist semi { if($<value.lstvalue>2 !=NULL) addtosymtab(mysymtab, INT, $<value.lstvalue>2);
+variabledecl: intt identlist semi { if($<value.lstvalue>2 !=NULL) addtosymtab(mysymtab, type::INT, $<value.lstvalue>2);
 					#ifdef DEBUG
 						fprintf(stderr,"Found a single Integer declaration or a list of integers being declared\n");
 						printTree(mysymtab);
 					#endif
 					}
-	| floatt identlist semi { if($<value.lstvalue>2 !=NULL) addtosymtab(mysymtab, FLOAT, $<value.lstvalue>2);
+	| floatt identlist semi { if($<value.lstvalue>2 !=NULL) addtosymtab(mysymtab, type::FLOAT, $<value.lstvalue>2);
 					#ifdef DEBUG
 					printTree(mysymtab);
 					#endif
@@ -542,18 +543,18 @@ stmtlist: stmtlist stmt {}
 ;
 
 stmt: expr semi {
-		if(founderror==FALSE)
-			gen_instr_I("popI",4);
+		if(Compiler::founderror==false)
+			CodeGenerator::gen_instr_I("popI",4);
 	}
 	| returnt semi {
 					if(currentFunc ==NULL)
 						error("main function has to return a value","");
 					else{
-						if(currentFunc->returntype != VOID)
+						if(currentFunc->returntype != type::VOID)
 							error("Function has return type that is not void","");
 						else{
-							if(founderror==FALSE){
-								gen_instr("returnf");
+							if(Compiler::founderror==false){
+								CodeGenerator::gen_instr("returnf");
 							}
 						}
 					}
@@ -562,19 +563,19 @@ stmt: expr semi {
 						error("non numeric expression in return statement or return type is void", "");
 					else{
 						if(currentFunc ==NULL){
-							if($2->type != INT)
+							if($2->type != type::INT)
 								warning("main function has int return type","");
 
-								if(founderror==FALSE){
-									if($2->lval==TRUE){
+								if(Compiler::founderror==false){
+									if($2->lval==true){
 										switch($2->type){
-											case INT:	gen_instr("fetchI"); break;
-											case FLOAT:	gen_instr("fetchR"); break;
+											case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
+											case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                             default: break;
 										}
 									}
-									if($2->type != INT) gen_instr("int");
-									gen_instr("setrvI");
+									if($2->type != type::INT) CodeGenerator::gen_instr("int");
+									CodeGenerator::gen_instr("setrvI");
 								}
 
 						}
@@ -585,31 +586,31 @@ stmt: expr semi {
 							if($2->type != currentFunc->returntype)
 								warning("function has different returntype","");
 
-								if(founderror==FALSE){
-                                                if($2->lval==TRUE){
+								if(Compiler::founderror==false){
+                                                if($2->lval==true){
                                                     switch($2->type){
-                                                        case INT:       gen_instr("fetchI"); break;
-                                                        case FLOAT:     gen_instr("fetchR"); break;
+                                                        case type::INT:       CodeGenerator::gen_instr("fetchI"); break;
+                                                        case type::FLOAT:     CodeGenerator::gen_instr("fetchR"); break;
                                                         default:    break;
                                                                                 }
                                                                         }
 									switch(currentFunc->returntype){
-										case INT:	switch($2->type){
-													case FLOAT:	gen_instr("int");
-													case INT:	gen_instr("setrvI"); break;
+										case type::INT:	switch($2->type){
+													case type::FLOAT:	CodeGenerator::gen_instr("int");
+													case type::INT:	CodeGenerator::gen_instr("setrvI"); break;
                                                     default: break;
 												}
 												break;
-										case FLOAT:	switch($2->type){
-													case INT:	gen_instr("flt");
-													case FLOAT:	gen_instr("setrvR"); break;
+										case type::FLOAT:	switch($2->type){
+													case type::INT:	CodeGenerator::gen_instr("flt");
+													case type::FLOAT:	CodeGenerator::gen_instr("setrvR"); break;
                                                     default:    break;
 												}
 												break;
                                         default: break;
 									}
                                     
-									gen_instr("returnf");
+									CodeGenerator::gen_instr("returnf");
                                                                 }
 
 
@@ -619,40 +620,40 @@ stmt: expr semi {
 
 				}
 	| whilet {
-		if(founderror==FALSE){
+		if(Compiler::founderror==false){
 			$$.one= othercounter;
 			othercounter++;
 			$$.two = othercounter;
 			othercounter++;
-			gen_label(genlabelw("",$$.one));
+			CodeGenerator::gen_label(CodeGenertor::genlabelw("",$$.one));
 		}
 	}
 	lpar
 	expr
 	rpar {
-		if(founderror==FALSE){
-			if($4->numeric==TRUE){
-				if($4->lval==TRUE ){
+		if(Compiler::founderror==false){
+			if($4->numeric==true){
+				if($4->lval==true ){
 					switch($4->type){
-						case INT:	gen_instr("fetchI"); break;
-						case FLOAT:	gen_instr("fetchR"); gen_instr("int"); break;
+						case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
+						case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); CodeGenerator::gen_instr("int"); break;
                         default:    break;
 					}
 				}
 			}
-			gen_instr_S("jumpz", genlabelw("",$2.two));
+			CodeGenerator::gen_instr_S("jumpz", CodeGenerator::genlabelw("",$2.two));
 
 		}
 	}
 	stmt {
-				if($4->numeric !=TRUE)
+				if($4->numeric !=true)
 					error("non numeric expression in while statement","");
 				else{
-						if($4->type !=INT)
+						if($4->type != type::INT)
 							error("expression in while statement is not an integer","");
-						if(founderror==FALSE){
-							gen_instr_S("jump", genlabelw("",$2.one));
-							gen_label(genlabelw("",$2.two));
+						if(Compiler::founderror==false){
+							CodeGenerator::gen_instr_S("jump", genlabelw("",$2.one));
+							CodeGenerator::gen_label(CodeGenerator::genlabelw("",$2.two));
 						}
 
 				}
@@ -661,8 +662,8 @@ stmt: expr semi {
 	| ifexprstmt
 	  elset {
 		if(founderror==FALSE){
-			gen_instr_S("jump", genlabelw("",$1.two));
-			gen_label(genlabelw("",$1.one));
+			CodeGenerator::gen_instr_S("jump", genlabelw("",$1.two));
+			CodeGenerator::gen_label(genlabelw("",$1.one));
 		}
 	}
 
@@ -674,7 +675,7 @@ stmt: expr semi {
 							error("expression in if statement is not an integer","");
 						else{
 							if(founderror==FALSE){
-								gen_label(genlabelw("",$1.two));
+								CodeGenerator::gen_label(genlabelw("",$1.two));
 							}
 						}
 					}
@@ -688,7 +689,7 @@ stmt: expr semi {
 							error("expression in if statement is not an integer","");
 						else{
 
-							if(founderror==FALSE) gen_label(genlabelw("",$1.one));
+							if(founderror==FALSE) CodeGenerator::gen_label(genlabelw("",$1.one));
 						}
 					}
 	}
@@ -719,12 +720,12 @@ ifexprstmt:
 		if(founderror==FALSE){
 			if($3->lval==TRUE && $3->numeric==TRUE){
 				switch($3->type){
-					case INT:	gen_instr("fetchI"); break;
-					case FLOAT:	gen_instr("fetchR"); gen_instr("int"); break;
+					case INT:	CodeGenerator::gen_instr("fetchI"); break;
+					case FLOAT:	CodeGenerator::gen_instr("fetchR"); CodeGenerator::gen_instr("int"); break;
                     default:    break;
 				}
 			}
-			gen_instr_S("jumpz", genlabelw("",$$.one));
+			CodeGenerator::gen_instr_S("jumpz", genlabelw("",$$.one));
 		}
 	}
 	rpar
@@ -733,7 +734,7 @@ ifexprstmt:
 	}
 ;
 
-expr: equalexpr equal equalexpr {
+expr: equalexpr equalt equalexpr {
 					if($1.lval !=TRUE){
 						error("Cannot make assignment. Left hand side is not a correct lval","");
 					}
@@ -744,8 +745,8 @@ expr: equalexpr equal equalexpr {
 						if(founderror==FALSE){
 							if($3.lval==TRUE){
 								switch($3.ttype){
-									case INT:	gen_instr("fetchI"); break;
-									case FLOAT:	gen_instr("fetchR"); break;
+									case INT:	CodeGenerator::gen_instr("fetchI"); break;
+									case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
@@ -754,8 +755,8 @@ expr: equalexpr equal equalexpr {
 							$$ = (exprtype*) malloc(sizeof(exprtype));
 							if(founderror==FALSE){
 								switch($1.ttype){
-									case(INT): $$->type=INT; gen_instr("storeI"); break;
-									case(FLOAT): $$->type=FLOAT; gen_instr("storeR"); break;
+									case(INT): $$->type=INT; CodeGenerator::gen_instr("storeI"); break;
+									case(FLOAT): $$->type=FLOAT; CodeGenerator::gen_instr("storeR"); break;
                                     default:    break;
 								}
 							}
@@ -770,8 +771,8 @@ expr: equalexpr equal equalexpr {
 							$$->lval=TRUE;
 							$$->numeric=TRUE;
 							if(founderror==FALSE){
-								gen_instr("int");
-								gen_instr("storeI");
+								CodeGenerator::gen_instr("int");
+								CodeGenerator::gen_instr("storeI");
 							}
 						}
 						else if($1.ttype ==FLOAT && $3.ttype ==INT) {
@@ -781,8 +782,8 @@ expr: equalexpr equal equalexpr {
 							$$->numeric=TRUE;
 							$$->lval=TRUE;
 							if(founderror==FALSE){
-								gen_instr("flt");
-								gen_instr("storeR");
+								CodeGenerator::gen_instr("flt");
+								CodeGenerator::gen_instr("storeR");
 							}
 						}
 
@@ -792,7 +793,7 @@ expr: equalexpr equal equalexpr {
 			$$ = (exprtype*) malloc(sizeof(exprtype));
 			$$->lval = $1.lval; $$->numeric = $1.numeric; $$->type =$1.ttype;
 			}
-	| equalexpr equal error { yyerrok; error("(unexpected token after equal operator in expr)","");}
+	| equalexpr equalt error { yyerrok; error("(unexpected token after equalt operator in expr)","");}
 ;
 
 equalexpr: relexpr
@@ -800,8 +801,8 @@ equalexpr: relexpr
 		if(founderror==FALSE){
 			if($1.numeric==TRUE){
 				switch($1.ttype){
-					case INT:	if($1.lval==TRUE) gen_instr("fetchI"); break;
-					case FLOAT:	if($1.lval==TRUE) gen_instr("fetchR"); break;
+					case INT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+					case FLOAT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -811,8 +812,8 @@ equalexpr: relexpr
 		if(founderror==FALSE){
 			if($4.numeric==TRUE){
 				switch($4.ttype){
-					case INT:	if($4.lval==TRUE) gen_instr("fetchI"); break;
-					case FLOAT:	if($4.lval==TRUE) gen_instr("fetchR"); break;
+					case INT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+					case FLOAT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -824,11 +825,11 @@ equalexpr: relexpr
 						if(($1.ttype==INT && $4.ttype ==INT) || ($1.ttype == FLOAT && $4.ttype==FLOAT)) {$$.ttype=INT;
 							if(founderror==FALSE){
                                                                         switch($<value.relopvalue>2){
-                                                                                case NEQ:       if($1.ttype==INT) gen_instr("neI");
-                                                                                                else if($1.ttype==FLOAT) gen_instr("neR");
+                                                                                case NEQ:       if($1.ttype==INT) CodeGenerator::gen_instr("neI");
+                                                                                                else if($1.ttype==FLOAT) CodeGenerator::gen_instr("neR");
                                                                                                 break;
-                                                                                case EQEQ:      if($1.ttype==INT) gen_instr("eqI");
-                                                                                                else if($1.ttype==FLOAT) gen_instr("eqR");
+                                                                                case EQEQ:      if($1.ttype==INT) CodeGenerator::gen_instr("eqI");
+                                                                                                else if($1.ttype==FLOAT) CodeGenerator::gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -840,11 +841,11 @@ equalexpr: relexpr
 							$$.ttype = INT;
 								if(founderror==FALSE){
                                                                         switch($<value.relopvalue>2){
-                                                                                case NEQ:       gen_instr("fltb");
-                                                                                                gen_instr("neR");
+                                                                                case NEQ:       CodeGenerator::gen_instr("fltb");
+                                                                                                CodeGenerator::gen_instr("neR");
                                                                                                 break;
-                                                                                case EQEQ:       gen_instr("fltb");
-                                                                                                gen_instr("eqR");
+                                                                                case EQEQ:       CodeGenerator::gen_instr("fltb");
+                                                                                                CodeGenerator::gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -856,11 +857,11 @@ equalexpr: relexpr
 							$$.ttype=INT;
 							if(founderror==FALSE){
                                                                         switch($<value.relopvalue>2){
-                                                                                case NEQ:       gen_instr("flt");
-                                                                                                gen_instr("neR");
+                                                                                case NEQ:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("neR");
                                                                                                 break;
-                                                                                case EQEQ:       gen_instr("flt");
-                                                                                                gen_instr("eqR");
+                                                                                case EQEQ:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -878,8 +879,8 @@ relexpr: simpleexpr
 		if(founderror==FALSE){
 			if($1.numeric==TRUE){
 				switch($1.ttype){
-					case INT:	if($1.lval==TRUE) gen_instr("fetchI"); break;
-					case FLOAT:	if($1.lval==TRUE) gen_instr("fetchR"); break;
+					case INT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+					case FLOAT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                     default:    break;
                 }
 			}
@@ -889,8 +890,8 @@ relexpr: simpleexpr
 			if(founderror==FALSE){
 				if($4.numeric==TRUE){
 					switch($4.ttype){
-						case INT:	if($4.lval==TRUE) gen_instr("fetchI"); break;
-						case FLOAT:	if($4.lval==TRUE) gen_instr("fetchR"); break;
+						case INT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+						case FLOAT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                         default:    break;
 					}
 				}
@@ -902,17 +903,17 @@ relexpr: simpleexpr
 							if(($1.ttype==INT && $4.ttype ==INT) || ($1.ttype == FLOAT && $4.ttype==FLOAT)) {$$.ttype=INT;
 								if(founderror==FALSE){
 									switch($<value.relopvalue>2){
-                                        case LES:       if($1.ttype==INT) gen_instr("ltI");
-                                                                else if($1.ttype==FLOAT) gen_instr("ltR");
+                                        case LES:       if($1.ttype==INT) CodeGenerator::gen_instr("ltI");
+                                                                else if($1.ttype==FLOAT) CodeGenerator::gen_instr("ltR");
                                                                             break;
-                                        case LEQ:       if($1.ttype==INT) gen_instr("leI");
-                                                                else if($1.ttype==FLOAT) gen_instr("leR");
+                                        case LEQ:       if($1.ttype==INT) CodeGenerator::gen_instr("leI");
+                                                                else if($1.ttype==FLOAT) CodeGenerator::gen_instr("leR");
                                                                             break;
-										case GRE:	if($1.ttype==INT) gen_instr("gtI");
-												else if($1.ttype==FLOAT) gen_instr("gtR");
+										case GRE:	if($1.ttype==INT) CodeGenerator::gen_instr("gtI");
+												else if($1.ttype==FLOAT) CodeGenerator::gen_instr("gtR");
 												break;
-										case GEQ:	if($1.ttype==INT) gen_instr("geI");
-												else if($1.ttype==FLOAT) gen_instr("geR");
+										case GEQ:	if($1.ttype==INT) CodeGenerator::gen_instr("geI");
+												else if($1.ttype==FLOAT) CodeGenerator::gen_instr("geR");
 												break;
                                         default:    break;
                                                                         }
@@ -924,17 +925,17 @@ relexpr: simpleexpr
 								$$.ttype = INT;
 								if(founderror==FALSE){
                                                 switch($<value.relopvalue>2){
-                                                        case LES:       gen_instr("fltb");
-												gen_instr("ltR");
+                                                        case LES:       CodeGenerator::gen_instr("fltb");
+												CodeGenerator::gen_instr("ltR");
                                                                                                 break;
-                                                        case LEQ:       gen_instr("fltb");
-												gen_instr("leR");
+                                                        case LEQ:       CodeGenerator::gen_instr("fltb");
+												CodeGenerator::gen_instr("leR");
                                                                                                 break;
-                                                        case GRE:       gen_instr("fltb");
-												gen_instr("gtR");
+                                                        case GRE:       CodeGenerator::gen_instr("fltb");
+												CodeGenerator::gen_instr("gtR");
                                                                                                 break;
-                                                        case GEQ:       gen_instr("fltb");
-												gen_instr("geR");
+                                                        case GEQ:       CodeGenerator::gen_instr("fltb");
+												CodeGenerator::gen_instr("geR");
                                                                                                 break;
                                                         default:    break;
                                                                         }
@@ -945,17 +946,17 @@ relexpr: simpleexpr
 								$$.ttype = INT;
 								if(founderror==FALSE){
                                                                         switch($<value.relopvalue>2){
-                                                                                case LES:       gen_instr("flt");
-                                                                                                gen_instr("ltR");
+                                                                                case LES:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("ltR");
                                                                                                 break;
-                                                                                case LEQ:       gen_instr("flt");
-                                                                                                gen_instr("leR");
+                                                                                case LEQ:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("leR");
                                                                                                 break;
-                                                                                case GRE:       gen_instr("flt");
-                                                                                                gen_instr("gtR");
+                                                                                case GRE:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("gtR");
                                                                                                 break;
-                                                                                case GEQ:       gen_instr("flt");
-                                                                                                gen_instr("geR");
+                                                                                case GEQ:       CodeGenerator::gen_instr("flt");
+                                                                                                CodeGenerator::gen_instr("geR");
                                                                                                 break;
                                                                                 default:     break;
                                                                         }
@@ -977,8 +978,8 @@ simpleexpr: simpleexpr
 		if(founderror==FALSE){
                         if($1.numeric==TRUE){
                                 switch($1.ttype){
-                                        case INT:       if($1.lval==TRUE) gen_instr("fetchI"); break;
-                                        case FLOAT:     if($1.lval==TRUE) gen_instr("fetchR"); break;
+                                        case INT:       if($1.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+                                        case FLOAT:     if($1.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                                         default:        break;
                                 }
                         }
@@ -990,8 +991,8 @@ simpleexpr: simpleexpr
 			if(founderror==FALSE){
                                 if($4.numeric ==TRUE){
                                         switch($4.ttype){
-                                                case INT:       if($4.lval==TRUE) gen_instr("fetchI"); break;
-                                                case FLOAT:     if($4.lval==TRUE) gen_instr("fetchR"); break;
+                                                case INT:       if($4.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+                                                case FLOAT:     if($4.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                                                 default:        break;
                                         }
                                 }
@@ -1002,11 +1003,11 @@ simpleexpr: simpleexpr
 							if(($1.ttype==INT && $4.ttype ==INT) || ($1.ttype == FLOAT && $4.ttype==FLOAT)) {$$.ttype=$1.ttype;
 								if(founderror==FALSE){
         		                                                switch($<value.addopvalue>2){
-                		                                                case PLS:       if($1.ttype==INT) gen_instr("addI");
-                        		                                                        else if($1.ttype==FLOAT) gen_instr("addR");
+                		                                                case PLS:       if($1.ttype==INT) CodeGenerator::gen_instr("addI");
+                        		                                                        else if($1.ttype==FLOAT) CodeGenerator::gen_instr("addR");
                                 		                                                break;
-                                        		                        case MIN:       if($1.ttype==INT) gen_instr("subI");
-                                                		                                else if($1.ttype==FLOAT) gen_instr("subR");
+                                        		                        case MIN:       if($1.ttype==INT) CodeGenerator::gen_instr("subI");
+                                                		                                else if($1.ttype==FLOAT) CodeGenerator::gen_instr("subR");
                                                         		                        break;
                                                                         default:        break;
                            	                       		      	}
@@ -1016,11 +1017,11 @@ simpleexpr: simpleexpr
 								$$.ttype = FLOAT;
 		                                                if(founderror==FALSE){
 		                                                        switch($<value.addopvalue>2){
-		                                                                case PLS:       gen_instr("fltb");
-		                                                                                gen_instr("addR");
+		                                                                case PLS:       CodeGenerator::gen_instr("fltb");
+		                                                                                CodeGenerator::gen_instr("addR");
 		                                                                                break;
-		                                                                case MIN:       gen_instr("fltb");
-		                                                                                gen_instr("subR");
+		                                                                case MIN:       CodeGenerator::gen_instr("fltb");
+		                                                                                CodeGenerator::gen_instr("subR");
 		                                                                                break;
                                                                         default:        break;
 		                                                        }
@@ -1030,11 +1031,11 @@ simpleexpr: simpleexpr
 								$$.ttype = FLOAT;
                         		                        if(founderror==FALSE){
                         		                                switch($<value.addopvalue>2){
-                        		                                        case PLS:       gen_instr("flt");
-                        		                                                        gen_instr("addR");
+                        		                                        case PLS:       CodeGenerator::gen_instr("flt");
+                        		                                                        CodeGenerator::gen_instr("addR");
                         		                                                        break;
-                        		                                        case MIN:       gen_instr("flt");
-                        		                                                        gen_instr("subR");
+                        		                                        case MIN:       CodeGenerator::gen_instr("flt");
+                        		                                                        CodeGenerator::gen_instr("subR");
                 		                                                                break;
                                                                         default:                break;
                 		                                        }
@@ -1055,8 +1056,8 @@ term: term mulop {
 		if(founderror==FALSE){
 			if($1.numeric==TRUE){
 				switch($1.ttype){
-					case INT:	if($1.lval==TRUE) gen_instr("fetchI"); break;
-					case FLOAT:	if($1.lval==TRUE) gen_instr("fetchR"); break;
+					case INT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+					case FLOAT:	if($1.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -1066,8 +1067,8 @@ term: term mulop {
 			if(founderror==FALSE){
 				if($4.numeric ==TRUE){
 					switch($4.ttype){
-						case INT:	if($4.lval==TRUE) gen_instr("fetchI"); break;
-						case FLOAT:	if($4.lval==TRUE) gen_instr("fetchR"); break;
+						case INT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchI"); break;
+						case FLOAT:	if($4.lval==TRUE) CodeGenerator::gen_instr("fetchR"); break;
                         default:    break;
 					}
 				}
@@ -1078,11 +1079,11 @@ term: term mulop {
 					if(($1.ttype==INT && $4.ttype ==INT) || ($1.ttype == FLOAT && $4.ttype==FLOAT)) {$$.ttype = $1.ttype;
 						if(founderror==FALSE){
 							switch($<value.multopvalue>2){
-								case DIV:	if($1.ttype==INT) gen_instr("divI");
-										else if($1.ttype==FLOAT) gen_instr("divR");
+								case DIV:	if($1.ttype==INT) CodeGenerator::gen_instr("divI");
+										else if($1.ttype==FLOAT) CodeGenerator::gen_instr("divR");
 										break;
-								case MULT:	if($1.ttype==INT) gen_instr("mulI");
-										else if($1.ttype==FLOAT) gen_instr("mulR");
+								case MULT:	if($1.ttype==INT) CodeGenerator::gen_instr("mulI");
+										else if($1.ttype==FLOAT) CodeGenerator::gen_instr("mulR");
 										break;
                                         default:    break;
 							}
@@ -1093,11 +1094,11 @@ term: term mulop {
 						$$.ttype = FLOAT;
 						if(founderror==FALSE){
 							switch($<value.multopvalue>2){
-        	                                                case DIV:       gen_instr("fltb");
-										gen_instr("divR");
+        	                                                case DIV:       CodeGenerator::gen_instr("fltb");
+										CodeGenerator::gen_instr("divR");
                         	                                                break;
-                                	                        case MULT:      gen_instr("fltb");
-										gen_instr("mulR");
+                                	                        case MULT:      CodeGenerator::gen_instr("fltb");
+										CodeGenerator::gen_instr("mulR");
                                                 	                        break;
                                                             default:    break;
 	                                                }
@@ -1108,11 +1109,11 @@ term: term mulop {
 						$$.ttype = FLOAT;
 						if(founderror==FALSE){
 							switch($<value.multopvalue>2){
-        	                                                case DIV:       gen_instr("flt");
-                	                                                        gen_instr("divR");
+        	                                                case DIV:       CodeGenerator::gen_instr("flt");
+                	                                                        CodeGenerator::gen_instr("divR");
                         	                                                break;
-                                	                        case MULT:      gen_instr("flt");
-                                        	                                gen_instr("mulR");
+                                	                        case MULT:      CodeGenerator::gen_instr("flt");
+                                        	                                CodeGenerator::gen_instr("mulR");
                                                 	                        break;
                                                             default:            break;
 	                                                }
@@ -1133,11 +1134,11 @@ term: term mulop {
 factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
 		if(founderror==FALSE){
 			if($$.ttype ==INT)
-				gen_instr_I("pushcI",$<value.ivalue>1);
+				CodeGenerator::gen_instr_I("pushcI",$<value.ivalue>1);
 			else if($$.ttype == FLOAT)
-				gen_instr_F("pushcR",$<value.fvalue>1);
+				CodeGenerator::gen_instr_F("pushcR",$<value.fvalue>1);
 			else if($$.ttype == STR){
-				gen_instr_S("pushs",$<value.svalue>1);
+				CodeGenerator::gen_instr_S("pushs",$<value.svalue>1);
 				$$.numeric=FALSE;
 			}
 			else
@@ -1169,9 +1170,9 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
 										if(((Varb*)(tempE->binding))->type == INT || ((Varb*)(tempE->binding))->type ==FLOAT) $$.numeric=TRUE;
 										if(founderror==FALSE){
 											if(inCscope(tempE2->name, mysymtab) == TRUE)
-												gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+												CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
 											else{
-												gen_instr_tI("pushga",getleveldif(tempE2->name,mysymtab),((Varb*)(tempE->binding))->offset);
+												CodeGenerator::gen_instr_tI("pushga",getleveldif(tempE2->name,mysymtab),((Varb*)(tempE->binding))->offset);
 												//do something else
 
 											}
@@ -1186,7 +1187,7 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
 										if(((Paramb*)(tempE->binding))->type == INT || ((Paramb*)(tempE->binding))->type ==FLOAT) $$.numeric=TRUE;
 										if(founderror==FALSE){
 											if(inCscope(tempE2->name,mysymtab) ==TRUE){
-												gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+												CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
 											}
 											else{
 												//do something else
@@ -1224,22 +1225,22 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
 						if($1 == MIN){
 							if($2.lval ==TRUE){
 								switch($2.ttype){
-									case INT:	gen_instr("fetchI"); break;
-									case FLOAT:	gen_instr("fetchR"); break;
+									case INT:	CodeGenerator::gen_instr("fetchI"); break;
+									case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
 							switch($2.ttype){
-								case INT:	gen_instr("negI"); break;
-								case FLOAT:	gen_instr("negR"); break;
+								case INT:	CodeGenerator::gen_instr("negI"); break;
+								case FLOAT:	CodeGenerator::gen_instr("negR"); break;
                                 default:    break;
 							}
 						}
 						else if($1 == PLS){
 							if($2.lval == TRUE){
 								switch($2.ttype){
-									case INT:	gen_instr("fetchI"); break;
-									case FLOAT:	gen_instr("fetchR"); break;
+									case INT:	CodeGenerator::gen_instr("fetchI"); break;
+									case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
@@ -1274,9 +1275,9 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
                                             $$.numeric=TRUE;
 										if(founderror==FALSE){
                                             if(inCscope((char*)strdup($<value.svalue>2), mysymtab) == TRUE)
-                                                gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+                                                CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
                                             else{
-                                                gen_instr_tI("pushga",getleveldif($<value.svalue>2,mysymtab),((Varb*)(tempE->binding))->offset);
+                                                CodeGenerator::gen_instr_tI("pushga",getleveldif($<value.svalue>2,mysymtab),((Varb*)(tempE->binding))->offset);
                                     //do something else
 
                                             }
@@ -1292,7 +1293,7 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = FALSE; $$.numeric=TRUE;
                                             $$.numeric=TRUE;
                                         if(founderror==FALSE){
                                             if(inCscope((char*)$<value.svalue>2,mysymtab) ==TRUE){
-                                                gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+                                                CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
                                             }
                                             else{
                                 //do something else
@@ -1348,8 +1349,8 @@ function_call: Ident lpar rpar {$$.lval = FALSE; Funcb* tempb; Entry* tempE; Ent
                                                         $$.ttype = tempb->returntype;
                                                         if($$.ttype == INT || $$.ttype ==FLOAT) $$.numeric =TRUE; else $$.numeric =FALSE;
 							if(founderror==FALSE){
-								gen_instr_I("enter",1);
-								gen_call(genlabelw($<value.svalue>1, tempb->label), 0);
+								CodeGenerator::gen_instr_I("enter",1);
+								CodeGenerator::gen_call(genlabelw($<value.svalue>1, tempb->label), 0);
 							}
                                                 }
                                                 else
@@ -1370,16 +1371,16 @@ func_call_with_params: name_and_params rpar{$$.numeric =$1.numeric; $$.lval = FA
 						}
 						if(founderror==FALSE){
 							if(strcmp("scanf",$1.funcent->name)==0){
-//								gen_call("$scanf",((Funcb*)($1.funcent->binding))->actual_num);
-								gen_call("$scanf",$1.params);
+//								CodeGenerator::gen_call("$scanf",((Funcb*)($1.funcent->binding))->actual_num);
+								CodeGenerator::gen_call("$scanf",$1.params);
 							}
 							else if(strcmp("printf", $1.funcent->name)==0){
-//								gen_call("$printf",((Funcb*)($1.funcent->binding))->actual_num);
-								gen_call("$printf",$1.params);
+//								CodeGenerator::gen_call("$printf",((Funcb*)($1.funcent->binding))->actual_num);
+								CodeGenerator::gen_call("$printf",$1.params);
 							}
 							else{
 								if( ((Funcb*)($1.funcent->binding))->label==0) ((Funcb*)($1.funcent->binding))->label=getlabel();
-								gen_call( genlabelw($1.funcent->name,((Funcb*)($1.funcent->binding))->label),
+								CodeGenerator::gen_call( genlabelw($1.funcent->name,((Funcb*)($1.funcent->binding))->label),
 									((Funcb*)($1.funcent->binding))->num_param);
 							}
 						}
@@ -1401,7 +1402,7 @@ name_and_params:
 		#endif
 		if ($$.funcent != NULL){
 			$$.name = $$.funcent->name;
-			if(founderror==FALSE) gen_instr_I("enter",1);
+			if(founderror==FALSE) CodeGenerator::gen_instr_I("enter",1);
 		}
 	}
 	expr {
@@ -1444,7 +1445,7 @@ name_and_params:
                         }
                         else{
                             if(founderror==FALSE){
-										//gen_instr_S("pushs",$<value.svalue>4);
+										//CodeGenerator::gen_instr_S("pushs",$<value.svalue>4);
                             }
                         }
                         $$.ttype = tempB->param_type[0];
@@ -1459,8 +1460,8 @@ name_and_params:
                         if($4->lval==TRUE && $4->numeric==TRUE){
                             if(founderror==FALSE){
                                 switch($4->type){
-                                    case INT:	gen_instr("fetchI"); break;
-                                    case FLOAT:	gen_instr("fetchR"); break;
+                                    case INT:	CodeGenerator::gen_instr("fetchI"); break;
+                                    case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                     default:    break;
                                 }
                             }
@@ -1486,7 +1487,7 @@ name_and_params:
                                             case FLOAT:
                                                 warning("Paramter expression will lose data because of different type","");
                                                 if(founderror==FALSE)
-                                                    gen_instr("int");
+                                                    CodeGenerator::gen_instr("int");
                                                 break;
                                             case INT:	break;
                                             default:	error("Parameter type is different in declaration and function call","");
@@ -1500,7 +1501,7 @@ name_and_params:
                                     switch($4->type){
                                         case INT:	warning("Parameter expression is different type than in declaration","");
                                                     if(founderror==FALSE)
-                                                        gen_instr("flt");
+                                                        CodeGenerator::gen_instr("flt");
                                                     break;
                                         case FLOAT:	break;
                                         default:	error("Parameter type is different in declaration and function call","");
@@ -1562,8 +1563,8 @@ name_and_params:
 								if($4->lval==TRUE && $4->numeric==TRUE && strcmp("scanf",$$.funcent->name)!=0){
 									if(founderror==FALSE){
 										switch($4->type){
-											case INT:	gen_instr("fetchI"); break;
-											case FLOAT:	gen_instr("fetchR"); break;
+											case INT:	CodeGenerator::gen_instr("fetchI"); break;
+											case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
@@ -1580,16 +1581,16 @@ name_and_params:
 								if(founderror==FALSE){
 									if($4->lval==TRUE){
 										switch($4->type){
-											case INT:	gen_instr("fetchI"); break;
-											case FLOAT:	gen_instr("fetchR"); break;
+											case INT:	CodeGenerator::gen_instr("fetchI"); break;
+											case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
 									if(tempB->param_type[$1.params]==FLOAT){
-										gen_instr("flt");
+										CodeGenerator::gen_instr("flt");
 									}
 									else if(tempB->param_type[$1.params]==INT){
-										gen_instr("int");
+										CodeGenerator::gen_instr("int");
 									}
 								}
 							}
@@ -1597,8 +1598,8 @@ name_and_params:
 								if(founderror==FALSE){
 									if($4->lval==TRUE){
 										switch($4->type){
-											case INT:	gen_instr("fetchI"); break;
-											case FLOAT:	gen_instr("fetchR"); break;
+											case INT:	CodeGenerator::gen_instr("fetchI"); break;
+											case FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
@@ -1677,25 +1678,28 @@ relop: lesst { $$ = $1;}
 
 %%
 
-int yyerror(char *s)
+int yyerror(std::string s)
 {
 //	fprintf(stderr,"Error: Line: %d: %s\n", Line_Number, s);
-	fprintf(stderr,"Error:::%s:%d-> %s\n",filename,Line_Number,s);
+//	fprintf(stderr,"Error:::%s:%d-> %s\n",filename,Line_Number,s);
+	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s << "\n";
     return 0;
 }
 
 
-int warning(char *s1, char* s2)
+int warning(std::string s1, std::string s2)
 {
 //	fprintf(stderr,"Warning: Line: %d: %s %s\n",Line_Number,s1,s2);
-	fprintf(stderr,":::::Warning:::%s:%d-> %s %s\n",filename,Line_Number,s1,s2);
+//	fprintf(stderr,":::::Warning:::%s:%d-> %s %s\n",filename,Line_Number,s1,s2);
+	std::cerr << "Warning:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
     return 0;
 }
 
-int error(char* s1, char* s2){
+int error(std::string s1, std::string s2){
 //	fprintf(stderr,"Error: Line: %d: %s %s\n",Line_Number,s1,s2);
-	fprintf(stderr,"Error:::%s:%d-> %s %s\n",filename,Line_Number,s1, s2);
-	founderror=TRUE;
+//	fprintf(stderr,"Error:::%s:%d-> %s %s\n",filename,Line_Number,s1, s2);
+	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
+	Compiler::founderror=true;
     return 0;
 }
 
