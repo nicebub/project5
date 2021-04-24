@@ -67,18 +67,6 @@ struct Paramb {
 	int offset;
 };
 
-struct Entry{
-	std::string name;
-	void * binding;
-	btype self;
-};
-
-struct Symtab {
-	Entry ** Stack; //Stack of Binary Search Trees
-	int actualStacksize; //used to keep size and top of stack
-	int Stacksize; //default of 100
-};
-
 }
 
 #endif

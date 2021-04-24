@@ -125,28 +125,28 @@ uccz.tab.o: ucc.tab.cpp
 uccg.tab.o: ucc.tab.cpp 
 	$(CC) $(CFLAGSG) -c $< -o $@ 
 
-symtab0.o: symtab.c symtab.h
+symtab0.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGS0) -c $< -o $@ 
 
-symtab1.o: symtab.c symtab.h
+symtab1.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGS1)  -c $< -o $@
 
-symtab2.o: symtab.c symtab.h
+symtab2.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGS2)  -c $< -o $@
 
-symtab3.o: symtab.c symtab.h
+symtab3.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGS3)  -c $< -o $@
 
-symtabf.o: symtab.c symtab.h
+symtabf.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGSF)  -c $< -o $@
 
-symtabs.o: symtab.c symtab.h
+symtabs.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGSS)  -c $< -o $@
 
-symtabz.o: symtab.c symtab.h
+symtabz.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGSZ)  -c $< -o $@
 
-symtabg.o: symtab.c symtab.h
+symtabg.o: symtab.cpp symtab.hpp
 	$(CC) $(CFLAGSG)  -c $< -o $@
 
 List0.o: List.cpp List.hpp
@@ -200,7 +200,7 @@ commandg.o: command.cpp command.hpp
 MAIN = main.c
 
 SRCS  = main.c \
-	symtab.c \
+	symtab.cpp \
 	List.cpp  \
 	command.cpp \
 	trans.c \
@@ -315,13 +315,13 @@ depend:
 	mv Makefile.new Makefile
 
 #=====DO NOT DELETE THIS LINE=====
-lex.yy.o: lex.yy.cc List.hpp type.h expr.h symtab.h main.h data.h trans.h \
+lex.yy.o: lex.yy.cc List.hpp type.h expr.h symtab.hpp main.h data.h trans.h \
   ucc.tab.h
-ucc.tab.o: ucc.tab.cpp type.h List.hpp expr.h symtab.h main.h data.h trans.h \
+ucc.tab.o: ucc.tab.cpp type.h List.hpp expr.h symtab.hpp main.h data.h trans.h \
   
-main.o: main.c data.h symtab.h List.hpp type.h expr.h main.h trans.h \
+main.o: main.c data.h symtab.hpp List.hpp type.h expr.h main.h trans.h \
   ucc.tab.h command.hpp
-symtab.o: symtab.c symtab.h List.hpp type.h expr.h main.h data.h trans.h \
+symtab.o: symtab.cpp symtab.hpp List.hpp type.h expr.h main.h data.h trans.h \
   
 List.o: List.cpp List.hpp type.h expr.h
 command.o: command.cpp command.hpp

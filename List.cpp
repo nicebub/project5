@@ -78,7 +78,7 @@ List::~List(){
 	}
 }
 
-int size() const{
+int List::size() const{
 	return list.size();
 }
 
@@ -121,7 +121,7 @@ List* List::appendList(exprtype* inexpr){
 	list.push_back(dynamic_cast<BasicListNode*>(nnode));
 	return this;
 }
-
+/*
 void printListP(ListP * inList){
 	#ifdef DEBUG
     debugprintd("inList size: ",inList->listsize);
@@ -139,5 +139,4 @@ void printListP(ListP * inList){
             }
         }
     }
-
-}
+}*/

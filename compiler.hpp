@@ -26,7 +26,7 @@ namespace ucc{
 			static int 				mainlocal;
 			static bool 			founderror;
 
-			Symtab*					mysymtab;
+			SymbolTable 			mysymtab;
 		private:
 //			extern FILE*	infile;
 //			Symtab*			mysymtab;

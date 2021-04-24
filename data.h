@@ -1,6 +1,6 @@
 #ifndef _MYDATAH
 #define _MYDATAH
-#include "symtab.h"
+#include "symtab.hpp"
 #include "List.hpp"
 #include "trans.h"
 #include <string>
@@ -25,17 +25,18 @@ struct data{
 		funcheadertype* 	funcheadervalue;
 		//Entry *funcentvalue;
 	} value;
-	int one;
-	int two;
-	int mainlabel;
-	std::string name;
-	type ttype;
-	bool lval;
-	Entry *funcent;
-	bool numeric;
-	Entry* entry;
-	Funcb* funcbinding;
-	int params;
+	
+	int 					one;
+	int 					two;
+	int 					mainlabel;
+	std::string 		name;
+	type 					ttype;
+	bool 					lval;
+	TableEntry* 		funcent;
+	bool 					numeric;
+	TableEntry* 		entry;
+	Funcb* 				funcbinding;
+	int 					params;
 };
 
 }

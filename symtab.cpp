@@ -8,25 +8,68 @@
 #endif
 #endif
 
-#include "symtab.h"
+#include "symtab.hpp"
 #include "type.h"
 #include "List.hpp"
 #include "data.h"
-
 using namespace ucc;
 
-int offset_counter;
-
-SymbolTable::SymbolTable() : table{} {}
-
-
-SymbolTable::~SymbolTable(){
-	
-}
 extern int error(std::string,std::string);
 
-void SymbolTable::openmainscope(Symtab *symtab){
-	if(symtab->actualStacksize == symtab->Stacksize)
+
+TableEntry::TableEntry() : TableEntry{""} {}
+TableEntry::TableEntry(std::string name) :name{name}, binding{NULL}, self{btype::FUNC} {}
+TableEntry::TableEntry(std::string name, void* binding, btype self) : name{name}, binding{binding}, self{self} {}
+TableEntry::~TableEntry(){
+	if(binding){
+//		delete binding;
+// delete binding depeinding on FUNC, VAR, PARAM, need to create classes for those with destructors to make
+//	this work better
+	}
+}
+TableEntry::TableEntry(const TableEntry& in) : name{in.name}, binding{in.binding}, self{in.self} {}
+
+TableEntry& TableEntry::operator=(const TableEntry& in){
+	if(this != &in){
+		name = in.name;
+		binding = in.binding;
+		self = in.self;
+	}
+	return *this;
+}
+std::string TableEntry::getName() const{
+	return name;
+}
+
+Table::Table() : table{} {}
+Table::~Table(){
+	for(auto& element : table){
+		//decompose the element and delete the pointer data
+//		delete element;
+	}
+}
+void Table::install(TableEntry* entry){
+	#ifdef DEBUG
+	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",actualStacksize, actualStacksize-1,Stacksize);
+	#endif
+
+	const auto [thepair, status] = table.insert(entry->getName(),entry);
+
+	if(!status){
+		error("symbol already declared in current scope","");		
+	}
+
+	#ifdef DEBUG
+	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
+	printTree(symtab);
+	#endif
+}
+
+SymbolTable::SymbolTable() : Stack{} {}
+SymbolTable::~SymbolTable(){}
+
+void SymbolTable::openmainscope(){
+	if(actualStacksize == Stacksize)
 		error("Scope Stack already too full","");
 	else{
 		#ifdef DEBUG
@@ -37,15 +80,16 @@ void SymbolTable::openmainscope(Symtab *symtab){
 	}
 	
 }
-void SymbolTable::openscope(Symtab *symtab){
-	if(symtab->actualStacksize == symtab->Stacksize)
+void SymbolTable::openscope(){
+	if(actualStacksize == Stacksize)
 		error("Scope Stack already too full","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
 		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
-	 	symtab->actualStacksize += 1;
+
+	 	actualStacksize += 1;
 
 		offset_counter=5;
 		#ifdef DEBUG
@@ -54,65 +98,71 @@ void SymbolTable::openscope(Symtab *symtab){
 	}
 }
 
-void SymbolTable::closescope(Symtab *symtab){
-	Entry * temp;
-	if(symtab->actualStacksize == 1)
+void SymbolTable::closescope(){
+	if(actualStacksize == 1)
 		error("Cannot close Global scope","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Closing Scope\n");
 		#endif
-		if((symtab->Stack[symtab->actualStacksize-1]) !=NULL){
-			while(symtab->Stack[symtab->actualStacksize-1] != NULL){
-				temp = *((Entry**)(symtab->Stack[symtab->actualStacksize-1] ));
-				tdelete((void*)temp,(void **) &(symtab->Stack[symtab->actualStacksize-1]), Ecmp);
-				deleteEntry(temp);
-
+		if(!Stack.empty()) {
+			Stack.pop();
+			/*
+			while(Stack[actualStacksize-1] != NULL){
+				temp = *((TableEntry**)(Stack[actualStacksize-1] ));
+				tdelete((void*)temp,(void **) &(Stack[actualStacksize-1]), Ecmp);
+				delete temp;
 			}
-			symtab->Stack[symtab->actualStacksize-1]=NULL;
+			Stack[actualStacksize-1]=NULL;*/
+			actualStacksize -= 1;
 		}
-			symtab->actualStacksize -= 1;
 	}
 }
 
-void SymbolTable::closemainscope(Symtab *symtab){
-	Entry * temp;
-	if(symtab->actualStacksize == 1)
+void SymbolTable::closemainscope(){
+	if(actualStacksize == 1)
 		error("Cannot close Global scope","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Closing Scope\n");
 		#endif
-		if((symtab->Stack[symtab->actualStacksize-1]) !=NULL){
-			while(symtab->Stack[symtab->actualStacksize-1] != NULL){
-				temp = *((Entry**)(symtab->Stack[symtab->actualStacksize-1] ));
-				tdelete((void*)temp,(void **) &(symtab->Stack[symtab->actualStacksize-1]), Ecmp);
-				deleteEntry(temp);
+		if(!Stack.empty()){
+			Stack.pop();
+			/*
+			while(Stack[actualStacksize-1] != NULL){
+				temp = *((TableEntry**)(Stack[actualStacksize-1] ));
+				tdelete((void*)temp,(void **) &(Stack[actualStacksize-1]), Ecmp);
+				delete temp;
 
 			}
-			symtab->Stack[symtab->actualStacksize-1]=NULL;
+			Stack[actualStacksize-1]=NULL;
+			*/
+			actualStacksize -= 1;
 		}
-			symtab->actualStacksize -= 1;
 	}
 }
 
 
-void * SymbolTable::lookup(const char * name, Symtab *symtab){
-	Entry ** found;
+void* SymbolTable::lookup(const std::string name){
+	TableEntry ** found;
     found = NULL;
-	Entry *temp;
+	TableEntry* temp;
 	int a;
-	if(name != NULL){
-		temp = (Entry*) malloc(sizeof(Entry));
-		temp->name = (char*) strdup((char*)name);
+	if(!name.empty()){
+		auto& answer = table.find(name);
+		if(answer != table.end()){
+			
+		}
+		temp = new TableEntry;
+		temp->name = name;
 		#ifdef DEBUG
 		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
-		for(a=symtab->actualStacksize-1;a>=0;a--){
+		for(a = actualStacksize-1;a>=0;a--){
 			#ifdef DEBUG
 			fprintf(stderr, "still in for loop\n");
 			#endif
-			found = (Entry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
+			found = (TableEntry**) tfind((void*) temp, (void**) &(Stack[a]),Ecmp);
 			if(found != NULL){
 				if(*found !=NULL) break;
 			}
@@ -146,12 +196,12 @@ void * SymbolTable::lookup(const char * name, Symtab *symtab){
 	}
 }
 
-void SymbolTable::install(Entry * temp,Symtab *symtab){
-	Entry ** found;
+void SymbolTable::install(TableEntry * temp){
+	TableEntry ** found;
 	#ifdef DEBUG
-	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",actualStacksize, actualStacksize-1,Stacksize);
 	#endif
-	found = (Entry**) tsearch((void*) temp, (void**) &((symtab->Stack[symtab->actualStacksize-1])),Ecmp);
+	found = (TableEntry**) tsearch((void*) temp, (void**) &((Stack[actualStacksize-1])),Ecmp);
 
 	if(*found !=temp)
 		error("symbol already declared in current scope","");
@@ -161,8 +211,8 @@ void SymbolTable::install(Entry * temp,Symtab *symtab){
 	#endif
 }
 
-int SymbolTable::Ecmp(const void *Entry1, const void *Entry2){
-	return strcmp( ((Entry*)Entry1)->name, ((Entry*)Entry2)->name);
+bool Ecmp(const void *TableEntry1, const void *TableEntry2){
+	return ((TableEntry*)TableEntry1)->name == ((TableEntry*)TableEntry2)->name;
 }
 
 #ifdef DEBUG
@@ -174,11 +224,11 @@ void SymbolTable::printTree(Symtab *symtab){
 }
 
 void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
-		Entry * temp;
+		TableEntry * temp;
 		Funcb * tempb;
 		int a=0;
 	if(myorder == preorder || myorder == leaf){
-		temp = (*(Entry**) node);
+		temp = (*(TableEntry**) node);
 		tempb = ((Funcb*)(temp->binding));
 		switch(temp->self){
 
@@ -304,14 +354,14 @@ Symtab * SymbolTable::createTree(int Stacksize){
 	temp = (Symtab*) malloc(sizeof(Symtab));
 	temp->actualStacksize=1;
 	temp->Stacksize = Stacksize;
-	temp->Stack = (Entry**) malloc((sizeof(Entry*) * temp->Stacksize));
+	temp->Stack = (TableEntry**) malloc((sizeof(TableEntry*) * temp->Stacksize));
 	for(a=0;a<temp->Stacksize;a++) temp->Stack[a]=NULL;
 	return temp;
 }
 
 void SymbolTable::deleteTree(Symtab *symtab){
-	Entry * temp;
-	//Entry ** found;
+	TableEntry * temp;
+	//TableEntry ** found;
 	if(symtab != NULL){
 	   #ifdef DEBUG
 	   fprintf(stderr,"Deleting Tree: \n");
@@ -320,9 +370,9 @@ void SymbolTable::deleteTree(Symtab *symtab){
 		closescope(symtab);
 	    if((symtab->Stack[symtab->actualStacksize-1]) !=NULL){
                         while(symtab->Stack[symtab->actualStacksize-1] != NULL){
-                                temp = *((Entry**)(symtab->Stack[symtab->actualStacksize-1] ));
+                                temp = *((TableEntry**)(symtab->Stack[symtab->actualStacksize-1] ));
                                 tdelete((void*)temp,(void **) &(symtab->Stack[symtab->actualStacksize-1]), Ecmp);
-                                deleteEntry(temp);
+                                deleteTableEntry(temp);
 
                         }
                         symtab->Stack[symtab->actualStacksize-1]=NULL;
@@ -338,7 +388,7 @@ void SymbolTable::deleteTree(Symtab *symtab){
 	    symtab=NULL;
 	}
 }
-void SymbolTable::deleteEntry(Entry * temp){
+void SymbolTable::deleteTableEntry(TableEntry * temp){
 	if(temp != NULL){
 		switch(temp->self){
 
@@ -382,12 +432,12 @@ void SymbolTable::deleteEntry(Entry * temp){
 }
 
 
-Entry* SymbolTable::createFunc(char * name, type returntype, ListP* paramlist){
-	Entry * temp;
+TableEntry* SymbolTable::createFunc(char * name, type returntype, ListP* paramlist){
+	TableEntry * temp;
 	listnodeP * tempP;
 	int a;
 	bool elip=FALSE;
-	temp = (Entry*) malloc(sizeof(Entry));
+	temp = (TableEntry*) malloc(sizeof(TableEntry));
 	if(name !=NULL){
 		temp->name = (char*)strdup(((const char*)name));
 		temp->self = FUNC;
@@ -452,9 +502,9 @@ Entry* SymbolTable::createFunc(char * name, type returntype, ListP* paramlist){
 	}
 }
 
-Entry* SymbolTable::createVar(char * name, type t_type, int offset){
-	Entry * temp;
-	temp = (Entry*) malloc(sizeof(Entry));
+TableEntry* SymbolTable::createVar(char * name, type t_type, int offset){
+	TableEntry * temp;
+	temp = (TableEntry*) malloc(sizeof(TableEntry));
 	temp->name = (char*)strdup(((const char *)name));
 	temp->self = VAR;
 	//Varb * tBindingV = (Varb *)temp->binding;
@@ -473,9 +523,9 @@ Entry* SymbolTable::createVar(char * name, type t_type, int offset){
 	return temp;
 }
 
-Entry* SymbolTable::createParam(char * name, type t_type, int offset){
-	Entry * temp;
-	temp = (Entry*) malloc(sizeof(Entry));
+TableEntry* SymbolTable::createParam(char * name, type t_type, int offset){
+	TableEntry * temp;
+	temp = (TableEntry*) malloc(sizeof(TableEntry));
 	temp->name = (char*)strdup(((const char*)name));
 	temp->self = PARAM;
     temp->binding = NULL;
@@ -496,7 +546,7 @@ Entry* SymbolTable::createParam(char * name, type t_type, int offset){
 void SymbolTable::addtosymtab(Symtab *mysymtab, type mytype, List * myList){
 	int a;
 	listnode * tempN;
-	Entry * temp;
+	TableEntry * temp;
 	if(mysymtab !=NULL){
 		if(myList !=NULL){
 			tempN = (listnode*)(myList->list);
@@ -516,13 +566,13 @@ void SymbolTable::addtosymtab(Symtab *mysymtab, type mytype, List * myList){
 	else error("mysymtab was NULL","");
 }
 
-Entry * SymbolTable::lookupB(const char * name, Symtab *symtab){
-	Entry ** found;
+TableEntry * SymbolTable::lookupB(const char * name, Symtab *symtab){
+	TableEntry ** found;
     found = NULL;
-	Entry *temp;
+	TableEntry *temp;
 	int a;
 	if(name != NULL){
-		temp = (Entry*) malloc(sizeof(Entry));
+		temp = (TableEntry*) malloc(sizeof(TableEntry));
 		temp->name = (char *)name;
 		#ifdef DEBUG
 		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
@@ -534,7 +584,7 @@ Entry * SymbolTable::lookupB(const char * name, Symtab *symtab){
 			#endif
 			
 			if(symtab->Stack[0] != NULL || symtab->Stack[a] != NULL)
-				found = (Entry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
+				found = (TableEntry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
 			if(found != NULL){
 				if(*found !=NULL) break;
 			}
@@ -563,16 +613,16 @@ Entry * SymbolTable::lookupB(const char * name, Symtab *symtab){
 }
 
 bool SymbolTable::inCscope(const char *name, Symtab *symtab){
-        Entry ** found;
+        TableEntry ** found;
 	   found = NULL;
-        Entry *temp;
+        TableEntry *temp;
         int a;
         if(name != NULL){
-                temp = (Entry*) malloc(sizeof(Entry));
+                temp = (TableEntry*) malloc(sizeof(TableEntry));
                 temp->name = (char *)name;
                 a=symtab->actualStacksize-1;
 			 if(symtab->Stack[0] != NULL || symtab->Stack[a] != NULL)
-                	found = (Entry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
+                	found = (TableEntry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
                 if(found != NULL){
                         if(*found ==NULL){
                         //        free(temp->name);
@@ -604,17 +654,17 @@ bool SymbolTable::inCscope(const char *name, Symtab *symtab){
 }
 
 int SymbolTable::getleveldif(char *name, Symtab *symtab){
-	        Entry ** found;
+	        TableEntry ** found;
             found = NULL;
-	        Entry *temp;
+	        TableEntry *temp;
 	        int a;
 	if(name !=NULL && symtab!=NULL){
 	        if(name != NULL){
-	                temp = (Entry*) malloc(sizeof(Entry));
+	                temp = (TableEntry*) malloc(sizeof(TableEntry));
 	                temp->name = (char *)name;
 	                for(a=symtab->actualStacksize-1;a>=0;a--){
 					 	if(symtab->Stack[0] != NULL || symtab->Stack[a] !=NULL)
-	                        		found = (Entry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
+	                        		found = (TableEntry**) tfind((void*) temp, (void**) &(symtab->Stack[a]),Ecmp);
 	                        if(found != NULL){
 	                                if(*found !=NULL) break;
 	                        }
