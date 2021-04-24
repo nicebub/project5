@@ -3,7 +3,7 @@
 #include <search.h>
 #include <cstdio>
 #include <map>
-#include <stack>
+#include <deque>
 #include "List.hpp"
 #include "type.h"
 //#include "main.h"
@@ -29,7 +29,8 @@ namespace ucc{
 			TableEntry(const TableEntry& in);
 			TableEntry& operator=(const TableEntry& in);
 			std::string getName() const;
-
+			void setName(std::string name);
+			void* getBinding();
 		private:
 			std::string name;
 			void * binding;
@@ -41,7 +42,7 @@ namespace ucc{
 			~Table();
 			void* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
-			void install(TableEntry * temp);
+			bool install(TableEntry * temp);
 		private:
 			std::map<std::string,TableEntry*> table;
 	};
@@ -52,7 +53,7 @@ namespace ucc{
 		~SymbolTable();
 			void printTree() const;
 			void Swalk(const void *node, VISIT myorder, int level);
-			void install(Table*);
+			void install(TableEntry* entry);
 			void* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
 			bool inCscope(const std::string name);
@@ -65,7 +66,7 @@ namespace ucc{
 			static SymbolTable* createTree(int Stacksize);
 			void addtosymtab(type mytype, List* myList);
 		private:
-			std::stack<Table*> Stack; //Stack of Binary Search Trees
+			std::deque<Table*> stack; //Stack of Binary Search Trees
 			int actualStacksize; //used to keep size and top of stack
 			int Stacksize; //default of 100
 			int offset_counter;
