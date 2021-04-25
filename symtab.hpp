@@ -7,7 +7,7 @@
 #include <deque>
 
 #include "List.hpp"
-#include "type.h"
+#include "type.hpp"
 //#include "main.h"
 
 //extern int Line_Number;

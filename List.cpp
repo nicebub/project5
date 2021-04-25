@@ -9,7 +9,7 @@
 #endif
 
 #include "List.hpp"
-#include "type.h"
+#include "type.hpp"
 
 //extern int warning(char*,char*);
 extern int error(std::string,std::string);

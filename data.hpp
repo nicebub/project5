@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "type.h"
+#include "type.hpp"
 #include "symtab.hpp"
 #include "List.hpp"
 

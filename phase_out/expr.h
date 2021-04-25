@@ -5,11 +5,6 @@
 
 namespace ucc{
 
-struct exprtype{
-	bool lval;
-	type type;
-	bool numeric;
-};
 
 }
 #endif

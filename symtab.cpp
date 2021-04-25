@@ -9,9 +9,9 @@
 #endif
 
 #include "symtab.hpp"
-#include "type.h"
+#include "type.hpp"
 #include "List.hpp"
-#include "data.h"
+#include "data.hpp"
 using namespace ucc;
 
 extern int error(std::string,std::string);

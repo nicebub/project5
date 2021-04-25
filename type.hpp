@@ -71,6 +71,11 @@ struct Pair{
 	int one;
 	int two;
 };
+struct exprtype{
+	bool lval;
+	type type;
+	bool numeric;
+};
 
 }
 

@@ -199,19 +199,19 @@ commandg.o: command.cpp command.hpp
 
 MAIN = main.c
 
-SRCS  = main.c \
+SRCS  = lex.yy.cc \
+	main.c \
 	symtab.cpp \
 	List.cpp  \
 	command.cpp \
 	trans.cpp \
-	lex.yy.cc \
 	ucc.tab.cpp
 
-OBJS0  = symtab0.o \
+OBJS0  = lex0.yy.o  \
+	symtab0.o \
 	List0.o \
 	command0.o \
 	trans0.o \
-	lex0.yy.o  \
 	ucc0.tab.o
 
 OBJS1  = symtab1.o \

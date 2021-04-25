@@ -12,10 +12,10 @@
 Debug::set_yydebug(1);
 #endif
 
-#include "type.h"
-#include "data.h"
+#include "type.hpp"
+#include "data.hpp"
 #include "List.hpp"
-#include "symtab.h"
+#include "symtab.hpp"
 #include "trans.hpp"
 #include "compiler.hpp"
 
@@ -47,7 +47,7 @@ int main(int argc, const char **argv){
 	if((compiler.filename = compiler.openfile(argc, argv)).empty()){
 		return -1;
 	}
-
+	compiler.code_generator.set_stream(compiler.outfile);
 	if(compiler.mysymtab == NULL){
 		error("Unable to construct symbol table","");
 		return -1;

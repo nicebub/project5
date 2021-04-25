@@ -4,21 +4,29 @@
 */
 %{
 #include <cstdint>
+
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
 #endif
 #endif
+
 #include "List.hpp"
+
 using namespace ucc;
-#include "symtab.h"
-#include "data.h"
+
+#include "symtab.hpp"
+#include "data.hpp"
+
 #define YYSTYPE data
 #include "ucc.tab.hpp"
+
 #include "lex.hpp"
 #include "compiler.hpp"
+
 using namespace ucc;
-Lex lexer;
+
+Lex lexer{};
 //int Line_Number = 1;
 %}
 
@@ -81,8 +89,12 @@ ADOF	"&"
 		int c;
 		BEGIN(INITIAL);
 		ucc::error("illegal character:%s in string",yytext);
-		while(((c = yyinput()) != '\"') && (c != EOF));
-		if(c == EOF) ucc::error("eof terminated string","");
+		while(((c = yyinput()) != '\"') && (c != EOF)){
+			;
+		}
+		if(c == EOF){
+			ucc::error("eof terminated string","");
+		}
 		}
 
 ((\\\\{SPACE}+)*|[&@$\%^/,.+'-\[\]{}();~`|=#\!:<>]*|{LETTER}|{DIGIT}|{PERCENT}|{SPACE}|{BEGCOM}|{ENDCOM}|{QUESTION})* {

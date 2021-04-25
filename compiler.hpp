@@ -2,7 +2,7 @@
 #define _COMPILER_HPP
 #include <string>
 
-#include "type.h"
+#include "type.hpp"
 #include "trans.hpp"
 #include "symtab.hpp"
 

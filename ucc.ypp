@@ -15,9 +15,9 @@ track of the line number, and some of the operators have their precedence specif
 
 #include "type.h"
 #include "List.hpp"
-#include "symtab.h"
+#include "symtab.hpp"
 #include "data.h"
-#include "trans.h"
+#include "trans.hpp"
 
 using namespace ucc;
 //#define yyerrok
