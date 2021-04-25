@@ -285,21 +285,15 @@ char { /* keyword char*/
 #ifdef DEBUG
 void debugprint(std::string s1, std::string s2){
 	if(!s1.empty() && ~s2.empty()){
-//			fprintf(stderr,"Debug:::%s:%d-> %s \"%s\"\n",filename,Compiler::Line_Number,s1,s2);
-//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%s\"\n",filename,yylineno,s1,s2);
-			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
+			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
 	}
 	else if(s1!=NULL && *s1 && s2==NULL){
-//			fprintf(stderr,"Debug:::%s:%d-> %s\n",filename,Compiler::Line_Number,s1);
-//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s\n",filename,yylineno,s1);
-			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\n";
+			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\n";
 	}
 }
 void debugprintd(std::string s1, int s2){
 	if(!s1.empty()){
-//			fprintf(stderr,"Debug:::%s:%d-> %s \"%d\"\n",filename,Compiler::Line_Number,s1, s2);
-//			std::fprintf(stderr,"Debug:::%s:%d yylineno-> %s \"%d\"\n",filename,yylineno,s1, s2);
-			std::cout << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
+			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
 	}
 }
 

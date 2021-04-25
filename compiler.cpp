@@ -12,30 +12,30 @@ std::string 	Compiler::filename{""};
 int 				Compiler::Line_Number{1};
 int 				Compiler::globalcount{0};
 int 				Compiler::offset_counter{5};
-int 				Compiler::labelcounter{0};
 int 				Compiler::othercounter{1};
 int 				Compiler::param_offset{0};
 int 				Compiler::mainlocal{0};
 
-FILE* 			Compiler::infile{NULL};
+std::ostream* 			Compiler::outfile{&std::cout};
 
 
-Compiler::Compiler(): mysymtab{createTree(100)} {
+Compiler::Compiler(): mysymtab{SymbolTable::createTree(INITIAL_TREE_SIZE)}, code_generator{} {
 	if(mysymtab == NULL){
-		compiler.filename = "main.c";
 		error("Unable to construct symbol table","");
 	}
 }
 Compiler::~Compiler(){
-	if(infile){
+	if(outfile->good()){
+
 		#ifdef DEBUG
-		std::cout << "Closing file\n";
+		std::cerr << "Closing file\n";
 		#endif
-		std::fclose(infile);
+
+		outfile->flush();
 	}
+
 	if(mysymtab != NULL){
-		deleteTree(mysymtab);
-//		delete mysymtab;
+		delete mysymtab;
 		mysymtab = NULL;
 	}
 }

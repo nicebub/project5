@@ -1,15 +1,18 @@
 #ifndef _MYDATAH
 #define _MYDATAH
+
+#include <string>
+
+#include "type.h"
 #include "symtab.hpp"
 #include "List.hpp"
-#include "trans.h"
-#include <string>
+
 namespace ucc {
 struct data{
 	public:
 	union p1{
-		char 					cvalue;
 		std::string 		svalue;
+		char 					cvalue;
 		int 					ivalue;
 		float 				fvalue;
 		List*					lstvalue;
@@ -26,16 +29,16 @@ struct data{
 		//Entry *funcentvalue;
 	} value;
 	
-	int 					one;
-	int 					two;
-	int 					mainlabel;
+	TableEntry* 		entry;
+	TableEntry* 		funcent;
+	Funcb* 				funcbinding;
 	std::string 		name;
 	type 					ttype;
 	bool 					lval;
-	TableEntry* 		funcent;
 	bool 					numeric;
-	TableEntry* 		entry;
-	Funcb* 				funcbinding;
+	int 					one;
+	int 					two;
+	int 					mainlabel;
 	int 					params;
 };
 

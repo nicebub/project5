@@ -47,28 +47,28 @@ all: ucc0 ucc1 ucc2 ucc3 uccf uccs uccz uccg
 
 main.c : main.h ucc.tab.cpp
 
-trans0.o: trans.c trans.h
+trans0.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGS0) -c $< -o $@ 
 
-trans1.o: trans.c trans.h
+trans1.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGS1) -c $< -o $@ 
 
-trans2.o: trans.c trans.h
+trans2.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGS2) -c $< -o $@ 
 
-trans3.o: trans.c trans.h
+trans3.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGS3) -c $< -o $@ 
 
-transf.o: trans.c trans.h
+transf.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGSF) -c $< -o $@ 
 
-transs.o: trans.c trans.h
+transs.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGSS) -c $< -o $@ 
 
-transz.o: trans.c trans.h
+transz.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGSZ) -c $< -o $@ 
 
-transg.o: trans.c trans.h
+transg.o: trans.cpp trans.hpp
 	$(CC) $(CFLAGSG) -c $< -o $@ 
 
 ucc.tab.cpp : ucc.ypp
@@ -203,7 +203,7 @@ SRCS  = main.c \
 	symtab.cpp \
 	List.cpp  \
 	command.cpp \
-	trans.c \
+	trans.cpp \
 	lex.yy.cc \
 	ucc.tab.cpp
 
@@ -315,14 +315,14 @@ depend:
 	mv Makefile.new Makefile
 
 #=====DO NOT DELETE THIS LINE=====
-lex.yy.o: lex.yy.cc List.hpp type.h expr.h symtab.hpp main.h data.h trans.h \
+lex.yy.o: lex.yy.cc List.hpp type.h expr.h symtab.hpp main.h data.h trans.hpp \
   ucc.tab.h
-ucc.tab.o: ucc.tab.cpp type.h List.hpp expr.h symtab.hpp main.h data.h trans.h \
+ucc.tab.o: ucc.tab.cpp type.h List.hpp expr.h symtab.hpp main.h data.h trans.hpp \
   
-main.o: main.c data.h symtab.hpp List.hpp type.h expr.h main.h trans.h \
+main.o: main.c data.h symtab.hpp List.hpp type.h expr.h main.h trans.hpp \
   ucc.tab.h command.hpp
-symtab.o: symtab.cpp symtab.hpp List.hpp type.h expr.h main.h data.h trans.h \
+symtab.o: symtab.cpp symtab.hpp List.hpp type.h expr.h main.h data.h trans.hpp \
   
 List.o: List.cpp List.hpp type.h expr.h
 command.o: command.cpp command.hpp
-trans.o: trans.c trans.h
+trans.o: trans.cpp trans.hpp

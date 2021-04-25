@@ -12,16 +12,19 @@ track of the line number, and some of the operators have their precedence specif
 #define DEBUG
 #endif
 #endif
+
 #include "type.h"
 #include "List.hpp"
 #include "symtab.h"
 #include "data.h"
 #include "trans.h"
+
 using namespace ucc;
 //#define yyerrok
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 1
 #define YYSTYPE ucc::data
+
 #include "compiler.hpp"
 
 //#include "main.h"
@@ -33,9 +36,11 @@ using namespace ucc;
 //extern int othercounter;
 //extern int param_offset;
 //extern int offset_counter;
-extern Symtab* mysymtab;
-int mainlabel;
+extern Compiler* compiler;
+//extern Symtab* mysymtab;
+//int mainlabel;
 Funcb* currentFunc;
+
 extern int yyerror(std::string);
 extern int yylex (void);
 extern int warning(std::string,std::string);
@@ -1682,8 +1687,6 @@ relop: lesst { $$ = $1;}
 #include <iostream>
 int yyerror(std::string s)
 {
-//	fprintf(stderr,"Error: Line: %d: %s\n", Line_Number, s);
-//	fprintf(stderr,"Error:::%s:%d-> %s\n",filename,Line_Number,s);
 	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s << "\n";
     return 0;
 }
@@ -1691,15 +1694,11 @@ int yyerror(std::string s)
 
 int warning(std::string s1, std::string s2)
 {
-//	fprintf(stderr,"Warning: Line: %d: %s %s\n",Line_Number,s1,s2);
-//	fprintf(stderr,":::::Warning:::%s:%d-> %s %s\n",filename,Line_Number,s1,s2);
 	std::cerr << "Warning:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
     return 0;
 }
 
 int error(std::string s1, std::string s2){
-//	fprintf(stderr,"Error: Line: %d: %s %s\n",Line_Number,s1,s2);
-//	fprintf(stderr,"Error:::%s:%d-> %s %s\n",filename,Line_Number,s1, s2);
 	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
 	Compiler::founderror=true;
     return 0;

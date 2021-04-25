@@ -1,12 +1,25 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "trans.h"
+#include <ostream>
+#include <iostream>
+
+#include "trans.hpp"
 
 using namespace ucc;
 
+CodeGenerator::CodeGenerator() : labelcounter{1}, outfile{&std::cout} {
+}
+
+CodeGenerator::CodeGenerator(std::ostream& out) : labelcounter{1}, outfile{&out} {}
+
+void CodeGenerator::setstream(std::ostream& outfile){
+	this->outfile = &outfile;
+}
+
+
 void CodeGenerator::initializelabel(){
-	labelcounter=1;
+	labelcounter = 1;
 }
 
 int CodeGenerator::getlabel(){
@@ -14,18 +27,27 @@ int CodeGenerator::getlabel(){
 	return (labelcounter-1);
 }
 
-void CodeGenerator::nullout(std::string name, int length){
+void CodeGenerator::nullout(std::string& name, int length){
+	name.clear();
+	/*
 	int a;
 	for(a=0;a<length;a++){
 		name[a]=(char)NULL;
 	}
+	*/
 }
 
-char* CodeGenerator::genlabelw(std::string name, int labelnum){
+std::string CodeGenerator::genlabelw(std::string name, int labelnum){
+	std::string temp{"$"};
+	temp += name;
+	temp += labelnum;
+	return temp;
+	/*
 	char* tempstr;
 	int a;
 	char buf[30];
 	sprintf(buf,"%d",labelnum);
+	
 	tempstr = (char*) malloc(sizeof(char)*(strlen(name)+strlen(buf)+2));
 	nullout(tempstr, (int)(strlen(name)+strlen(buf)+2));
 	tempstr[0]='$';
@@ -35,47 +57,59 @@ char* CodeGenerator::genlabelw(std::string name, int labelnum){
 	tempstr= tempstr-1;
 	tempstr = (char*)strcat(tempstr,buf);
 	return tempstr;
+	*/
 }
-
+/*
 void CodeGenerator::deletelabel(std::string label){
 	if(label != NULL){
 		free(label);
 		//label=NULL;
 	}
 }
-
+*/
 void CodeGenerator::gen_instr(std::string name){
-	fprintf(infile, "\t%s\n", name);
+	*outfile << "\t" << name << "\n";
+//	fprintf(infile, "\t%s\n", name);
 }
 
 void CodeGenerator::gen_instr_I(std::string name, int arg){
-	fprintf(infile, "\t%s\t%d\n", name, arg);
+	*outfile << "\t" << name << "\t" << arg << "\n";
+//	fprintf(infile, "\t%s\t%d\n", name, arg);
 }
 
 void CodeGenerator::gen_instr_S(std::string name, std::string inS){
-	if(strcmp(name,"jump")==0 || strcmp(name,"jumpz")==0)
-		fprintf(infile,"\t%s\t%s\n",name,inS);
-	else fprintf(infile,"\t%s\t\"%s\"\n",name,inS);
+	if(name =="jump" || name == "jumpz"){
+//		fprintf(infile,"\t%s\t%s\n",name,inS);
+		*outfile << "\t" << name << "\t" << inS << "\n";
+	}
+	else{
+//	 fprintf(infile,"\t%s\t\"%s\"\n",name,inS);
+	 	*outfile << "\t" << name << "\t" << "\"" << inS << "\"\n";
+ 	}
 }
 
 void CodeGenerator::gen_label(std::string name){
-	fprintf(infile, "%s\n", name);
+//	fprintf(infile, "%s\n", name);
+	*outfile << name << "\n";
 }
 
 void CodeGenerator::gen_instr_F(std::string name, float arg){
-	fprintf(infile, "\t%s\t%f\n", name, arg);
+//	fprintf(infile, "\t%s\t%f\n", name, arg);
+	*outfile << "\t" << name << "\t" << arg << "\n";
 }
 
 void CodeGenerator::gen_call(std::string funcname, int numargs){
-	fprintf(infile, "\tcall\t%s, %d\n",funcname,numargs);
+//	fprintf(infile, "\tcall\t%s, %d\n",funcname,numargs);
+	*outfile << "\tcall\t" << funcname << ", " << numargs << "\n";
 }
 
 void CodeGenerator::gen_instr_tI(std::string name, int arg1, int arg2){
-	fprintf(infile, "\t%s\t%d, %d\n",name, arg1, arg2);
+//	fprintf(infile, "\t%s\t%d, %d\n",name, arg1, arg2);
+	*outfile << "\t" << name << "\t" << arg1 << ", " << arg2 << "\n";
 }
 
 
-char * CodeGenerator::concat(std::string char1, std::string char2){
+std::string CodeGenerator::concat(std::string char1, std::string char2){
 	return char1 + char2;
 	/*
 	char* tempstr;

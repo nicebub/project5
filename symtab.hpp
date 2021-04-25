@@ -1,9 +1,11 @@
 #ifndef _SYMTABH
 #define _SYMTABH
+
 #include <search.h>
 #include <cstdio>
 #include <map>
 #include <deque>
+
 #include "List.hpp"
 #include "type.h"
 //#include "main.h"

@@ -1,21 +1,30 @@
 #ifndef _COMPILER_HPP
 #define _COMPILER_HPP
 #include <string>
+
 #include "type.h"
+#include "trans.hpp"
+#include "symtab.hpp"
 
 extern FILE* 						yyin;
+extern int error(std::string, std::string);
 
-//#define extern
+
+const int INITIAL_TREE_SIZE = 100;
 
 namespace ucc{
 	class Compiler{
 		public:
+			CodeGenerator code_generator;
+			SymbolTable* 			mysymtab;
+
 			Compiler();
 			~Compiler();
+
 			std::string openfile(int argc, const char** argv);
 			int checkargs(int argc, const char** argv);
 
-			static FILE* 			infile;
+			static std::ostream*	outfile;
 			static std::string 	filename;
 			static int 				Line_Number;
 			static int 				globalcount;
@@ -26,7 +35,6 @@ namespace ucc{
 			static int 				mainlocal;
 			static bool 			founderror;
 
-			SymbolTable 			mysymtab;
 		private:
 //			extern FILE*	infile;
 //			Symtab*			mysymtab;

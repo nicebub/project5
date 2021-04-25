@@ -48,23 +48,28 @@ enum class mbool{
 };
 
 struct Funcb {
-	type returntype;
-	int num_param;
 	type* param_type;
-	bool bodydef;
-	int label;
-	int localcount;
-	int actual_num;
+	type 	returntype;
+	bool 	bodydef;
+	int 	num_param;
+	int 	label;
+	int 	localcount;
+	int 	actual_num;
 };
 
 struct Varb {
-	type type;
-	int offset;
+	type 	type;
+	int 	offset;
 };
 
 struct Paramb {
-	type type;
-	int offset;
+	type 	type;
+	int 	offset;
+};
+
+struct Pair{
+	int one;
+	int two;
 };
 
 }

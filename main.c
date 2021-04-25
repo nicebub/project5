@@ -14,40 +14,41 @@ Debug::set_yydebug(1);
 
 #include "type.h"
 #include "data.h"
-#include "List.h"
+#include "List.hpp"
 #include "symtab.h"
-#include "trans.h"
+#include "trans.hpp"
 #include "compiler.hpp"
+
 #ifndef YYSTYPE
 #define YYSTYPE ucc::data
 #endif
-#include "ucc.tab.hpp"
-///#include "main.h"
 
-extern FILE* yyin;
-extern int yyparse(void);
-extern int error(std::string s1, std::string s2);
+#include "ucc.tab.hpp"
+
+extern FILE* 			yyin;
+
+extern int 				yyparse(void);
+extern int 				error(std::string s1, std::string s2);
 
 using namespace ucc;
 
-int main(int argc, const char **argv){
-	Compiler compiler{};
+Compiler compiler{};
 
-	CodeGenerator::initializelabel();
+int main(int argc, const char **argv){
 
 	if(compiler.checkargs(argc,argv) == -1){
+
 		#ifdef DEBUG
-			compiler.filename = "main.c";
 			debugprint("No arguments given to compiler","");
 		#endif
+
 		return -1;
 	}
 	if((compiler.filename = compiler.openfile(argc, argv)).empty()){
 		return -1;
 	}
-//	compiler.mysymtab = createTree(100);
+
 	if(compiler.mysymtab == NULL){
-		compiler.filename = "main.c";
 		error("Unable to construct symbol table","");
 		return -1;
 	}
@@ -55,12 +56,9 @@ int main(int argc, const char **argv){
 	yyparse();
 
 	#ifdef DEBUG
-	printTree(compiler.mysymtab);
+	compiler.mysymtab.printTree();
 	#endif
 
-//	deleteTree(compiler.mysymtab);
-	if(compiler.infile !=NULL)
-		fclose(compiler.infile);
 	return 0;
 
 }

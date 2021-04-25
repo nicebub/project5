@@ -85,11 +85,12 @@ bool Table::install(TableEntry* entry){
 		table[entry->getName()] = entry;
 		answer = true;
 	}
-	return answer;
 	#ifdef DEBUG
 	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
 	printTree(symtab);
 	#endif
+
+	return answer;
 }
 
 SymbolTable::SymbolTable() : stack{} {}
@@ -213,12 +214,14 @@ bool Ecmp(const void *TableEntry1, const void *TableEntry2){
 */
 #ifdef DEBUG
 void SymbolTable::printTree(SymbolTable *symtab){
-	if(symtab->Stack[0] != NULL || symtab->Stack[symtab->actualStacksize-1] != NULL)
-		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);
-	else
+	if(symtab != NULL){
+//		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);
+	}
+	else{
 		fprintf(stderr,"Stack was null\n");
+	}
 }
-
+/*
 void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
 		TableEntry * temp;
 		Funcb * tempb;
@@ -343,10 +346,12 @@ void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
 		}
 	}
 }
+
+*/
 #endif
 SymbolTable* SymbolTable::createTree(int Stacksize){
 	SymbolTable *temp;
-	temp = new SymbolTable;
+	temp = new SymbolTable{};
 	temp->actualStacksize=1;
 	temp->Stacksize = Stacksize;
 	return temp;
@@ -561,7 +566,7 @@ void ucc::addtosymtab(SymbolTable *mysymtab, type mytype, List * myList){
 	else error("mysymtab was NULL","");
 }
 
-TableEntry * SymbolTable::lookupB(const std::string name, SymbolTable *symtab){
+TableEntry * SymbolTable::lookupB(const std::string name){
 	TableEntry ** found;
     found = NULL;
 	TableEntry *temp;
