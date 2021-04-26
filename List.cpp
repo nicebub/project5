@@ -12,7 +12,7 @@
 #include "type.hpp"
 
 //extern int warning(char*,char*);
-extern int error(std::string,std::string);
+//extern int error(std::string,std::string);
 
 using namespace ucc;
 
@@ -76,6 +76,13 @@ List::~List(){
 	for(auto* element : list){
 		delete element;
 	}
+}
+
+std::vector<BasicListNode*>::iterator List::begin(){
+	return list.begin();
+}
+std::vector<BasicListNode*>::iterator List::end(){
+	return list.end();
 }
 
 int List::size() const{

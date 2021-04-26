@@ -1,5 +1,5 @@
-#ifndef _MYDATAH
-#define _MYDATAH
+#ifndef _MYDATA_H
+#define _MYDATA_H
 
 #include <string>
 

@@ -1,5 +1,7 @@
-#ifndef _MYTYPEH
-#define _MYTYPEH
+#ifndef _MYTYPE_H
+#define _MYTYPE_H
+
+#include <vector>
 
 namespace ucc{
 
@@ -48,7 +50,8 @@ enum class mbool{
 };
 
 struct Funcb {
-	type* param_type;
+	std::vector<type> param_type;
+//	type* param_type;
 	type 	returntype;
 	bool 	bodydef;
 	int 	num_param;

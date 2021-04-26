@@ -13,10 +13,10 @@ track of the line number, and some of the operators have their precedence specif
 #endif
 #endif
 
-#include "type.h"
+#include "type.hpp"
 #include "List.hpp"
 #include "symtab.hpp"
-#include "data.h"
+#include "data.hpp"
 #include "trans.hpp"
 
 using namespace ucc;

@@ -1,5 +1,5 @@
-#ifndef _SYMTABH
-#define _SYMTABH
+#ifndef _SYMTAB_H
+#define _SYMTAB_H
 
 #include <search.h>
 #include <cstdio>
@@ -8,7 +8,6 @@
 
 #include "List.hpp"
 #include "type.hpp"
-//#include "main.h"
 
 //extern int Line_Number;
 //extern FILE *infile;

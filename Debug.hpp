@@ -2,6 +2,7 @@
 #define _DEBUG_H
 
 namespace ucc{
+
 	class Debug{
 		public:
 			Debug();

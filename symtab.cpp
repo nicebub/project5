@@ -450,7 +450,7 @@ TableEntry* ucc::createFunc(std::string name, type returntype, List* paramlist){
         tBinding->label = 0;
         tBinding->localcount=0;
         tBinding->actual_num=0;
-        tBinding->param_type=NULL;
+//        tBinding->param_type=NULL;
 //        temp->binding = tBinding;
 			temp = new TableEntry{name,tBinding,btype::FUNC};
 
@@ -471,14 +471,18 @@ TableEntry* ucc::createFunc(std::string name, type returntype, List* paramlist){
 			((Funcb*)(temp->binding))->num_param=0;
 */
 		if(((Funcb*)(temp->getBinding()))->num_param >0){
-			((Funcb*)(temp->getBinding()))->param_type = (type*)malloc((sizeof(type) * paramlist->size()));
-			tempP = paramlist->list;
-			for(a=0;a<paramlist->size();a++){
-				((Funcb*)(temp->getBinding()))->param_type[a] = tempP->ttype;
+//			((Funcb*)(temp->getBinding()))->param_type = (type*)malloc((sizeof(type) * paramlist->size()));
+//			tempP = paramlist->list;
+			for(auto element : *paramlist){
+//			for(a=0;a<paramlist->size();a++){
+				
+				((Funcb*)(temp->getBinding()))->param_type.push_back(element->gettype());
+
 				#ifdef DEBUG
-				fprintf(stderr,"in Function install type is %d\n",tempP->ttype);
+				fprintf(stderr,"in Function install type is %d\n",element->gettype());
 				#endif
-				if( "..." == tempP->getval()){
+
+				if( "..." == element->getval()){
 					elip = true;
 				}
 				else{

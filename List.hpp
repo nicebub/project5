@@ -65,7 +65,8 @@ class List{
 		static List* mklist(std::string inVal);
 		static List* mklist(std::string inVal, type inType);
 		static List* mklist(exprtype* expr);
-
+		std::vector<BasicListNode*>::iterator begin();
+		std::vector<BasicListNode*>::iterator end();
 		List* appendList(std::string inVal);
 		List* appendList(std::string inVal, ucc::type inType);
 		List* appendList(exprtype* expr);

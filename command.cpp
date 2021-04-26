@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #ifdef DEBUGON
 #ifndef DEBUG
@@ -13,11 +14,17 @@
 
 using namespace ucc;
 
+bool endsWC(std::string& in){
+	std::string extra{""};
+	extra = in[(in.size()-1)];
+	extra += in[(in.size()-2)];
+	return extra == "c.";
+	
+}
 int Compiler::checkargs(int argc, const char** argv){
 	if(argc >1){
 		std::string temp{argv[1]};
-
-		if(temp.ends_with(".c")){
+		if(endsWC(temp)){
 			yyin = std::fopen(argv[1], "r");
 			if(yyin == NULL){
 				std::cerr << argv[1] << ": cannot open input file\n";
@@ -39,7 +46,7 @@ int Compiler::checkargs(int argc, const char** argv){
 
 std::string Compiler::openfile(int argc, const char** argv){
 	std::string tempstr{argv[1]};
-	if(tempstr.ends_with(".c")){
+	if(endsWC(tempstr)){
 		const size_t a{tempstr.length()-2};
 
 		tempstr[a] = '.';
@@ -49,11 +56,13 @@ std::string Compiler::openfile(int argc, const char** argv){
 		#ifdef DEBUG
 		std::cerr << "trying to open file: " << tempstr << std::endl;
 		#endif
-		if((infile = std::fopen(tempstr.c_str(),"w"))==NULL){
+		std::fstream assembly{tempstr, std::fstream::out};
+		if(!assembly.is_open()){
 			std::cerr << "cannot open file " << tempstr << " for writing\n";
 			return NULL;
 		}
 		else{
+			outfile = &assembly;
 			return tempstr;
 		}
 	}
