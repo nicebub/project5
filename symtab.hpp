@@ -37,6 +37,8 @@ namespace ucc{
 			void * binding;
 			btype self;
 	};
+	
+	
 	class Table{
 		public:
 			Table();
@@ -47,7 +49,10 @@ namespace ucc{
 		private:
 			std::map<std::string,TableEntry*> table;
 	};
+	
+	
 	using stable = std::map<std::string,void*,btype>;
+
 	class SymbolTable{
 		public:
 		SymbolTable();
@@ -66,13 +71,13 @@ namespace ucc{
 			void deleteTree();
 			static SymbolTable* createTree(int Stacksize);
 			void addtosymtab(type mytype, List* myList);
+			int getleveldif(std::string name);
 		private:
 			std::deque<Table*> stack; //Stack of Binary Search Trees
 			int actualStacksize; //used to keep size and top of stack
 			int Stacksize; //default of 100
 			int offset_counter;
 		};
-		int getleveldif(std::string name, SymbolTable* mysymtab);
 		TableEntry* createFunc(std::string name, type returntype, List* paramlist);
 		TableEntry* createVar(std::string name, type t_type, int offset);
 		TableEntry* createParam(std::string name, type t_type, int offset);

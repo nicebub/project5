@@ -124,12 +124,12 @@ extern int error(std::string,std::string);
 
 starter: translation_unit {
 			if(Compiler::founderror == false){
-				CodeGenerator::gen_label("main");
-				CodeGenerator::gen_instr_I("enter",0);
-				CodeGenerator::gen_instr_I("alloc",Compiler::globalcount);
-				CodeGenerator::gen_instr_I("enter",0);
-				CodeGenerator::gen_call(CodeGenerator::genlabelw("main",mainlabel),0);
-				CodeGenerator::gen_instr("return");
+				compiler->code_generator.gen_label("main");
+				compiler->code_generator.gen_instr_I("enter",0);
+				compiler->code_generator.gen_instr_I("alloc",Compiler::globalcount);
+				compiler->code_generator.gen_instr_I("enter",0);
+				compiler->code_generator.gen_call(compiler->code_generator.genlabelw("main",mainlabel),0);
+				compiler->code_generator.gen_instr("return");
 
 			}
 	}
@@ -176,8 +176,8 @@ func: funcheader {
 						SymbolTable::openscope(mysymtab);
 						 alreadyopen=true;
 						if(Compiler::founderror==false){
-							mainlabel=CodeGenerator::getlabel();
-							CodeGenerator::gen_label(CodeGenerator::genlabelw("main", mainlabel));
+							mainlabel=compiler->code_generator.getlabel();
+							compiler->code_generator.gen_label(compiler->code_generator.genlabelw("main", mainlabel));
 						}
 					}
 					else{
@@ -241,7 +241,7 @@ func: funcheader {
 												}
 												if(Compiler::founderror==false){
 													//tempb->label=getlabel();
-													CodeGenerator::gen_label(CodeGenerator::genlabelw($1->name,tempb->label ));
+													compiler->code_generator.gen_label(compiler->code_generator.genlabelw($1->name,tempb->label ));
 
 												}
 											}
@@ -261,7 +261,7 @@ func: funcheader {
 		}
 	funcbody {
 			if(Compiler::founderror==false){
-				CodeGenerator::gen_instr("returnf");
+				compiler->code_generator.gen_instr("returnf");
 			}
 //			if(currentFunc == NULL)
 //				closemainscope(mysymtab);
@@ -503,10 +503,10 @@ funcbody: lcbra
 			if(Compiler::founderror==false){
 				Compiler::mainlocal=Compiler::offset_counter-5;
 				if(currentFunc==NULL)
-					CodeGenerator::gen_instr_I("alloc", Compiler::mainlocal);
+					compiler->code_generator.gen_instr_I("alloc", Compiler::mainlocal);
 				else{
 					currentFunc->localcount=Compiler::offset_counter-5-currentFunc->num_param;
-					CodeGenerator::gen_instr_I("alloc",currentFunc->localcount);
+					compiler->code_generator.gen_instr_I("alloc",currentFunc->localcount);
 				}
 			}
 		}
@@ -551,7 +551,7 @@ stmtlist: stmtlist stmt {}
 
 stmt: expr semi {
 		if(Compiler::founderror==false)
-			CodeGenerator::gen_instr_I("popI",4);
+			compiler->code_generator.gen_instr_I("popI",4);
 	}
 	| returnt semi {
 					if(currentFunc ==NULL)
@@ -561,7 +561,7 @@ stmt: expr semi {
 							error("Function has return type that is not void","");
 						else{
 							if(Compiler::founderror==false){
-								CodeGenerator::gen_instr("returnf");
+								compiler->code_generator.gen_instr("returnf");
 							}
 						}
 					}
@@ -576,13 +576,13 @@ stmt: expr semi {
 								if(Compiler::founderror==false){
 									if($2->lval==true){
 										switch($2->type){
-											case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-											case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+											case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+											case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                             default: break;
 										}
 									}
-									if($2->type != type::INT) CodeGenerator::gen_instr("int");
-									CodeGenerator::gen_instr("setrvI");
+									if($2->type != type::INT) compiler->code_generator.gen_instr("int");
+									compiler->code_generator.gen_instr("setrvI");
 								}
 
 						}
@@ -596,28 +596,28 @@ stmt: expr semi {
 								if(Compiler::founderror==false){
                                                 if($2->lval==true){
                                                     switch($2->type){
-                                                        case type::INT:       CodeGenerator::gen_instr("fetchI"); break;
-                                                        case type::FLOAT:     CodeGenerator::gen_instr("fetchR"); break;
+                                                        case type::INT:       compiler->code_generator.gen_instr("fetchI"); break;
+                                                        case type::FLOAT:     compiler->code_generator.gen_instr("fetchR"); break;
                                                         default:    break;
                                                                                 }
                                                                         }
 									switch(currentFunc->returntype){
 										case type::INT:	switch($2->type){
-													case type::FLOAT:	CodeGenerator::gen_instr("int");
-													case type::INT:	CodeGenerator::gen_instr("setrvI"); break;
+													case type::FLOAT:	compiler->code_generator.gen_instr("int");
+													case type::INT:	compiler->code_generator.gen_instr("setrvI"); break;
                                                     default: break;
 												}
 												break;
 										case type::FLOAT:	switch($2->type){
-													case type::INT:	CodeGenerator::gen_instr("flt");
-													case type::FLOAT:	CodeGenerator::gen_instr("setrvR"); break;
+													case type::INT:	compiler->code_generator.gen_instr("flt");
+													case type::FLOAT:	compiler->code_generator.gen_instr("setrvR"); break;
                                                     default:    break;
 												}
 												break;
                                         default: break;
 									}
                                     
-									CodeGenerator::gen_instr("returnf");
+									compiler->code_generator.gen_instr("returnf");
                                                                 }
 
 
@@ -632,7 +632,7 @@ stmt: expr semi {
 			Compiler::othercounter++;
 			$$.two = Compiler::othercounter;
 			Compiler::othercounter++;
-			CodeGenerator::gen_label(CodeGenerator::genlabelw("",$$.one));
+			compiler->code_generator.gen_label(compiler->code_generator.genlabelw("",$$.one));
 		}
 	}
 	lpar
@@ -642,13 +642,13 @@ stmt: expr semi {
 			if($4->numeric==true){
 				if($4->lval==true ){
 					switch($4->type){
-						case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-						case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); CodeGenerator::gen_instr("int"); break;
+						case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+						case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); compiler->code_generator.gen_instr("int"); break;
                         default:    break;
 					}
 				}
 			}
-			CodeGenerator::gen_instr_S("jumpz", CodeGenerator::genlabelw("",$2.two));
+			compiler->code_generator.gen_instr_S("jumpz", compiler->code_generator.genlabelw("",$2.two));
 
 		}
 	}
@@ -659,8 +659,8 @@ stmt: expr semi {
 						if($4->type != type::INT)
 							error("expression in while statement is not an integer","");
 						if(Compiler::founderror==false){
-							CodeGenerator::gen_instr_S("jump", CodeGenerator::genlabelw("",$2.one));
-							CodeGenerator::gen_label(CodeGenerator::genlabelw("",$2.two));
+							compiler->code_generator.gen_instr_S("jump", compiler->code_generator.genlabelw("",$2.one));
+							compiler->code_generator.gen_label(compiler->code_generator.genlabelw("",$2.two));
 						}
 
 				}
@@ -669,8 +669,8 @@ stmt: expr semi {
 	| ifexprstmt
 	  elset {
 		if(Compiler::founderror==false){
-			CodeGenerator::gen_instr_S("jump", CodeGenerator::genlabelw("",$1.two));
-			CodeGenerator::gen_label(CodeGenerator::genlabelw("",$1.one));
+			compiler->code_generator.gen_instr_S("jump", compiler->code_generator.genlabelw("",$1.two));
+			compiler->code_generator.gen_label(compiler->code_generator.genlabelw("",$1.one));
 		}
 	}
 
@@ -682,7 +682,7 @@ stmt: expr semi {
 							error("expression in if statement is not an integer","");
 						else{
 							if(Compiler::founderror==false){
-								CodeGenerator::gen_label(CodeGenerator::genlabelw("",$1.two));
+								compiler->code_generator.gen_label(compiler->code_generator.genlabelw("",$1.two));
 							}
 						}
 					}
@@ -696,7 +696,7 @@ stmt: expr semi {
 							error("expression in if statement is not an integer","");
 						else{
 
-							if(Compiler::founderror==false) CodeGenerator::gen_label(CodeGenerator::genlabelw("",$1.one));
+							if(Compiler::founderror==false) compiler->code_generator.gen_label(compiler->code_generator.genlabelw("",$1.one));
 						}
 					}
 	}
@@ -727,12 +727,12 @@ ifexprstmt:
 		if(Compiler::founderror==false){
 			if($3->lval==true && $3->numeric==true){
 				switch($3->type){
-					case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-					case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); CodeGenerator::gen_instr("int"); break;
+					case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+					case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); compiler->code_generator.gen_instr("int"); break;
                     default:    break;
 				}
 			}
-			CodeGenerator::gen_instr_S("jumpz", CodeGenerator::genlabelw("",$$.one));
+			compiler->code_generator.gen_instr_S("jumpz", compiler->code_generator.genlabelw("",$$.one));
 		}
 	}
 	rpar
@@ -752,8 +752,8 @@ expr: equalexpr equalt equalexpr {
 						if(Compiler::founderror==false){
 							if($3.lval==true){
 								switch($3.ttype){
-									case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-									case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+									case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+									case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
@@ -762,8 +762,8 @@ expr: equalexpr equalt equalexpr {
 							$$ = (exprtype*) malloc(sizeof(exprtype));
 							if(Compiler::founderror==false){
 								switch($1.ttype){
-									case(type::INT): $$->type= type::INT; CodeGenerator::gen_instr("storeI"); break;
-									case(type::FLOAT): $$->type= type::FLOAT; CodeGenerator::gen_instr("storeR"); break;
+									case(type::INT): $$->type= type::INT; compiler->code_generator.gen_instr("storeI"); break;
+									case(type::FLOAT): $$->type= type::FLOAT; compiler->code_generator.gen_instr("storeR"); break;
                                     default:    break;
 								}
 							}
@@ -778,8 +778,8 @@ expr: equalexpr equalt equalexpr {
 							$$->lval=true;
 							$$->numeric=true;
 							if(Compiler::founderror==false){
-								CodeGenerator::gen_instr("int");
-								CodeGenerator::gen_instr("storeI");
+								compiler->code_generator.gen_instr("int");
+								compiler->code_generator.gen_instr("storeI");
 							}
 						}
 						else if($1.ttype == type::FLOAT && $3.ttype == type::INT) {
@@ -789,8 +789,8 @@ expr: equalexpr equalt equalexpr {
 							$$->numeric=true;
 							$$->lval=true;
 							if(Compiler::founderror==false){
-								CodeGenerator::gen_instr("flt");
-								CodeGenerator::gen_instr("storeR");
+								compiler->code_generator.gen_instr("flt");
+								compiler->code_generator.gen_instr("storeR");
 							}
 						}
 
@@ -808,8 +808,8 @@ equalexpr: relexpr
 		if(Compiler::founderror==false){
 			if($1.numeric==true){
 				switch($1.ttype){
-					case type::INT:	if($1.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-					case type::FLOAT:	if($1.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+					case type::INT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+					case type::FLOAT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -819,8 +819,8 @@ equalexpr: relexpr
 		if(Compiler::founderror==false){
 			if($4.numeric==true){
 				switch($4.ttype){
-					case type::INT:	if($4.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-					case type::FLOAT:	if($4.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+					case type::INT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+					case type::FLOAT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -832,11 +832,11 @@ equalexpr: relexpr
 						if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype= type::INT;
 							if(Compiler::founderror==false){
                                                                         switch($<value.eqopvalue>2){
-                                                                                case eqtype::NEQ:       if($1.ttype== type::INT) CodeGenerator::gen_instr("neI");
-                                                                                                else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("neR");
+                                                                                case eqtype::NEQ:       if($1.ttype== type::INT) compiler->code_generator.gen_instr("neI");
+                                                                                                else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("neR");
                                                                                                 break;
-                                                                                case eqtype::EQEQ:      if($1.ttype== type::INT) CodeGenerator::gen_instr("eqI");
-                                                                                                else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("eqR");
+                                                                                case eqtype::EQEQ:      if($1.ttype== type::INT) compiler->code_generator.gen_instr("eqI");
+                                                                                                else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -848,11 +848,11 @@ equalexpr: relexpr
 							$$.ttype = type::INT;
 								if(Compiler::founderror==false){
                                                                         switch($<value.eqopvalue>2){
-                                                                                case eqtype::NEQ:       CodeGenerator::gen_instr("fltb");
-                                                                                                CodeGenerator::gen_instr("neR");
+                                                                                case eqtype::NEQ:       compiler->code_generator.gen_instr("fltb");
+                                                                                                compiler->code_generator.gen_instr("neR");
                                                                                                 break;
-                                                                                case eqtype::EQEQ:       CodeGenerator::gen_instr("fltb");
-                                                                                                CodeGenerator::gen_instr("eqR");
+                                                                                case eqtype::EQEQ:       compiler->code_generator.gen_instr("fltb");
+                                                                                                compiler->code_generator.gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -864,11 +864,11 @@ equalexpr: relexpr
 							$$.ttype= type::INT;
 							if(Compiler::founderror==false){
                                                                         switch($<value.eqopvalue>2){
-                                                                                case eqtype::NEQ:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("neR");
+                                                                                case eqtype::NEQ:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("neR");
                                                                                                 break;
-                                                                                case eqtype::EQEQ:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("eqR");
+                                                                                case eqtype::EQEQ:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("eqR");
                                                                                                 break;
                                                                                 default:    break;
                                                                         }
@@ -886,8 +886,8 @@ relexpr: simpleexpr
 		if(Compiler::founderror==false){
 			if($1.numeric==true){
 				switch($1.ttype){
-					case type::INT:	if($1.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-					case type::FLOAT:	if($1.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+					case type::INT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+					case type::FLOAT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                     default:    break;
                 }
 			}
@@ -897,8 +897,8 @@ relexpr: simpleexpr
 			if(Compiler::founderror==false){
 				if($4.numeric==true){
 					switch($4.ttype){
-						case type::INT:	if($4.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-						case type::FLOAT:	if($4.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+						case type::INT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+						case type::FLOAT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                         default:    break;
 					}
 				}
@@ -910,17 +910,17 @@ relexpr: simpleexpr
 							if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype= type::INT;
 								if(Compiler::founderror==false){
 									switch($<value.relopvalue>2){
-                                        case reltype::LES:       if($1.ttype== type::INT) CodeGenerator::gen_instr("ltI");
-                                                                else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("ltR");
+                                        case reltype::LES:       if($1.ttype== type::INT) compiler->code_generator.gen_instr("ltI");
+                                                                else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("ltR");
                                                                             break;
-                                        case reltype::LEQ:       if($1.ttype== type::INT) CodeGenerator::gen_instr("leI");
-                                                                else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("leR");
+                                        case reltype::LEQ:       if($1.ttype== type::INT) compiler->code_generator.gen_instr("leI");
+                                                                else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("leR");
                                                                             break;
-										case reltype::GRE:	if($1.ttype== type::INT) CodeGenerator::gen_instr("gtI");
-												else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("gtR");
+										case reltype::GRE:	if($1.ttype== type::INT) compiler->code_generator.gen_instr("gtI");
+												else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("gtR");
 												break;
-										case reltype::GEQ:	if($1.ttype== type::INT) CodeGenerator::gen_instr("geI");
-												else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("geR");
+										case reltype::GEQ:	if($1.ttype== type::INT) compiler->code_generator.gen_instr("geI");
+												else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("geR");
 												break;
                                         default:    break;
                                                                         }
@@ -932,17 +932,17 @@ relexpr: simpleexpr
 								$$.ttype = type::INT;
 								if( Compiler::founderror==false){
                                                 switch($<value.relopvalue>2){
-                                                        case reltype::LES:       CodeGenerator::gen_instr("fltb");
-												CodeGenerator::gen_instr("ltR");
+                                                        case reltype::LES:       compiler->code_generator.gen_instr("fltb");
+												compiler->code_generator.gen_instr("ltR");
                                                                                                 break;
-                                                        case reltype::LEQ:       CodeGenerator::gen_instr("fltb");
-												CodeGenerator::gen_instr("leR");
+                                                        case reltype::LEQ:       compiler->code_generator.gen_instr("fltb");
+												compiler->code_generator.gen_instr("leR");
                                                                                                 break;
-                                                        case reltype::GRE:       CodeGenerator::gen_instr("fltb");
-												CodeGenerator::gen_instr("gtR");
+                                                        case reltype::GRE:       compiler->code_generator.gen_instr("fltb");
+												compiler->code_generator.gen_instr("gtR");
                                                                                                 break;
-                                                        case reltype::GEQ:       CodeGenerator::gen_instr("fltb");
-												CodeGenerator::gen_instr("geR");
+                                                        case reltype::GEQ:       compiler->code_generator.gen_instr("fltb");
+												compiler->code_generator.gen_instr("geR");
                                                                                                 break;
                                                         default:    break;
                                                                         }
@@ -953,17 +953,17 @@ relexpr: simpleexpr
 								$$.ttype = type::INT;
 								if( Compiler::founderror==false){
                                                                         switch($<value.relopvalue>2){
-                                                                                case reltype::LES:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("ltR");
+                                                                                case reltype::LES:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("ltR");
                                                                                                 break;
-                                                                                case reltype::LEQ:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("leR");
+                                                                                case reltype::LEQ:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("leR");
                                                                                                 break;
-                                                                                case reltype::GRE:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("gtR");
+                                                                                case reltype::GRE:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("gtR");
                                                                                                 break;
-                                                                                case reltype::GEQ:       CodeGenerator::gen_instr("flt");
-                                                                                                CodeGenerator::gen_instr("geR");
+                                                                                case reltype::GEQ:       compiler->code_generator.gen_instr("flt");
+                                                                                                compiler->code_generator.gen_instr("geR");
                                                                                                 break;
                                                                                 default:     break;
                                                                         }
@@ -985,8 +985,8 @@ simpleexpr: simpleexpr
 		if(Compiler::founderror==false){
                         if($1.numeric==true){
                                 switch($1.ttype){
-                                        case type::INT:       if($1.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-                                        case type::FLOAT:     if($1.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+                                        case type::INT:       if($1.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+                                        case type::FLOAT:     if($1.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                                         default:        break;
                                 }
                         }
@@ -998,8 +998,8 @@ simpleexpr: simpleexpr
 			if(Compiler::founderror==false){
                                 if($4.numeric ==true){
                                         switch($4.ttype){
-                                                case type::INT:       if($4.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-                                                case type::FLOAT:     if($4.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+                                                case type::INT:       if($4.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+                                                case type::FLOAT:     if($4.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                                                 default:        break;
                                         }
                                 }
@@ -1010,11 +1010,11 @@ simpleexpr: simpleexpr
 							if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype=$1.ttype;
 								if(Compiler::founderror==false){
         		                                                switch($<value.addopvalue>2){
-                		                                                case addtype::PLS:       if($1.ttype== type::INT) CodeGenerator::gen_instr("addI");
-                        		                                                        else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("addR");
+                		                                                case addtype::PLS:       if($1.ttype== type::INT) compiler->code_generator.gen_instr("addI");
+                        		                                                        else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("addR");
                                 		                                                break;
-                                        		                        case addtype::MIN:       if($1.ttype== type::INT) CodeGenerator::gen_instr("subI");
-                                                		                                else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("subR");
+                                        		                        case addtype::MIN:       if($1.ttype== type::INT) compiler->code_generator.gen_instr("subI");
+                                                		                                else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("subR");
                                                         		                        break;
                                                                         default:        break;
                            	                       		      	}
@@ -1024,11 +1024,11 @@ simpleexpr: simpleexpr
 								$$.ttype = type::FLOAT;
 		                                                if( Compiler::founderror==false){
 		                                                        switch($<value.addopvalue>2){
-		                                                                case addtype::PLS:       CodeGenerator::gen_instr("fltb");
-		                                                                                CodeGenerator::gen_instr("addR");
+		                                                                case addtype::PLS:       compiler->code_generator.gen_instr("fltb");
+		                                                                                compiler->code_generator.gen_instr("addR");
 		                                                                                break;
-		                                                                case addtype::MIN:       CodeGenerator::gen_instr("fltb");
-		                                                                                CodeGenerator::gen_instr("subR");
+		                                                                case addtype::MIN:       compiler->code_generator.gen_instr("fltb");
+		                                                                                compiler->code_generator.gen_instr("subR");
 		                                                                                break;
                                                                         default:        break;
 		                                                        }
@@ -1038,11 +1038,11 @@ simpleexpr: simpleexpr
 								$$.ttype = type::FLOAT;
                         		                        if( Compiler::founderror==false){
                         		                                switch($<value.addopvalue>2){
-                        		                                        case addtype::PLS:       CodeGenerator::gen_instr("flt");
-                        		                                                        CodeGenerator::gen_instr("addR");
+                        		                                        case addtype::PLS:       compiler->code_generator.gen_instr("flt");
+                        		                                                        compiler->code_generator.gen_instr("addR");
                         		                                                        break;
-                        		                                        case addtype::MIN:       CodeGenerator::gen_instr("flt");
-                        		                                                        CodeGenerator::gen_instr("subR");
+                        		                                        case addtype::MIN:       compiler->code_generator.gen_instr("flt");
+                        		                                                        compiler->code_generator.gen_instr("subR");
                 		                                                                break;
                                                                         default:                break;
                 		                                        }
@@ -1063,8 +1063,8 @@ term: term mulop {
 		if(Compiler::founderror==false){
 			if($1.numeric==true){
 				switch($1.ttype){
-					case type::INT:	if($1.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-					case type::FLOAT:	if($1.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+					case type::INT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+					case type::FLOAT:	if($1.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                     default:    break;
 				}
 			}
@@ -1074,8 +1074,8 @@ term: term mulop {
 			if(Compiler::founderror==false){
 				if($4.numeric ==true){
 					switch($4.ttype){
-						case type::INT:	if($4.lval==true) CodeGenerator::gen_instr("fetchI"); break;
-						case type::FLOAT:	if($4.lval==true) CodeGenerator::gen_instr("fetchR"); break;
+						case type::INT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchI"); break;
+						case type::FLOAT:	if($4.lval==true) compiler->code_generator.gen_instr("fetchR"); break;
                         default:    break;
 					}
 				}
@@ -1086,11 +1086,11 @@ term: term mulop {
 					if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype = $1.ttype;
 						if(Compiler::founderror==false){
 							switch($<value.multopvalue>2){
-								case multype::DIV:	if($1.ttype== type::INT) CodeGenerator::gen_instr("divI");
-										else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("divR");
+								case multype::DIV:	if($1.ttype== type::INT) compiler->code_generator.gen_instr("divI");
+										else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("divR");
 										break;
-								case multype::MULT:	if($1.ttype== type::INT) CodeGenerator::gen_instr("mulI");
-										else if($1.ttype== type::FLOAT) CodeGenerator::gen_instr("mulR");
+								case multype::MULT:	if($1.ttype== type::INT) compiler->code_generator.gen_instr("mulI");
+										else if($1.ttype== type::FLOAT) compiler->code_generator.gen_instr("mulR");
 										break;
                                         default:    break;
 							}
@@ -1101,11 +1101,11 @@ term: term mulop {
 						$$.ttype = type::FLOAT;
 						if(Compiler::founderror==false){
 							switch($<value.multopvalue>2){
-        	                                                case multype::DIV:       CodeGenerator::gen_instr("fltb");
-										CodeGenerator::gen_instr("divR");
+        	                                                case multype::DIV:       compiler->code_generator.gen_instr("fltb");
+										compiler->code_generator.gen_instr("divR");
                         	                                                break;
-                                	                        case multype::MULT:      CodeGenerator::gen_instr("fltb");
-										CodeGenerator::gen_instr("mulR");
+                                	                        case multype::MULT:      compiler->code_generator.gen_instr("fltb");
+										compiler->code_generator.gen_instr("mulR");
                                                 	                        break;
                                                             default:    break;
 	                                                }
@@ -1116,11 +1116,11 @@ term: term mulop {
 						$$.ttype = type::FLOAT;
 						if(Compiler::founderror==false){
 							switch($<value.multopvalue>2){
-        	                                                case multype::DIV:       CodeGenerator::gen_instr("flt");
-                	                                                        CodeGenerator::gen_instr("divR");
+        	                                                case multype::DIV:       compiler->code_generator.gen_instr("flt");
+                	                                                        compiler->code_generator.gen_instr("divR");
                         	                                                break;
-                                	                        case multype::MULT:      CodeGenerator::gen_instr("flt");
-                                        	                                CodeGenerator::gen_instr("mulR");
+                                	                        case multype::MULT:      compiler->code_generator.gen_instr("flt");
+                                        	                                compiler->code_generator.gen_instr("mulR");
                                                 	                        break;
                                                             default:            break;
 	                                                }
@@ -1141,11 +1141,11 @@ term: term mulop {
 factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
 		if(Compiler::founderror==false){
 			if($$.ttype == type::INT)
-				CodeGenerator::gen_instr_I("pushcI",$<value.ivalue>1);
+				compiler->code_generator.gen_instr_I("pushcI",$<value.ivalue>1);
 			else if($$.ttype == type::FLOAT)
-				CodeGenerator::gen_instr_F("pushcR",$<value.fvalue>1);
+				compiler->code_generator.gen_instr_F("pushcR",$<value.fvalue>1);
 			else if($$.ttype == type::STR){
-				CodeGenerator::gen_instr_S("pushs",$<value.svalue>1);
+				compiler->code_generator.gen_instr_S("pushs",$<value.svalue>1);
 				$$.numeric=false;
 			}
 			else
@@ -1177,9 +1177,9 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
 										if(((Varb*)(tempE->binding))->type == type::INT || ((Varb*)(tempE->binding))->type == type::FLOAT) $$.numeric=true;
 										if(Compiler::founderror==false){
 											if(SymbolTable::inCscope(tempE2->name, mysymtab) == true)
-												CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+												compiler->code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
 											else{
-												CodeGenerator::gen_instr_tI("pushga",SymbolTable::getleveldif(tempE2->name,mysymtab),((Varb*)(tempE->binding))->offset);
+												compiler->code_generator.gen_instr_tI("pushga",SymbolTable::getleveldif(tempE2->name,mysymtab),((Varb*)(tempE->binding))->offset);
 												//do something else
 
 											}
@@ -1194,7 +1194,7 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
 										if(((Paramb*)(tempE->binding))->type == type::INT || ((Paramb*)(tempE->binding))->type == type::FLOAT) $$.numeric=true;
 										if(Compiler::founderror==false){
 											if(SymbolTable::inCscope(tempE2->name,mysymtab) ==true){
-												CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+												compiler->code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
 											}
 											else{
 												//do something else
@@ -1232,22 +1232,22 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
 						if($1 == addtype::MIN){
 							if($2.lval ==true){
 								switch($2.ttype){
-									case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-									case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+									case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+									case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
 							switch($2.ttype){
-								case type::INT:	CodeGenerator::gen_instr("negI"); break;
-								case type::FLOAT:	CodeGenerator::gen_instr("negR"); break;
+								case type::INT:	compiler->code_generator.gen_instr("negI"); break;
+								case type::FLOAT:	compiler->code_generator.gen_instr("negR"); break;
                                 default:    break;
 							}
 						}
 						else if($1 == addtype::PLS){
 							if($2.lval == true){
 								switch($2.ttype){
-									case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-									case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+									case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+									case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                     default:    break;
 								}
 							}
@@ -1282,9 +1282,9 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
                                             $$.numeric=true;
 										if(Compiler::founderror==false){
                                             if(SymbolTable::inCscope($<value.svalue>2, mysymtab) == true)
-                                                CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+                                                compiler->code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
                                             else{
-                                                CodeGenerator::gen_instr_tI("pushga",SymbolTable::getleveldif($<value.svalue>2,mysymtab),((Varb*)(tempE->binding))->offset);
+                                                compiler->code_generator.gen_instr_tI("pushga",SymbolTable::getleveldif($<value.svalue>2,mysymtab),((Varb*)(tempE->binding))->offset);
                                     //do something else
 
                                             }
@@ -1300,7 +1300,7 @@ factor: constant { $$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
                                             $$.numeric=true;
                                         if(Compiler::founderror==false){
                                             if(SymbolTable::inCscope($<value.svalue>2,mysymtab) ==true){
-                                                CodeGenerator::gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
+                                                compiler->code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
                                             }
                                             else{
                                 //do something else
@@ -1356,8 +1356,8 @@ function_call: Ident lpar rpar {$$.lval = false; Funcb* tempb; Entry* tempE; Ent
                                                         $$.ttype = tempb->returntype;
                                                         if($$.ttype == type::INT || $$.ttype == type::FLOAT) $$.numeric =true; else $$.numeric =false;
 							if(Compiler::founderror==false){
-								CodeGenerator::gen_instr_I("enter",1);
-								CodeGenerator::gen_call(CodeGenerator::genlabelw($<value.svalue>1, tempb->label), 0);
+								compiler->code_generator.gen_instr_I("enter",1);
+								compiler->code_generator.gen_call(compiler->code_generator.genlabelw($<value.svalue>1, tempb->label), 0);
 							}
                                                 }
                                                 else
@@ -1378,16 +1378,16 @@ func_call_with_params: name_and_params rpar{$$.numeric =$1.numeric; $$.lval = fa
 						}
 						if(Compiler::founderror==false){
 							if( "scanf" == $1.funcent->name){
-//								CodeGenerator::gen_call("$scanf",((Funcb*)($1.funcent->binding))->actual_num);
-								CodeGenerator::gen_call("$scanf",$1.params);
+//								compiler->code_generator.gen_call("$scanf",((Funcb*)($1.funcent->binding))->actual_num);
+								compiler->code_generator.gen_call("$scanf",$1.params);
 							}
 							else if("printf" ==  $1.funcent->name){
-//								CodeGenerator::gen_call("$printf",((Funcb*)($1.funcent->binding))->actual_num);
-								CodeGenerator::gen_call("$printf",$1.params);
+//								compiler->code_generator.gen_call("$printf",((Funcb*)($1.funcent->binding))->actual_num);
+								compiler->code_generator.gen_call("$printf",$1.params);
 							}
 							else{
-								if( ((Funcb*)($1.funcent->binding))->label==0) ((Funcb*)($1.funcent->binding))->label= CodeGenerator::getlabel();
-								CodeGenerator::gen_call( CodeGenerator::genlabelw($1.funcent->name,((Funcb*)($1.funcent->binding))->label),
+								if( ((Funcb*)($1.funcent->binding))->label==0) ((Funcb*)($1.funcent->binding))->label= compiler->code_generator.getlabel();
+								compiler->code_generator.gen_call( compiler->code_generator.genlabelw($1.funcent->name,((Funcb*)($1.funcent->binding))->label),
 									((Funcb*)($1.funcent->binding))->num_param);
 							}
 						}
@@ -1409,7 +1409,7 @@ name_and_params:
 		#endif
 		if ($$.funcent != NULL){
 			$$.name = $$.funcent->name;
-			if(Compiler::founderror==false) CodeGenerator::gen_instr_I("enter",1);
+			if(Compiler::founderror==false) compiler->code_generator.gen_instr_I("enter",1);
 		}
 	}
 	expr {
@@ -1452,7 +1452,7 @@ name_and_params:
                         }
                         else{
                             if(Compiler::founderror==false){
-										//CodeGenerator::gen_instr_S("pushs",$<value.svalue>4);
+										//compiler->code_generator.gen_instr_S("pushs",$<value.svalue>4);
                             }
                         }
                         $$.ttype = tempB->param_type[0];
@@ -1467,8 +1467,8 @@ name_and_params:
                         if($4->lval==true && $4->numeric==true){
                             if(Compiler::founderror==false){
                                 switch($4->type){
-                                    case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-                                    case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+                                    case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+                                    case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                     default:    break;
                                 }
                             }
@@ -1494,7 +1494,7 @@ name_and_params:
                                             case type::FLOAT:
                                                 warning("Paramter expression will lose data because of different type","");
                                                 if(Compiler::founderror==false)
-                                                    CodeGenerator::gen_instr("int");
+                                                    compiler->code_generator.gen_instr("int");
                                                 break;
                                             case type::INT:	break;
                                             default:	error("Parameter type is different in declaration and function call","");
@@ -1508,7 +1508,7 @@ name_and_params:
                                     switch($4->type){
                                         case type::INT:	warning("Parameter expression is different type than in declaration","");
                                                     if(Compiler::founderror==false)
-                                                        CodeGenerator::gen_instr("flt");
+                                                        compiler->code_generator.gen_instr("flt");
                                                     break;
                                         case type::FLOAT:	break;
                                         default:	error("Parameter type is different in declaration and function call","");
@@ -1570,8 +1570,8 @@ name_and_params:
 								if($4->lval==true && $4->numeric==true && strcmp("scanf",$$.funcent->name)!=0){
 									if(Compiler::founderror==false){
 										switch($4->type){
-											case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-											case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+											case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+											case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
@@ -1588,16 +1588,16 @@ name_and_params:
 								if(Compiler::founderror==false){
 									if($4->lval==true){
 										switch($4->type){
-											case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-											case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+											case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+											case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
 									if(tempB->param_type[$1.params]== type::FLOAT){
-										CodeGenerator::gen_instr("flt");
+										compiler->code_generator.gen_instr("flt");
 									}
 									else if(tempB->param_type[$1.params]== type::INT){
-										CodeGenerator::gen_instr("int");
+										compiler->code_generator.gen_instr("int");
 									}
 								}
 							}
@@ -1605,8 +1605,8 @@ name_and_params:
 								if(Compiler::founderror==false){
 									if($4->lval==true){
 										switch($4->type){
-											case type::INT:	CodeGenerator::gen_instr("fetchI"); break;
-											case type::FLOAT:	CodeGenerator::gen_instr("fetchR"); break;
+											case type::INT:	compiler->code_generator.gen_instr("fetchI"); break;
+											case type::FLOAT:	compiler->code_generator.gen_instr("fetchR"); break;
                                             default:    break;
 										}
 									}
