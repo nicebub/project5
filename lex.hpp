@@ -13,8 +13,6 @@ namespace ucc{
 			std::string* string_buf_ptr;
 //	char *string_buf_ptr;
 	};
-	int error(std::string,std::string);
-	int warning(std::string,std::string);
 }
 
 #endif

@@ -1,7 +1,4 @@
-/*scott lorberbaum
-   compilers spring 2004
-	This file is the flex specificiation file for the uC language.  It will recognize and return all tokens and output if there are any ucc::errors.
-*/
+%option c++
 %{
 #include <cstdint>
 
@@ -63,7 +60,7 @@ ADOF	"&"
 {ENDCOM} {
 		BEGIN(INITIAL);}
 <<EOF>> {
-	ucc::error("eof terminated comment","");
+	Compiler::error("eof terminated comment","");
 	BEGIN(INITIAL);
 	}
 }
@@ -75,7 +72,7 @@ ADOF	"&"
 	}
 \n {	BEGIN(INITIAL);
 	++Compiler::Line_Number;
-	ucc::error("unterminated string constant","");
+	Compiler::error("unterminated string constant","");
 	}
 
 \\n {
@@ -88,12 +85,12 @@ ADOF	"&"
 \\[^n\\\"] {
 		int c;
 		BEGIN(INITIAL);
-		ucc::error("illegal character:%s in string",yytext);
+		Compiler::error("illegal character:%s in string",yytext);
 		while(((c = yyinput()) != '\"') && (c != EOF)){
 			;
 		}
 		if(c == EOF){
-			ucc::error("eof terminated string","");
+			Compiler::error("eof terminated string","");
 		}
 		}
 
@@ -105,7 +102,7 @@ ADOF	"&"
 	}
 
 <<EOF>> {
-	ucc::error("eof terminated string","");
+	Compiler::error("eof terminated string","");
 	BEGIN(INITIAL);
 	}
 }
@@ -230,19 +227,19 @@ char { /* keyword char*/
 				}
 
 ((0|([1-9]{DIGIT}*)))(while|if|void|return|char|int|float|else|for|extern) {
-									ucc::error("illegal token: %s", yytext);
+									Compiler::error("illegal token: %s", yytext);
 							}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}+))(while|if|void|return|char|int|float|else|for|extern) {
-									ucc::error("illegal token: %s",yytext);
+									Compiler::error("illegal token: %s",yytext);
 									}
 
 (0|([1-9]{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) { /* bad form*/
-						ucc::error("illegal token: %s", yytext);
+						Compiler::error("illegal token: %s", yytext);
 						}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) {/*bad form*/
-							ucc::error("illegal token: %s",yytext);
+							Compiler::error("illegal token: %s",yytext);
 							}
 
 
@@ -254,12 +251,12 @@ char { /* keyword char*/
 					}
 
 0{DIGIT}+\.{DIGIT}+		{/* bad float*/
-					ucc::error("illegal float: %s",yytext);
+					Compiler::error("illegal float: %s",yytext);
 				}
 
 
 0{DIGIT}+	{/* bad integer*/
-				ucc::error("illegal integer: %s", yytext);
+				Compiler::error("illegal integer: %s", yytext);
 		}
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
@@ -290,7 +287,7 @@ char { /* keyword char*/
 	}
 
 . 	{
-	ucc::error("illegal character: %s",yytext);
+	Compiler::error("illegal character: %s",yytext);
 	}
 
 %%

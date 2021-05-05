@@ -40,3 +40,14 @@ Compiler::~Compiler(){
 		mysymtab = NULL;
 	}
 }
+int Compiler::warning(const std::string s1, const std::string s2) noexcept
+{
+	std::cerr << "Warning:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
+    return 0;
+}
+
+int Compiler::error(const std::string s1, const std::string s2) noexcept {
+	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
+	Compiler::founderror=true;
+    return 0;
+}

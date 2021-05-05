@@ -42,12 +42,25 @@ extern Compiler* compiler;
 Funcb* currentFunc;
 
 extern int yyerror(std::string);
-extern int yylex (void);
+//extern int yylex (void);
 extern int warning(std::string,std::string);
 extern int error(std::string,std::string);
 %}
 %expect 1
+%require "3.0"
 
+%define api.namespace{ucc}
+%define api.parser.class {uccParser}
+%code requires {
+	class Compiler;
+}
+
+%parse-param{ Compiler& compiler}
+
+%code{
+	#undef yylex
+	#define yylex compiler.lexer
+} 
 %token Ident
 %token IntConstant
 %token FloatConstant
@@ -1690,17 +1703,3 @@ int yyerror(std::string s)
 	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s << "\n";
     return 0;
 }
-
-
-int warning(std::string s1, std::string s2)
-{
-	std::cerr << "Warning:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
-    return 0;
-}
-
-int error(std::string s1, std::string s2){
-	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
-	Compiler::founderror=true;
-    return 0;
-}
-
