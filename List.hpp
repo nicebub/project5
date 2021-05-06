@@ -61,7 +61,7 @@ class List{
 		List(const List& cp);
 		List& operator=(const List& in);
 		void push_back(BasicListNode* node);
-
+		std::vector<BasicListNode*> getlist();
 		static List* mklist(std::string inVal);
 		static List* mklist(std::string inVal, type inType);
 		static List* mklist(exprtype* expr);
@@ -74,12 +74,6 @@ class List{
 		int size() const;
 	private:
 		std::vector<BasicListNode*> list;
-};
-	struct funcheadertype {
-    std::string 	name;
-    List* 			paramlist;
-    type 			returntype;
-    type 			ttype;
 };
 
 }

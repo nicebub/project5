@@ -8,7 +8,7 @@
 
 #include "List.hpp"
 #include "type.hpp"
-
+#include "Compiler.hpp"
 //extern int Line_Number;
 //extern FILE *infile;
 //extern int offset_counter;
@@ -18,9 +18,9 @@
 
 //extern int error(char*,char*);
 
-
+using namespace ucc;
 namespace ucc{
-
+	class Compiler;
 	class TableEntry{
 		public:
 			TableEntry();
@@ -32,6 +32,7 @@ namespace ucc{
 			std::string getName() const;
 			void setName(std::string name);
 			void* getBinding();
+			btype getself() const;
 		private:
 			std::string name;
 			void * binding;
@@ -55,8 +56,9 @@ namespace ucc{
 
 	class SymbolTable{
 		public:
-		SymbolTable();
-		~SymbolTable();
+			SymbolTable();
+			SymbolTable(Compiler& compiler);
+			~SymbolTable();
 			void printTree() const;
 			void Swalk(const void *node, VISIT myorder, int level);
 			void install(TableEntry* entry);
@@ -72,15 +74,17 @@ namespace ucc{
 			static SymbolTable* createTree(int Stacksize);
 			void addtosymtab(type mytype, List* myList);
 			int getleveldif(std::string name);
+			TableEntry* createFunc(std::string name, type returntype, List* paramlist);
+			TableEntry* createVar(std::string name, type t_type, int offset);
+			TableEntry* createParam(std::string name, type t_type, int offset);
+
 		private:
+			Compiler& compiler;
 			std::deque<Table*> stack; //Stack of Binary Search Trees
 			int actualStacksize; //used to keep size and top of stack
 			int Stacksize; //default of 100
 			int offset_counter;
 		};
-		TableEntry* createFunc(std::string name, type returntype, List* paramlist);
-		TableEntry* createVar(std::string name, type t_type, int offset);
-		TableEntry* createParam(std::string name, type t_type, int offset);
 		bool Ecmp(const void *TableEntry1, const void *TableEntry2);  //comparison function
 
 }

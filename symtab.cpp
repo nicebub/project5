@@ -12,11 +12,11 @@
 #include "type.hpp"
 #include "List.hpp"
 #include "data.hpp"
-#include "compiler.hpp"
+
+
 using namespace ucc;
-
+namespace ucc{
 extern int error(std::string,std::string);
-
 
 TableEntry::TableEntry() : TableEntry{""} {}
 TableEntry::TableEntry(std::string name) :name{name}, binding{NULL}, self{btype::FUNC} {}
@@ -47,6 +47,12 @@ std::string TableEntry::getName() const{
 void* TableEntry::getBinding(){
 	return binding;
 }
+
+btype TableEntry::getself() const{
+	return self;
+}
+
+
 Table::Table() : table{} {}
 Table::~Table(){
 	for(auto& element : table){
@@ -79,7 +85,7 @@ bool Table::install(TableEntry* entry){
 	bool answer;
 	try{
 		table.at(entry->getName());
-		error("symbol already declared in current scope","");		
+		error("symbol already declared in current scope","");
 		answer = false;
 	}
 	catch(std::exception& e){
@@ -94,12 +100,13 @@ bool Table::install(TableEntry* entry){
 	return answer;
 }
 
-SymbolTable::SymbolTable() : stack{} {}
+SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {}
+//SymbolTable::SymbolTable() : stack{}, compiler{NULL}, actualStacksize(1), Stacksize(1) {}
 SymbolTable::~SymbolTable(){}
 
 void SymbolTable::openmainscope(){
 	if(actualStacksize == Stacksize)
-		error("Scope Stack already too full","");
+		compiler.error("Scope Stack already too full","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
@@ -111,7 +118,7 @@ void SymbolTable::openmainscope(){
 }
 void SymbolTable::openscope(){
 	if(actualStacksize == Stacksize)
-		error("Scope Stack already too full","");
+		compiler.error("Scope Stack already too full","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
@@ -129,7 +136,7 @@ void SymbolTable::openscope(){
 
 void SymbolTable::closescope(){
 	if(actualStacksize == 1)
-		error("Cannot close Global scope","");
+		compiler.error("Cannot close Global scope","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Closing Scope\n");
@@ -150,7 +157,7 @@ void SymbolTable::closescope(){
 
 void SymbolTable::closemainscope(){
 	if(actualStacksize == 1)
-		error("Cannot close Global scope","");
+		compiler.error("Cannot close Global scope","");
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Closing Scope\n");
@@ -189,7 +196,7 @@ void* SymbolTable::lookup(const std::string name){
 		return NULL;
 	}
 	else{
-		error("cannot lookup variable without a name","");
+		compiler.error("cannot lookup variable without a name","");
 		return NULL;
 	}
 }
@@ -200,7 +207,7 @@ void SymbolTable::install(TableEntry* temp){
 	#endif
 	Table* locatedTable{stack.back()};
 	if(!locatedTable->install(temp)){
-		error("symbol already declared in current scope","");
+		compiler.error("symbol already declared in current scope","");
 	}
 
 	#ifdef DEBUG
@@ -433,7 +440,7 @@ void SymbolTable::deleteTableEntry(TableEntry * temp){
 }
 */
 
-TableEntry* ucc::createFunc(std::string name, type returntype, List* paramlist){
+TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* paramlist){
 	TableEntry * temp;
 	ListNode* tempP;
 	int a;
@@ -506,12 +513,12 @@ TableEntry* ucc::createFunc(std::string name, type returntype, List* paramlist){
 		return temp;
 	}
 	else{
-		error("name not found\n","");
+		compiler.error("name not found\n","");
 		return NULL;
 	}
 }
 
-TableEntry* ucc::createVar(std::string name, type t_type, int offset){
+TableEntry* SymbolTable::createVar(std::string name, type t_type, int offset){
 	TableEntry * temp;
 	//Varb * tBindingV = (Varb *)temp->binding;
     Varb * tBindingV = NULL;
@@ -530,7 +537,7 @@ TableEntry* ucc::createVar(std::string name, type t_type, int offset){
 	return temp;
 }
 
-TableEntry* ucc::createParam(std::string name, type t_type, int offset){
+TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
 	TableEntry * temp;
 //    temp->binding = NULL;
     Paramb* tBindingP = NULL;
@@ -559,7 +566,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 				temp= createVar(n_element->getval(), mytype, offset_counter);
 				offset_counter++;
 				if((actualStacksize-1) == 0){
-					Compiler::globalcount++;
+					compiler.globalcount++;
 				}
 				install(temp);
 				temp = NULL;
@@ -567,7 +574,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 			}
 			delete myList;
 		}
-		else error("myList was NULL","");
+		else compiler.error("myList was NULL","");
 }
 
 TableEntry * SymbolTable::lookupB(const std::string name){
@@ -587,7 +594,7 @@ TableEntry * SymbolTable::lookupB(const std::string name){
 		return NULL;
 	}
 	else{
-		error("cannot lookup variable without a name","");
+		compiler.error("cannot lookup variable without a name","");
 		return NULL;
 	}
 }
@@ -620,4 +627,5 @@ int SymbolTable::getleveldif(std::string name){
 			}
 	}
 	return -1;
+}
 }

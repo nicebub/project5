@@ -19,6 +19,8 @@
 const int INITIAL_TREE_SIZE = 100;
 
 namespace ucc{
+	class SymbolTable;
+	
 	class Compiler{
 		public:
 			uccLexer	 				lexer;
@@ -37,30 +39,30 @@ namespace ucc{
 			 int warning(std::string,std::string) noexcept;
 
 			void block1_start_trans_unit();
-			void block2_func_funcheader_source();
+			void block2_func_funcheader_source(funcheadertype** funcheaderptr);
 			void block3_func_funcheader_source_funcbody();
-			void block4_func_funcheader_semi();
-			void block5_funcheader_error_semi();
-			void block6_funcheader_void_ident_lpar_paramdef_rpar();
-			void block7_funcheader_int_ident_lpar_paramdef_rpar();
-			void block8_funcheader_float_ident_lpar_paramdef_rpar();
-			void block9_funcheader_void_error_rpar();
-			void block10_funcheader_int_error_rpar();
-			void block11_funcheader_float_error_rpar();
-			void block12_funcheader_void_ident_lpar_error_rpar();
-			void block13_funcheader_float_ident_lpar_error_rpar();
-			void block14_funcheader_int_ident_lpar_error_rpar();
-			void block15_paramdef_paramdeflist();
-			void block15_paramdef_paramdeflist_comma_elip();
-			void block16_paramdef_void();
-			void block17_paramdef_paramdeflist_error_rpar();
-			void block18_paramdef_paramdeflist_comma_error_rpar();
-			void block19_paramdeflist_int_ident();
-			void block20_paramdeflist_float_ident();
-			void block21_paramdeflist_char_star_ident();
-			void block22_paramdeflist_paramdeflist_comma_int_ident();
-			void block23_paramdeflist_paramdeflist_comma_float_ident();
-			void block24_paramdeflist_paramdeflist_comma_char_star_ident();
+			void block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr);
+			void block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr);
+			void block6_funcheader_void_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,std::string ident, List* paramdeflist);
+			void block7_funcheader_int_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,std::string inIdent, List* inParamdeflist);
+			void block8_funcheader_float_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent, List* inParamdeflist);
+			void block9_funcheader_void_error_rpar(funcheadertype** outFuncHeaderptr);
+			void block10_funcheader_int_error_rpar(funcheadertype** outFuncHeaderptr);
+			void block11_funcheader_float_error_rpar(funcheadertype** outFuncHeaderptr);
+			void block12_funcheader_void_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent);
+			void block13_funcheader_float_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent);
+			void block14_funcheader_int_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent);
+			void block15_paramdef_paramdeflist(List** outParamdefptr, List** inParamdeflistptr);
+			void block15_paramdef_paramdeflist_comma_elip(List** outParamdefptr, List** inParamdeflistptr);
+			void block16_paramdef_void(List** outParamdefptr);
+			void block17_paramdef_paramdeflist_error_rpar(List** inParamdeflistptr);
+			void block18_paramdef_paramdeflist_comma_error_rpar(List** inParamdeflistptr);
+			void block19_paramdeflist_int_ident(List** outParamdeflistptr, std::string inIdent);
+			void block20_paramdeflist_float_ident(List** outParamdeflistptr, std::string inIdent);
+			void block21_paramdeflist_char_star_ident(List** outParamdeflistptr, std::string inIdent);
+			void block22_paramdeflist_paramdeflist_comma_int_ident(List** outParamdeflistptr, List** inParamdeflist, std::string inIdent);
+			void block23_paramdeflist_paramdeflist_comma_float_ident(List** outParamdeflistptr, List** inParamdeflist, std::string inIdent);
+			void block24_paramdeflist_paramdeflist_comma_char_star_ident(List** outParamdeflistptr, List** inParamdeflist, std::string inIdent);
 			void block25_funcbody_lcbra_decls_source();
 			void block26_funcbody_lcbra_decls_source_stmtlist_rcbra();
 			void block27_variabledecl_int_identlist_semi();
@@ -123,6 +125,7 @@ namespace ucc{
 			int 				othercounter;
 			int 				param_offset;
 			int 				mainlocal;
+			int 				mainlabel;
 
 		protected:
 			static bool endsWC(const std::string& in);

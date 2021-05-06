@@ -16,6 +16,7 @@
 
 using namespace ucc;
 
+namespace ucc{
 BasicListNode::BasicListNode(eNodeType t) : nodeType{t} {}
 
 eNodeType BasicListNode::get_nodeType() const {
@@ -128,6 +129,10 @@ List* List::appendList(exprtype* inexpr){
 	list.push_back(dynamic_cast<BasicListNode*>(nnode));
 	return this;
 }
+std::vector<BasicListNode*> List::getlist(){
+	return list;
+}
+
 /*
 void printListP(ListP * inList){
 	#ifdef DEBUG
@@ -147,3 +152,4 @@ void printListP(ListP * inList){
         }
     }
 }*/
+}

@@ -32,7 +32,6 @@ class CodeGenerator{
 		void start() noexcept;
 		static std::string concat(std::string, std::string);	//concat 2 strings and return the answer, remember to free it when done
 		static void nullout(std::string& name, int length);
-	
 	private:
 		int 				labelcounter;
 		bool				canGenerate;

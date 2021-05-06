@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace ucc{
-
+	class List;
 enum class addtype{
 	PLS,
 	MIN
@@ -78,6 +78,12 @@ struct exprtype{
 	bool lval;
 	ucc::type type;
 	bool numeric;
+};
+	struct funcheadertype {
+    std::string 	name;
+    List* 			paramlist;
+    type 			returntype;
+    type 			ttype;
 };
 
 }
