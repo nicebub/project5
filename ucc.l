@@ -8,27 +8,33 @@
 #endif
 #endif
 
-#include "List.hpp"
+
+#include "lex.hpp"
 
 using namespace ucc;
+
+#include "List.hpp"
+
 
 #include "symtab.hpp"
 #include "data.hpp"
 
-#define YYSTYPE data
+//#define YYSTYPE data
 #include "ucc.tab.hpp"
 
 #include "lex.hpp"
 #include "compiler.hpp"
-
-using namespace ucc;
-
-static Lex lexer{};
+#undef YY_DECL
+#define YY_DECL int ucc::uccLexer::yylex(uccParser::semantic_type* const lval, uccParser::location_type* location)
+using token = uccParser::token;
+#define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 //int Line_Number = 1;
 %}
 
 %option stack
 %option yylineno
+%option yyclass="uccLexer"
+
 %s	initial
 %x	astring
 %x	comment
@@ -52,167 +58,180 @@ ADOF	"&"
 
 
 %%
+%{
+	yylval = lval;
+%}
 <comment>{
 [^*\n]*
-[^*\n]*\n 	++Compiler::Line_Number;
+[^*\n]*\n 	++compiler.Line_Number;
 \*+[^*/\n]*
-\*+[^*/\n]*\n 	++Compiler::Line_Number;
+\*+[^*/\n]*\n 	++compiler.Line_Number;
 {ENDCOM} {
 		BEGIN(INITIAL);}
 <<EOF>> {
-	Compiler::error("eof terminated comment","");
+	compiler.error("eof terminated comment","");
 	BEGIN(INITIAL);
 	}
 }
 
 <astring>{
 \" {	BEGIN(INITIAL);
-	yylval.value.svalue = lexer.string_buf;
-	return(StrConstant);
+	yylval->build<std::string>(string_buf);
+	return(token::StrConstant);
 	}
 \n {	BEGIN(INITIAL);
-	++Compiler::Line_Number;
-	Compiler::error("unterminated string constant","");
+	++compiler.Line_Number;
+	compiler.error("unterminated string constant","");
 	}
 
 \\n {
-	lexer.string_buf += "\\n";
+	string_buf += "\\n";
 }
 \\\" {
-	lexer.string_buf += "\\\"";
+	string_buf += "\\\"";
 }
 
 \\[^n\\\"] {
 		int c;
 		BEGIN(INITIAL);
-		Compiler::error("illegal character:%s in string",yytext);
+		compiler.error("illegal character:%s in string",yytext);
 		while(((c = yyinput()) != '\"') && (c != EOF)){
 			;
 		}
 		if(c == EOF){
-			Compiler::error("eof terminated string","");
+			compiler.error("eof terminated string","");
 		}
 		}
 
 ((\\\\{SPACE}+)*|[&@$\%^/,.+'-\[\]{}();~`|=#\!:<>]*|{LETTER}|{DIGIT}|{PERCENT}|{SPACE}|{BEGCOM}|{ENDCOM}|{QUESTION})* {
 	char *yptr = yytext;
 	while((*yptr != (int)NULL) && *yptr){
-		lexer.string_buf += *yptr++;
+		string_buf += *yptr++;
 	}
 	}
 
 <<EOF>> {
-	Compiler::error("eof terminated string","");
+	compiler.error("eof terminated string","");
 	BEGIN(INITIAL);
 	}
 }
 
 
 void {/*keyword void*/
-	return(voidt);
+	return(token::voidt);
 	}
 
 if {/* keyword if*/
-	return(ift);
+	return(token::ift);
 	}
 
 return {/* keyword return*/
-	return(returnt);
+	return(token::returnt);
 	}
 
 else {/* keyword else*/
-	return(elset);
+	return(token::elset);
 	}
 
 
 while {/*keyword while*/
-	return(whilet);
+	return(token::whilet);
 	}
 
 int { /*keyword int*/
-	yylval.ttype = type::INT;
-	return(intt);
+//	yylval.ttype = type::INT;
+	return(token::intt);
 	}
 
 float {/* keyword float*/
-	yylval.ttype = type::FLOAT;
-	return(floatt);
+//	yylval.ttype = type::FLOAT;
+	return(token::floatt);
 	}
 
 char { /* keyword char*/
-	yylval.ttype = type::CHAR;
-	return(chart);
+//	yylval.ttype = type::CHAR;
+	return(token::chart);
 	}
 
 \( {
-	return(lpar);
+	return(token::lpar);
 	}
 
 \) {
-	return(rpar);
+	return(token::rpar);
 	}
 
 \{ {
-	return(lcbra);
+	return(token::lcbra);
 	}
 
 \} {
-	return(rcbra);
+	return(token::rcbra);
 	}
 
 \; {
-	return(semi);
+	return(token::semi);
 	}
 
 \, {
-	return(comma);
+	return(token::comma);
 	}
 
-\< {	yylval.value.relopvalue = reltype::LES;
-	return(lesst);
+\< {	
+//	yylval.value.relopvalue = reltype::LES;
+	return(token::lesst);
 	}
 
-\> {	yylval.value.relopvalue = reltype::GRE;
-	return(greatt);
+\> {	
+//	yylval.value.relopvalue = reltype::GRE;
+	return(token::greatt);
 	}
 
 \= {
-	return(equalt);
+	return(token::equalt);
 	}
 
-\+ {	yylval.value.addopvalue = addtype::PLS;
-	return(plus);
+\+ {	
+//	yylval.value.addopvalue = addtype::PLS;
+	return(token::plus);
 	}
 
-\- {	yylval.value.addopvalue = addtype::MIN;
-	return(minus);
+\- {	
+//	yylval.value.addopvalue = addtype::MIN;
+	return(token::minus);
 	}
 
-\/ {	yylval.value.multopvalue =multype:: DIV;
-	return(divide);
+\/ {	
+//	yylval.value.multopvalue =multype:: DIV;
+	return(token::divide);
 	}
-\* {	yylval.value.multopvalue = multype::MULT;
-	return(star);
-	}
-
-{GEQ} {		yylval.value.relopvalue = reltype::GEQ;
-		return(geq);
+\* {	
+//	yylval.value.multopvalue = multype::MULT;
+	return(token::star);
 	}
 
-{LEQ} {		yylval.value.relopvalue = reltype::LEQ;
-		return(leq);
+{GEQ} {		
+//	yylval.value.relopvalue = reltype::GEQ;
+		return(token::geq);
 	}
 
-{NEQ} {		yylval.value.eqopvalue = eqtype::NEQ;
-		return(neq);
+{LEQ} {		
+//	yylval.value.relopvalue = reltype::LEQ;
+		return(token::leq);
 	}
 
-{EQUEQU} {	yylval.value.eqopvalue = eqtype::EQEQ;
-		return(equequ);
+{NEQ} {		
+//	yylval.value.eqopvalue = eqtype::NEQ;
+		return(token::neq);
+	}
+
+{EQUEQU} {	
+//	yylval.value.eqopvalue = eqtype::EQEQ;
+		return(token::equequ);
 	}
 
 {ADOF} {
-		return(adof);
+		return(token::adof);
 	}
 
 {BEGCOM} {
@@ -220,63 +239,65 @@ char { /* keyword char*/
 	}
 
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
-				yylval.ttype = type::STR;
+//				yylval.ttype = type::STR;
 				std::string tempstr(yytext);
-				yylval.value.svalue = tempstr;
-				return(Ident);
+				yylval->build<std::string>(tempstr);
+				return(token::Ident);
 				}
 
 ((0|([1-9]{DIGIT}*)))(while|if|void|return|char|int|float|else|for|extern) {
-									Compiler::error("illegal token: %s", yytext);
+									compiler.error("illegal token: %s", yytext);
 							}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}+))(while|if|void|return|char|int|float|else|for|extern) {
-									Compiler::error("illegal token: %s",yytext);
+									compiler.error("illegal token: %s",yytext);
 									}
 
 (0|([1-9]{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) { /* bad form*/
-						Compiler::error("illegal token: %s", yytext);
+						compiler.error("illegal token: %s", yytext);
 						}
 
 ((0|([1-9]{DIGIT}*))(\.{DIGIT}{DIGIT}*))({LETTER}({LETTER}|{DIGIT})*) {/*bad form*/
-							Compiler::error("illegal token: %s",yytext);
+							compiler.error("illegal token: %s",yytext);
 							}
 
 
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
-					yylval.ttype = type::FLOAT;
-					yylval.value.fvalue=(float)std::atof(yytext);
-					return(FloatConstant);
+//					yylval.ttype = type::FLOAT;
+					yylval->build<float>(std::atof(yytext));
+//					yylval.value.fvalue=(float)std::atof(yytext);
+					return(token::FloatConstant);
 					}
 
 0{DIGIT}+\.{DIGIT}+		{/* bad float*/
-					Compiler::error("illegal float: %s",yytext);
+					compiler.error("illegal float: %s",yytext);
 				}
 
 
 0{DIGIT}+	{/* bad integer*/
-				Compiler::error("illegal integer: %s", yytext);
+				compiler.error("illegal integer: %s", yytext);
 		}
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
-				yylval.ttype = type::INT;
-				yylval.value.ivalue =(int)std::atoi(yytext);
-				return(IntConstant);
+//				yylval.ttype = type::INT;
+				yylval->build<int>(std::atoi(yytext));
+//				yylval.value.ivalue =(int)std::atoi(yytext);
+				return(token::IntConstant);
 				}
 
 {ELIP} {
-	return(elip);
+	return(token::elip);
 	}
 
 \" {
-	lexer.string_buf.clear();
+	string_buf.clear();
 	BEGIN(astring);
 	}
 
 
 \n	{
-	++Compiler::Line_Number;
+	++compiler.Line_Number;
 	}
 
 [ \t\r]+	{ /*eat up tabs, whitespace */
@@ -287,7 +308,7 @@ char { /* keyword char*/
 	}
 
 . 	{
-	Compiler::error("illegal character: %s",yytext);
+	compiler.error("illegal character: %s",yytext);
 	}
 
 %%

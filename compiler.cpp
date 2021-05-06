@@ -3,27 +3,57 @@
 #include <iostream>
 
 #include "compiler.hpp"
+#include "ucc.tab.hpp"
 
 using namespace ucc;
+namespace ucc{
 
-
-std::string 	Compiler::filename{""};
-
+//std::string 	Compiler::filename{""};
+/*
 int 				Compiler::Line_Number{1};
 int 				Compiler::globalcount{0};
 int 				Compiler::offset_counter{5};
 int 				Compiler::othercounter{1};
 int 				Compiler::param_offset{0};
 int 				Compiler::mainlocal{0};
-
+*/
+/*
 std::ostream* 			Compiler::outfile{&std::cout};
+*/
 
-
-Compiler::Compiler(): mysymtab{SymbolTable::createTree(INITIAL_TREE_SIZE)}, code_generator{}, founderror{false} {
+Compiler::Compiler(): mysymtab{SymbolTable::createTree(INITIAL_TREE_SIZE)}, 
+							code_generator{},
+							lexer{NULL,*this}, 
+							founderror{false},
+							parser(*this),
+							Line_Number(1),
+							globalcount(0),
+							offset_counter(5),
+							othercounter(1),
+							param_offset(0),
+							mainlocal(0) {
 	if(mysymtab == NULL){
 		error("Unable to construct symbol table","");
 	}
 }
+
+Compiler::Compiler(int argc, const char** argv) : 	mysymtab{SymbolTable::createTree(INITIAL_TREE_SIZE)}, 
+																	code_generator{}, 
+																	founderror{false}, 
+																	lexer{NULL,*this}, 
+																	parser(*this),
+																	Line_Number(1),
+																	globalcount(0),
+																	offset_counter(5),
+																	othercounter(1),
+																	param_offset(0),
+																	mainlocal(0) {
+	if(mysymtab == NULL){
+		error("Unable to construct symbol table","");
+	}
+	checkargs(argc,argv);
+}
+
 Compiler::~Compiler(){
 	if(outfile->good()){
 
@@ -41,20 +71,21 @@ Compiler::~Compiler(){
 }
 int Compiler::warning(const std::string s1, const std::string s2) noexcept
 {
-	std::cerr << "Warning:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
+	std::cerr << "Warning:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " << s2 << "\n";
     return 0;
 }
 
 int Compiler::error(const std::string s1, const std::string s2) noexcept {
-	std::cerr << "Error:::"<< Compiler::filename << ":"<< Compiler::Line_Number << "-> " << s1 << " " << s2 << "\n";
-	Compiler::founderror=true;
-    return 0;
+	std::cerr << "Error:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " << s2 << "\n";
+	founderror=true;
+	code_generator.stop();
+	 return 0;
 }
 
 
 void Compiler::block1_start_trans_unit(){
 	code_generator.gen_label("main");
-	>code_generator.gen_instr_I("enter",0);
+	code_generator.gen_instr_I("enter",0);
 	code_generator.gen_instr_I("alloc",Compiler::globalcount);
 	code_generator.gen_instr_I("enter",0);
 	code_generator.gen_call(code_generator.genlabelw("main",mainlabel),0);
@@ -1525,4 +1556,6 @@ void Compiler::block69_identlist_ident(){
 
 void Compiler::block70_identlist_comma_ident(){
 	$$ = $1->appendList($3);
+}
+
 }

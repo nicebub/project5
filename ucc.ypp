@@ -1,12 +1,7 @@
-/*scott lorberbaum
-   compilers spring 2004
-	This file is the specification file for bison for the uC language.  This is only the minimal amount need to create the ucc.tab.h file which specifies the tokens
-and their values.  Then that file is included in the flex spec file to have identical tokens.  Also there is a declartion of a union, the Line_Number which helps keep
-track of the line number, and some of the operators have their precedence specifed.
-*/
 %{
 #include <cstdio>
 #include <string>
+
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
@@ -18,12 +13,14 @@ track of the line number, and some of the operators have their precedence specif
 #include "symtab.hpp"
 #include "data.hpp"
 #include "trans.hpp"
+#include "Lex.hpp"
 
 using namespace ucc;
+
 //#define yyerrok
 #define YYDEBUG 0
 #define YYERROR_VERBOSE 1
-#define YYSTYPE ucc::data
+//#define YYSTYPE ucc::data
 
 #include "compiler.hpp"
 
@@ -36,7 +33,7 @@ using namespace ucc;
 //extern int othercounter;
 //extern int param_offset;
 //extern int offset_counter;
-extern Compiler* compiler;
+//extern Compiler* compiler;
 //extern Symtab* mysymtab;
 //int mainlabel;
 Funcb* currentFunc;
@@ -48,19 +45,31 @@ extern int error(std::string,std::string);
 %}
 %expect 1
 %skeleton "lalr1.cc"
-%require "3.0"
+%require "3.2"
+
+%defines
 
 %define api.namespace{ucc}
 %define api.parser.class {uccParser}
+
 %code requires {
-	class Compiler;
+//	class Compiler;
+//	class Lexer;
+//#include "compiler.hpp"
+namespace ucc{
+class Compiler;
+}
+#include "List.hpp"
+#include "type.hpp"
+using namespace ucc;
+//	class List;
 }
 
 %parse-param{ Compiler& compiler}
 
 %code{
 	#undef yylex
-	#define yylex compiler.lexer
+	#define yylex compiler.lexer.yylex
 } 
 
 %define api.value.type variant
@@ -107,33 +116,29 @@ extern int error(std::string,std::string);
 %right adof
 %right uminus
 
+%locations
 
-%type <value.lstvalue> identlist
-%type <value.relopvalue> relop
-%type <value.multopvalue> mulop
-%type <value.addopvalue> addop
-%type <value.eqopvalue> eqop
-%type <value.svalue> Ident
-%type <value.ivalue> IntConstant
-%type <value.fvalue> FloatConstant
-%type <value.svalue> StrConstant
-%type <value.ivalue> whilet ift elset
-%type <value.ivalue> intt
-%type <value.fvalue> floatt
-%type <value.ivalue> chart voidt adof elip lpar rpar lcbra rcbra semi comma equalt
-%type <value.relopvalue> lesst greatt leq geq
-%type <value.addopvalue> plus minus
-%type <value.eqopvalue> equequ neq
-%type <value.multopvalue> divide star
-%type <value.ivalue> uminus
-%type <value.lstpvalue> paramdeflist
-%type <value.funcheadervalue> funcheader
-//%type <value.lstevalue> exprlist
-%type <value.exprvalue> expr
-//%type <value.exprvalue>simpleexpr relexpr equalexpr
-//%type <data> equalexpr relexpr simpleexpr
-//%type <data> stmt ifexprstmt
-//%type <data> term factor function_call func_call_with_params name_and_params constant
+%type <std::string> identlist
+%type <reltype> relop
+%type <multype> mulop
+%type <addtype> addop
+%type <eqtype> eqop
+%type <std::string> Ident
+%type <int> IntConstant
+%type <float> FloatConstant
+%type <std::string> StrConstant
+%type <int> whilet ift elset
+%type <int> intt
+%type <float> floatt
+%type <int> chart voidt adof elip lpar rpar lcbra rcbra semi comma equalt
+%type <reltype> lesst greatt leq geq
+%type <addtype> plus minus
+%type <eqtype> equequ neq
+%type <multype> divide star
+%type <int> uminus
+%type <List *> paramdeflist
+%type <funcheadertype*> funcheader
+%type <exprtype*> expr
 
 
 %start starter

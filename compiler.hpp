@@ -1,17 +1,19 @@
 #ifndef _COMPILER_HPP
 #define _COMPILER_HPP
 #include <string>
-
-#undef yyFlexLexer
+/*
+#if !defined(yyFlexLexerOnce)
 #include <FlexLexer.h>
 #define yyFlexLexer yyFlexLexer
-
+#endif
+*/
 #include "type.hpp"
 #include "trans.hpp"
 #include "symtab.hpp"
-
-extern FILE* 						yyin;
-extern int error(std::string, std::string);
+#include "ucc.tab.hpp"
+#include "lex.hpp"
+//extern FILE* 						yyin;
+//extern int error(std::string, std::string);
 
 
 const int INITIAL_TREE_SIZE = 100;
@@ -19,18 +21,20 @@ const int INITIAL_TREE_SIZE = 100;
 namespace ucc{
 	class Compiler{
 		public:
-			yyFlexLexer	 			lexer;
+			uccLexer	 				lexer;
+			uccParser				parser;
 			CodeGenerator 			code_generator;
 			SymbolTable* 			mysymtab;
 
 			Compiler();
+			Compiler(int argc, const char** argv);
 			~Compiler();
 
-			std::string openfile(int argc, const char** argv);
+			bool openOutputFile(int argc, const char** argv);
 			int checkargs(int argc, const char** argv);
 
-			static int error(std::string,std::string) noexcept;
-			static int warning(std::string,std::string) noexcept;
+			 int error(std::string,std::string) noexcept;
+			 int warning(std::string,std::string) noexcept;
 
 			void block1_start_trans_unit();
 			void block2_func_funcheader_source();
@@ -110,16 +114,18 @@ namespace ucc{
 			
 			
 			
-			
-			static std::ostream*	outfile;
-			static std::string 	filename;
-			static int 				Line_Number;
-			static int 				globalcount;
-			static int				offset_counter;
-			static int				labelcounter;
-			static int 				othercounter;
-			static int 				param_offset;
-			static int 				mainlocal;
+			std::ostream*	outfile;
+			std::string 	filename;
+			int 				Line_Number;
+			int 				globalcount;
+			int				offset_counter;
+			int				labelcounter;
+			int 				othercounter;
+			int 				param_offset;
+			int 				mainlocal;
+
+		protected:
+			static bool endsWC(const std::string& in);
 
 		private:
 			bool 			founderror;

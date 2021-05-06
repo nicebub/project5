@@ -11,10 +11,13 @@
 #endif
 
 #include "compiler.hpp"
+#include "ucc.tab.hpp"
 
 using namespace ucc;
 
-bool endsWC(std::string& in){
+namespace ucc{
+
+bool Compiler::endsWC(const std::string& in){
 	std::string extra{""};
 	extra = in[(in.size()-1)];
 	extra += in[(in.size()-2)];
@@ -25,12 +28,17 @@ int Compiler::checkargs(int argc, const char** argv){
 	if(argc >1){
 		std::string temp{argv[1]};
 		if(endsWC(temp)){
-			yyin = std::fopen(argv[1], "r");
-			if(yyin == NULL){
+			std::ifstream* next;
+			next = new std::ifstream;
+			next->open(argv[1], std::ifstream::in);
+			if(!next->is_open()){
 				std::cerr << argv[1] << ": cannot open input file\n";
 				return -1;
 			}
-			else return 1;
+			else{
+				lexer.switch_streams(next); 
+				return 1;
+			}
 		}
 		else{
 			std::cerr << argv[1] << ": does not end in .c\n";
@@ -44,7 +52,7 @@ int Compiler::checkargs(int argc, const char** argv){
 
 }
 
-std::string Compiler::openfile(int argc, const char** argv){
+bool Compiler::openOutputFile(int argc, const char** argv){
 	std::string tempstr{argv[1]};
 	if(endsWC(tempstr)){
 		const size_t a{tempstr.length()-2};
@@ -56,24 +64,25 @@ std::string Compiler::openfile(int argc, const char** argv){
 		#ifdef DEBUG
 		std::cerr << "trying to open file: " << tempstr << std::endl;
 		#endif
-		std::fstream assembly{tempstr, std::fstream::out};
-		if(!assembly.is_open()){
+		std::ofstream* next{new std::ofstream{tempstr, std::fstream::out}};
+		if(!next->is_open()){
 			std::cerr << "cannot open file " << tempstr << " for writing\n";
-			return NULL;
+			return false;
 		}
 		else{
-			outfile = &assembly;
-			return tempstr;
+			outfile = next;
+			filename = tempstr;
+			return true;
 		}
 	}
 	else{
-		return NULL;
+		return false;
 	}
 }
 
 #ifndef MAIN
 #define MAIN
-FILE* yyin;
+//FILE* yyin;
 int main(int argc, const char** argv){
 	Compiler compiler{};
 
@@ -84,9 +93,10 @@ int main(int argc, const char** argv){
 		#endif
 		return -1;
 	}
-	if((compiler.filename = compiler.openfile(argc, argv)).empty()){
+	if(!compiler.openOutputFile(argc, argv)){
 		return -1;
 	}
 	return 0;
+}
 }
 #endif

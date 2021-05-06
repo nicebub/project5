@@ -1,17 +1,33 @@
 #ifndef _LEX_HPP
-#define _LEX_HPP
+#define _LEX_HPP 1
 
 #include <string>
+#include <istream>
+#include <iostream>
+#if !defined(yyFlexLexerOnce)
+#include <FlexLexer.h>
+#endif
 
+//#include "Compiler.hpp"
+#include "ucc.tab.hpp"
+#include "location.hh"
 namespace ucc{
-	class Lex{
+
+	class uccLexer : public yyFlexLexer {
 		public:
-			Lex();
-			~Lex();
-			std::string string_buf;
-//	char string_buf[MAX_STR_CONST];
-			std::string* string_buf_ptr;
-//	char *string_buf_ptr;
+//			uccLexer();
+			uccLexer(std::istream* in, Compiler& compiler);
+
+			virtual int yylex(uccParser::semantic_type* const lval,
+					uccParser::location_type* location);
+					
+			virtual ~uccLexer();
+		private:
+			uccParser::semantic_type* yylval = nullptr;
+			uccParser::location_type* loc = nullptr;
+			Compiler& compiler;
+			std::string string_buf{""};
+//			std::string* string_buf_ptr = nullptr;
 	};
 }
 

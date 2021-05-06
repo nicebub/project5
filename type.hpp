@@ -61,12 +61,12 @@ struct Funcb {
 };
 
 struct Varb {
-	type 	type;
+	ucc::type 	type;
 	int 	offset;
 };
 
 struct Paramb {
-	type 	type;
+	ucc::type 	type;
 	int 	offset;
 };
 
@@ -76,7 +76,7 @@ struct Pair{
 };
 struct exprtype{
 	bool lval;
-	type type;
+	ucc::type type;
 	bool numeric;
 };
 
