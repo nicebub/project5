@@ -14,6 +14,7 @@
 #include "data.hpp"
 #include "trans.hpp"
 #include "Lex.hpp"
+#include "cpptypes.hpp"
 
 using namespace ucc;
 
@@ -29,23 +30,27 @@ int yyerror(std::string err,Compiler& compiler);
 %}
 %expect 1
 %skeleton "lalr1.cc"
-%require "3.2"
+%require "3.7"
 
 %defines
 
 %define api.namespace{ucc}
+%define api.token.constructor
+%define api.token.raw
 %define api.parser.class {uccParser}
+%define parse.assert
 
 %code requires {
 	namespace ucc{
 		class Compiler;
+		class Constant;
 	}
 	#include "List.hpp"
 	#include "type.hpp"
 	using namespace ucc;
 }
 
-%parse-param{ Compiler& compiler}
+%parse-param{ Compiler& compiler }
 
 %code{
 	#undef yylex
@@ -53,11 +58,12 @@ int yyerror(std::string err,Compiler& compiler);
 } 
 
 %define api.value.type variant
+%locations
 
-%token Ident
-%token IntConstant
-%token FloatConstant
-%token StrConstant
+%token <std::string> Ident
+%token <int> IntConstant
+%token <float> FloatConstant
+%token <std::string> StrConstant
 %token voidt
 %token intt
 %token floatt
@@ -95,17 +101,16 @@ int yyerror(std::string err,Compiler& compiler);
 %right adof
 %right uminus
 
-%locations
 
-%type <std::string> identlist
+%type <List*> identlist
 %type <reltype> relop
 %type <multype> mulop
 %type <addtype> addop
 %type <eqtype> eqop
-%type <std::string> Ident
-%type <int> IntConstant
-%type <float> FloatConstant
-%type <std::string> StrConstant
+//%type <std::string> Ident
+//%type <int> IntConstant
+//%type <float> FloatConstant
+//%type <std::string> StrConstant
 %type <int> whilet ift elset
 %type <int> intt
 %type <float> floatt
@@ -115,10 +120,10 @@ int yyerror(std::string err,Compiler& compiler);
 %type <eqtype> equequ neq
 %type <multype> divide star
 %type <int> uminus
-%type <List *> paramdeflist paramdef
-%type <funcheadertype*> funcheader
-%type <exprtype*> expr
-
+%nterm <List*> paramdeflist paramdef
+%nterm <funcheadertype*> funcheader
+%nterm <exprtype*> expr
+%nterm <Constant*> constant
 %start starter
 %%
 

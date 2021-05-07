@@ -18,7 +18,9 @@ namespace ucc{
 //			uccLexer();
 			uccLexer(std::istream* in, Compiler& compiler);
 
-			virtual int yylex(uccParser::semantic_type* const lval,
+//			using FlexLexer::yylex;
+
+			virtual uccParser::symbol_type yylex(uccParser::semantic_type* const lval,
 					uccParser::location_type* location);
 					
 			virtual ~uccLexer();

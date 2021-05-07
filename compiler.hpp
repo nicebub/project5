@@ -104,11 +104,11 @@ namespace ucc{
 			void block63_name_and_params_ident_lpar_source();
 			void block64_name_and_params_ident_lpar_source_expr();
 			void block65_name_and_params_name_and_params_comma_expr();
-			void block66_constant_strconstant();
-			void block67_constant_intconstant();
-			void block68_constant_floatconstant();
-			void block69_identlist_ident();
-			void block70_identlist_comma_ident();
+			void block66_constant_strconstant(ucc::Constant* mcon, std::string instrconstant);
+			void block67_constant_intconstant(ucc::Constant* mcon, int intconstant);
+			void block68_constant_floatconstant(ucc::Constant* mcon, float floatconstant);
+			void block69_identlist_ident(List** outIdentListptr, std::string inIdent);
+			void block70_identlist_comma_ident(List** outIdentListptr, List** inIdentListptr, std::string inIdent);
 			
 			
 			

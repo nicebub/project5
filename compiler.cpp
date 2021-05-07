@@ -1532,21 +1532,21 @@ void Compiler::block65_name_and_params_name_and_params_comma_expr(){
    }
 }
 
-void Compiler::block66_constant_strconstant(... mcon, std::string instrconstant){
+void Compiler::block66_constant_strconstant(ucc::Constant* mcon, std::string instrconstant){
  			mcon = instrconstant;
 			mcon.ttype = type::STR;
 			mcon.lval = false;
 			mcon.numeric=false;
 }
 
-void Compiler::block67_constant_intconstant(... mcon, int intconstant){
+void Compiler::block67_constant_intconstant(ucc::Constant* mcon, int intconstant){
 	 	mcon = intconstant;
 		mcon.ttype = type::INT;
 		mcon.lval = false;
 		mcon.numeric= true;
 }
 
-void Compiler::block68_constant_floatconstant(... mcon, float floatconstant){
+void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatconstant){
 		mcon = floatconstant;
 		mcon.ttype = type::FLOAT;
 		mcon.lval = false;

@@ -2,9 +2,13 @@
 #define _MYTYPE_H
 
 #include <vector>
+#include <string>
+
 
 namespace ucc{
+	
 	class List;
+
 enum class addtype{
 	PLS,
 	MIN
@@ -85,6 +89,7 @@ struct exprtype{
     type 			returntype;
     type 			ttype;
 };
+
 
 }
 
