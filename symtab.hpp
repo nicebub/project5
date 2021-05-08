@@ -8,7 +8,7 @@
 
 #include "List.hpp"
 #include "type.hpp"
-#include "Compiler.hpp"
+#include "compiler.hpp"
 //extern int Line_Number;
 //extern FILE *infile;
 //extern int offset_counter;

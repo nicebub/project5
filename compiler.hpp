@@ -24,7 +24,7 @@ namespace ucc{
 	class Compiler{
 		public:
 			uccLexer	 				lexer;
-			uccParser				parser;
+			uccParser*				parser;
 			CodeGenerator 			code_generator;
 			SymbolTable* 			mysymtab;
 

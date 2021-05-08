@@ -1,32 +1,65 @@
 #ifndef _CPPSTYPES_HPP
 #define _CPPSTYPES_HPP
 
-#include "ucc.tab.hpp"
+#include <string>
+#include "type.hpp"
 
 namespace ucc{
 	
 class Constant{
 	public:
-		Constant(uccParser::symbol_type& symbol);
+		Constant(bool, ucc::type, bool);
+		bool getlval() const;
+		void setlval(const bool in);
+		ucc::type gettype() const;
+		void settype(const ucc::type in);
+		bool getnumeric() const;
+		void setnumeric(const bool in);
 		virtual ~Constant();
-		Constant(const Constant& in);
-		virtual Constant& operator=(const Constant& in);
 	private:
-		uccParser::symbol_type& symbol;
+		bool lval;
+		ucc::type ttype;
+		bool numeric;
 };
 
 
-/*
+
 class IntConstant : public Constant{
-	IntConstant();
-	virtual ~IntConstant();
-	IntConstant
+	public:
+		IntConstant();
+		IntConstant(const int invalue);
+		IntConstant(const IntConstant&);
+		virtual ~IntConstant();
+		IntConstant& operator=(const IntConstant& in);
+		int getvalue() const;
+		void setvalue(const int in);
+	private:
+		int value;
 };
-class StrtConstant : public Constant{
+class StrConstant : public Constant{
+	public:
+		StrConstant();
+		StrConstant(const std::string invalue);
+		StrConstant(const StrConstant&);
+		virtual ~StrConstant();
+		StrConstant& operator=(const StrConstant& in);
+		std::string getvalue() const;
+		void setvalue(const std::string in);
+	private:
+		std::string value;
 };
-class FloattConstant : public Constant{
+class FloatConstant : public Constant{
+	public:
+		FloatConstant();
+		FloatConstant(const float invalue);
+		FloatConstant(const FloatConstant&);
+		virtual ~FloatConstant();
+		FloatConstant& operator=(const FloatConstant& in);
+		float getvalue() const;
+		void setvalue(const float in);
+	private:
+		float value;
 };
-*/
 
 }
 

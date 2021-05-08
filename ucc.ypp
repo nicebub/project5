@@ -13,7 +13,7 @@
 #include "symtab.hpp"
 #include "data.hpp"
 #include "trans.hpp"
-#include "Lex.hpp"
+#include "lex.hpp"
 #include "cpptypes.hpp"
 
 using namespace ucc;
@@ -32,38 +32,41 @@ int yyerror(std::string err,Compiler& compiler);
 %skeleton "lalr1.cc"
 %require "3.7"
 
+%define parse.assert
+
 %defines
+%locations
+
+%define api.value.type variant
+//%define api.token.constructor
+%define api.token.raw
 
 %define api.namespace{ucc}
-%define api.token.constructor
-%define api.token.raw
 %define api.parser.class {uccParser}
-%define parse.assert
 
 %code requires {
 	namespace ucc{
 		class Compiler;
-		class Constant;
 	}
+	#include "cpptypes.hpp"
 	#include "List.hpp"
 	#include "type.hpp"
 	using namespace ucc;
 }
 
 %parse-param{ Compiler& compiler }
-
+//%lex-param{ uccParser::semantic_type* const lval }
+//%lex-param{ uccParser::location_type* loc }
 %code{
 	#undef yylex
 	#define yylex compiler.lexer.yylex
 } 
 
-%define api.value.type variant
-%locations
 
-%token <std::string> Ident
-%token <int> IntConstant
-%token <float> FloatConstant
-%token <std::string> StrConstant
+%token <std::string> Ident "Identifier"
+%token <ucc::IntConstant> IntConstant "IntConstant"
+%token <ucc::FloatConstant> FloatConstant "FloatConstant"
+%token <ucc::StrConstant> StrConstant "StrConstant"
 %token voidt
 %token intt
 %token floatt
@@ -124,9 +127,10 @@ int yyerror(std::string err,Compiler& compiler);
 %nterm <funcheadertype*> funcheader
 %nterm <exprtype*> expr
 %nterm <Constant*> constant
-%start starter
-%%
 
+%start starter
+
+%%
 starter:				translation_unit							{	compiler.block1_start_trans_unit(); }
 ;
 
@@ -272,9 +276,21 @@ name_and_params:	Ident lpar									{	compiler.block63_name_and_params_ident_lpa
 		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(); }
 ;
 
-constant:			StrConstant									{	compiler.block66_constant_strconstant($$,$1); }
-		|				IntConstant									{	compiler.block67_constant_intconstant($$,$1); }
-		|				FloatConstant								{	compiler.block68_constant_floatconstant($$,$1); }
+constant:			StrConstant									
+		{	
+			$$ = &$1;
+//			compiler.block66_constant_strconstant(&$$,$1); 
+		}
+		|				IntConstant									
+		{	
+			$$ = &$1;
+//			compiler.block67_constant_intconstant(&$$,$1); 
+		}
+		|				FloatConstant								
+		{	
+			$$ = &$1;
+//			compiler.block68_constant_floatconstant(&$$,$1); 
+		}
 ;
 
 identlist:			Ident											{	compiler.block69_identlist_ident(&$$,$1); }

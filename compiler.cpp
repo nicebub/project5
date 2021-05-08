@@ -10,16 +10,16 @@ namespace ucc{
 
 Compiler::Compiler(): mysymtab{new SymbolTable{ *this} }, 
 							code_generator{},
-							lexer{NULL,*this}, 
-							founderror{false},
-							parser(*this),
-							Line_Number(1),
-							globalcount(0),
-							offset_counter(5),
-							othercounter(1),
-							param_offset(0),
-							mainlocal(0) 
+							lexer{NULL,*this},
+							parser{nullptr},
+							founderror{false}
 {
+	Line_Number=1;
+	globalcount=0;
+	offset_counter=5;
+	othercounter=1;
+	param_offset=0;
+	mainlocal=0;
 	mainlabel = code_generator.getlabel();
 
 	if(mysymtab == NULL){
@@ -31,7 +31,7 @@ Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *th
 																	code_generator{}, 
 																	founderror{false}, 
 																	lexer{NULL,*this}, 
-																	parser(*this),
+																	parser{nullptr},
 																	Line_Number(1),
 																	globalcount(0),
 																	offset_counter(5),
@@ -1533,24 +1533,25 @@ void Compiler::block65_name_and_params_name_and_params_comma_expr(){
 }
 
 void Compiler::block66_constant_strconstant(ucc::Constant* mcon, std::string instrconstant){
- 			mcon = instrconstant;
-			mcon.ttype = type::STR;
-			mcon.lval = false;
-			mcon.numeric=false;
+ 			*mcon = instrconstant;
+			(*mcon).ttype = type::STR;
+			(*mcon).lval = false;
+			(*mcon).numeric=false;
 }
 
 void Compiler::block67_constant_intconstant(ucc::Constant* mcon, int intconstant){
-	 	mcon = intconstant;
-		mcon.ttype = type::INT;
-		mcon.lval = false;
-		mcon.numeric= true;
+	 	(*mcon) = intconstant;
+		(*mcon).ttype = type::INT;
+		(*mcon).lval = false;
+		(*mcon).numeric= true;
 }
 
 void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatconstant){
-		mcon = floatconstant;
-		mcon.ttype = type::FLOAT;
-		mcon.lval = false;
-		mcon.numeric= true;
+	(*mcon) = new Constant{};
+		(*mcon) = floatconstant;
+		(*mcon).ttype = type::FLOAT;
+		(*mcon).lval = false;
+		(*mcon).numeric= true;
 }
 
 void Compiler::block69_identlist_ident(List** outIdentListptr, std::string inIdent){

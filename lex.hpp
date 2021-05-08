@@ -20,7 +20,7 @@ namespace ucc{
 
 //			using FlexLexer::yylex;
 
-			virtual uccParser::symbol_type yylex(uccParser::semantic_type* const lval,
+			virtual int yylex(uccParser::semantic_type* const lval,
 					uccParser::location_type* location);
 					
 			virtual ~uccLexer();

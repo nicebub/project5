@@ -8,14 +8,15 @@
 #endif
 #endif
 
-
+#include "type.hpp"
+#include "cpptypes.hpp"
 #include "lex.hpp"
 #include "List.hpp"
 #include "symtab.hpp"
 #include "data.hpp"
-#include "lex.hpp"
+
 #undef YY_DECL
-#define YY_DECL uccParser::symbol_type uccLexer::yylex(uccParser::semantic_type* const lval, uccParser::location_type* location)
+#define YY_DECL int uccLexer::yylex(uccParser::semantic_type* const lval, uccParser::location_type* location)
 
 #include "ucc.tab.hpp"
 #include "compiler.hpp"
@@ -74,11 +75,11 @@ ADOF	"&"
 
 <astring>{
 \" {	BEGIN(INITIAL);
-	/*
-	yylval->build<std::string>(string_buf);
+	
+	yylval->emplace<ucc::StrConstant>(string_buf);
 	return(token::StrConstant);
-	*/
-	return uccParser::make_StrConstant(string_buf,*loc);
+	
+//	return uccParser::make_StrConstant(string_buf,*loc);
 	}
 \n {	BEGIN(INITIAL);
 	++compiler.Line_Number;
@@ -119,120 +120,146 @@ ADOF	"&"
 
 
 void {/*keyword void*/
-	return uccParser::make_voidt(0,*loc);
+	return token::voidt;
+//	return uccParser::make_voidt(0,*loc);
 	}
 
 if {/* keyword if*/
-	return uccParser::make_ift(0,*loc);
+	return token::ift;
+//	return uccParser::make_ift(0,*loc);
 	}
 
 return {/* keyword return*/
-	return uccParser::make_returnt(*loc);
+	return token::returnt;
+//	return uccParser::make_returnt(*loc);
 }
 
 else {/* keyword else*/
-	return uccParser::make_elset(0,*loc);
+	return token::elset;
+//	return uccParser::make_elset(0,*loc);
 	}
 
 
 while {/*keyword while*/
-	return uccParser::make_whilet(0,*loc);
+	return token::whilet;
+//	return uccParser::make_whilet(0,*loc);
 	}
 
 int { /*keyword int*/
 //	yylval.ttype = type::INT;
-	return uccParser::make_intt(0,*loc);
+	return token::intt;
+//	return uccParser::make_intt(0,*loc);
 }
 
 float {/* keyword float*/
 //	yylval.ttype = type::FLOAT;
-	return uccParser::make_floatt(0,*loc);
+	return token::floatt;
+//	return uccParser::make_floatt(0,*loc);
 	}
 
 char { /* keyword char*/
 //	yylval.ttype = type::CHAR;
-	return uccParser::make_chart(0,*loc);
+	return token::chart;
+//	return uccParser::make_chart(0,*loc);
 	}
 
 \( {
-	return uccParser::make_lpar(0,*loc);
+	return token::lpar;
+//	return uccParser::make_lpar(0,*loc);
 	}
 
 \) {
-	return uccParser::make_rpar(0,*loc);
+	return token::rpar;
+//	return uccParser::make_rpar(0,*loc);
 	}
 
 \{ {
-	return uccParser::make_lcbra(0,*loc);
+	return token::lcbra;
+//	return uccParser::make_lcbra(0,*loc);
 	}
 
 \} {
-	return uccParser::make_rcbra(0,*loc);
+	return token::rcbra;
+//	return uccParser::make_rcbra(0,*loc);
 	}
 
 \; {
-	return uccParser::make_semi(0,*loc);
+	return token::semi;
+//	return uccParser::make_semi(0,*loc);
 	}
 
 \, {
-	return uccParser::make_comma(0,*loc);
+	return token::comma;
+//	return uccParser::make_comma(0,*loc);
 	}
 
 \< {	
 //	yylval.value.relopvalue = reltype::LES;
-	return uccParser::make_lesst(reltype::LES,*loc);
+	return token::lesst;
+//	return uccParser::make_lesst(reltype::LES,*loc);
 	}
 
 \> {	
 //	yylval.value.relopvalue = reltype::GRE;
-return uccParser::make_greatt(reltype::GRE,*loc);
+	return token::greatt;
+//return uccParser::make_greatt(reltype::GRE,*loc);
 	}
 
 \= {
-	return uccParser::make_equalt(0,*loc);
+	return token::equalt;
+//	return uccParser::make_equalt(0,*loc);
 	}
 
 \+ {	
 //	yylval.value.addopvalue = addtype::PLS;
-return uccParser::make_plus(addtype::PLS,*loc);
+	return token::plus;
+//	return uccParser::make_plus(addtype::PLS,*loc);
 	}
 
 \- {	
 //	yylval.value.addopvalue = addtype::MIN;
-return uccParser::make_minus(addtype::MIN,*loc);
+		return token::minus;
+//	return uccParser::make_minus(addtype::MIN,*loc);
 	}
 
 \/ {	
 //	yylval.value.multopvalue = multype::DIV;
-return uccParser::make_divide(multype::DIV,*loc);
+		return token::divide;
+//		return uccParser::make_divide(multype::DIV,*loc);
 	}
 \* {	
 //	yylval.value.multopvalue = multype::MULT;
-return uccParser::make_star(multype::MULT,*loc);
+		return token::star;
+//		return uccParser::make_star(multype::MULT,*loc);
 	}
 
 {GEQ} {		
 //	yylval.value.relopvalue = reltype::GEQ;
-return uccParser::make_geq(reltype::GEQ,*loc);
+	return token::geq;
+//	return uccParser::make_geq(reltype::GEQ,*loc);
 	}
 
 {LEQ} {		
 //	yylval.value.relopvalue = reltype::LEQ;
-return uccParser::make_leq(reltype::LEQ,*loc);
+	return token::leq;
+//	return uccParser::make_leq(reltype::LEQ,*loc);
 	}
 
 {NEQ} {		
 //	yylval.value.eqopvalue = eqtype::NEQ;
-return uccParser::make_neq(eqtype::NEQ,*loc);
+	return token::neq;
+//	return uccParser::make_neq(eqtype::NEQ,*loc);
 	}
 
 {EQUEQU} {	
 //	yylval.value.eqopvalue = eqtype::EQEQ;
-return uccParser::make_equequ(eqtype::EQEQ,*loc);
+	return token::equequ;
+//	return uccParser::make_equequ(eqtype::EQEQ,*loc);
 	}
 
 {ADOF} {
-	return uccParser::make_adof(0,*loc);
+	return token::adof;
+//	return uccParser::make_adof(0,*loc);
 	}
 
 {BEGCOM} {
@@ -242,9 +269,9 @@ return uccParser::make_equequ(eqtype::EQEQ,*loc);
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
 //				yylval.ttype = type::STR;
 				std::string tempstr(yytext);
-				yylval->build<std::string>(tempstr);
-				return uccParser::make_Ident(tempstr,*loc);
-//				return(token::Ident);
+				yylval->emplace<std::string>(tempstr);
+//				return uccParser::make_Ident(tempstr,*loc);
+				return(token::Ident);
 				}
 
 ((0|([1-9]{DIGIT}*)))(while|if|void|return|char|int|float|else|for|extern) {
@@ -267,10 +294,10 @@ return uccParser::make_equequ(eqtype::EQEQ,*loc);
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
 //					yylval.ttype = type::FLOAT;
-					yylval->build<float>(std::atof(yytext));
+					yylval->emplace<float>(std::atof(yytext));
 //					yylval.value.fvalue=(float)std::atof(yytext);
-					return uccParser::make_FloatConstant((float)std::atof(yytext),*loc);
-//					return(token::FloatConstant);
+//					return uccParser::make_FloatConstant((float)std::atof(yytext),*loc);
+					return(token::FloatConstant);
 					}
 
 0{DIGIT}+\.{DIGIT}+		{/* bad float*/
@@ -284,14 +311,15 @@ return uccParser::make_equequ(eqtype::EQEQ,*loc);
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
 //				yylval.ttype = type::INT;
-				yylval->build<int>(std::atoi(yytext));
+				yylval->emplace<int>(std::atoi(yytext));
 //				yylval.value.ivalue =(int)std::atoi(yytext);
-				return uccParser::make_IntConstant((int)std::atoi(yytext),*loc);
-//				return(token::IntConstant);
+//				return uccParser::make_IntConstant((int)std::atoi(yytext),*loc);
+				return(token::IntConstant);
 				}
 
 {ELIP} {
-	return uccParser::make_elip(0,*loc);
+	return token::elip;
+//	return uccParser::make_elip(0,*loc);
 }
 
 \" {
@@ -308,8 +336,9 @@ return uccParser::make_equequ(eqtype::EQEQ,*loc);
 	}
 
 <<EOF>> {
-	return uccParser::make_YYEOF(*loc);
-//	return '\0';
+
+//	return uccParser::make_YYEOF(*loc);
+	return '\0';
 	}
 
 . 	{

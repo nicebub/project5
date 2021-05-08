@@ -78,16 +78,17 @@ struct Pair{
 	int one;
 	int two;
 };
+
 struct exprtype{
 	bool lval;
 	ucc::type type;
 	bool numeric;
 };
-	struct funcheadertype {
-    std::string 	name;
-    List* 			paramlist;
-    type 			returntype;
-    type 			ttype;
+struct funcheadertype {
+	std::string 	name;
+	List*				paramlist;
+	type				returntype;
+	type				ttype;
 };
 
 
