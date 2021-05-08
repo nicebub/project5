@@ -5,17 +5,19 @@
 #include "type.hpp"
 
 namespace ucc{
+
+
 	
-class Constant{
+class ReturnPacket{
 	public:
-		Constant(bool, ucc::type, bool);
+		ReturnPacket(bool, ucc::type, bool);
 		bool getlval() const;
 		void setlval(const bool in);
 		ucc::type gettype() const;
 		void settype(const ucc::type in);
 		bool getnumeric() const;
 		void setnumeric(const bool in);
-		virtual ~Constant();
+		virtual ~ReturnPacket();
 	private:
 		bool lval;
 		ucc::type ttype;
@@ -24,7 +26,7 @@ class Constant{
 
 
 
-class IntConstant : public Constant{
+class IntConstant : public ReturnPacket{
 	public:
 		IntConstant();
 		IntConstant(const int invalue);
@@ -36,7 +38,7 @@ class IntConstant : public Constant{
 	private:
 		int value;
 };
-class StrConstant : public Constant{
+class StrConstant : public ReturnPacket{
 	public:
 		StrConstant();
 		StrConstant(const std::string invalue);
@@ -48,7 +50,7 @@ class StrConstant : public Constant{
 	private:
 		std::string value;
 };
-class FloatConstant : public Constant{
+class FloatConstant : public ReturnPacket{
 	public:
 		FloatConstant();
 		FloatConstant(const float invalue);

@@ -3,34 +3,34 @@
 
 namespace ucc{
 
-	Constant::Constant(bool lval , ucc::type ttype, bool ifnum) : lval{lval}, ttype{ttype}, numeric{ifnum} {}
+	ReturnPacket::ReturnPacket(bool lval , ucc::type ttype, bool ifnum) : lval{lval}, ttype{ttype}, numeric{ifnum} {}
 
-	Constant::~Constant(){}
+	ReturnPacket::~ReturnPacket(){}
 
-	bool Constant::getlval() const {
+	bool ReturnPacket::getlval() const {
 		return lval;
 	}
-	void Constant::setlval(const bool in){
+	void ReturnPacket::setlval(const bool in){
 		lval = in;
 	}
-	ucc::type  Constant::gettype() const {
+	ucc::type  ReturnPacket::gettype() const {
 		return ttype;
 	}
-	void Constant::settype(const ucc::type in){
+	void ReturnPacket::settype(const ucc::type in){
 		ttype = in;
 	}
-	bool Constant::getnumeric() const{
+	bool ReturnPacket::getnumeric() const{
 		return numeric;
 	}
-	void Constant::setnumeric(const bool in){
+	void ReturnPacket::setnumeric(const bool in){
 		numeric = in;
 	}
 
-	IntConstant::IntConstant() : Constant{false,ucc::type::INT, true}, value{0} {}
+	IntConstant::IntConstant() : ReturnPacket{false,ucc::type::INT, true}, value{0} {}
 
-	IntConstant::IntConstant(const int invalue) : Constant{false,ucc::type::INT, true}, value{invalue} {}
+	IntConstant::IntConstant(const int invalue) : ReturnPacket{false,ucc::type::INT, true}, value{invalue} {}
 		
-	IntConstant::IntConstant(const IntConstant& in) : Constant{in.getlval(),ucc::type::INT, true}, value{in.value} {}
+	IntConstant::IntConstant(const IntConstant& in) : ReturnPacket{in.getlval(),ucc::type::INT, true}, value{in.value} {}
 		
 	IntConstant::~IntConstant(){}
 		
@@ -51,11 +51,11 @@ namespace ucc{
 		value = in;
 	}	
 
-	StrConstant::StrConstant() : Constant{false,ucc::type::STR, false} {}
+	StrConstant::StrConstant() : ReturnPacket{false,ucc::type::STR, false} {}
 		
-	StrConstant::StrConstant(const std::string invalue) : Constant{false,ucc::type::STR, false} , value{invalue} {}
+	StrConstant::StrConstant(const std::string invalue) : ReturnPacket{false,ucc::type::STR, false} , value{invalue} {}
 		
-	StrConstant::StrConstant(const StrConstant& in) : Constant{in.getlval(),ucc::type::STR, false} , value{in.value} {}
+	StrConstant::StrConstant(const StrConstant& in) : ReturnPacket{in.getlval(),ucc::type::STR, false} , value{in.value} {}
 		
 	StrConstant::~StrConstant() {}
 		
@@ -76,12 +76,12 @@ namespace ucc{
 		value = in;
 	}
 
-	FloatConstant::FloatConstant() : Constant{false,ucc::type::FLOAT, true}, value{0.0f} {}
+	FloatConstant::FloatConstant() : ReturnPacket{false,ucc::type::FLOAT, true}, value{0.0f} {}
 
-	FloatConstant::FloatConstant(const float invalue ) : Constant{false,ucc::type::FLOAT, true}, value{invalue } {}
+	FloatConstant::FloatConstant(const float invalue ) : ReturnPacket{false,ucc::type::FLOAT, true}, value{invalue } {}
 
 
-	FloatConstant::FloatConstant(const FloatConstant& in ) : Constant{in.getlval(),ucc::type::FLOAT, true}, value{in.value } {}
+	FloatConstant::FloatConstant(const FloatConstant& in ) : ReturnPacket{in.getlval(),ucc::type::FLOAT, true}, value{in.value } {}
 
 	FloatConstant::~FloatConstant(){}
 

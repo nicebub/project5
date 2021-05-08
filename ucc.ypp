@@ -126,7 +126,7 @@ int yyerror(std::string err,Compiler& compiler);
 %nterm <List*> paramdeflist paramdef
 %nterm <funcheadertype*> funcheader
 %nterm <exprtype*> expr
-%nterm <Constant*> constant
+%nterm <ReturnPacket*> constant
 
 %start starter
 
@@ -276,44 +276,33 @@ name_and_params:	Ident lpar									{	compiler.block63_name_and_params_ident_lpa
 		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(); }
 ;
 
-constant:			StrConstant									
-		{	
-			$$ = &$1;
-//			compiler.block66_constant_strconstant(&$$,$1); 
-		}
-		|				IntConstant									
-		{	
-			$$ = &$1;
-//			compiler.block67_constant_intconstant(&$$,$1); 
-		}
-		|				FloatConstant								
-		{	
-			$$ = &$1;
-//			compiler.block68_constant_floatconstant(&$$,$1); 
-		}
-;
 
 identlist:			Ident											{	compiler.block69_identlist_ident(&$$,$1); }
 		|				identlist comma Ident					{	compiler.block70_identlist_comma_ident(&$$,&$1,$3); }
 		|				identlist comma error					{	yyerrok; compiler.error("(unexpected token after comma)",""); }
 ;
 
-addop: plus { $$ = $1;}
-	| minus { $$ = $1;}
+constant:			StrConstant									{	$$ = &$1; }
+		|				IntConstant									{	$$ = &$1; }
+		|				FloatConstant								{	$$ = &$1; }
 ;
 
-mulop: star { $$ = $1;}
-	| divide {$$ = $1;}
+addop:				plus											{	$$ = $1;}
+		|				minus											{	$$ = $1;}
 ;
 
-eqop: equequ { $$ = $1;}
-	| neq { $$ = $1;}
+mulop:				star											{	$$ = $1;}
+		|				divide										{	$$ = $1;}
 ;
 
-relop: lesst { $$ = $1;}
-	| leq { $$ = $1;}
-	| geq { $$ = $1;}
-	| greatt { $$ = $1;}
+eqop:					equequ										{	$$ = $1;}
+		|				neq											{	$$ = $1;}
+;
+
+relop:				lesst											{	$$ = $1;}
+		|				leq											{	$$ = $1;}
+		|				geq											{	$$ = $1;}
+		|				greatt										{	$$ = $1;}
 ;
 
 %%

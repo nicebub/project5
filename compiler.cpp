@@ -1531,7 +1531,7 @@ void Compiler::block65_name_and_params_name_and_params_comma_expr(){
 
    }
 }
-
+/*
 void Compiler::block66_constant_strconstant(ucc::Constant* mcon, std::string instrconstant){
  			*mcon = instrconstant;
 			(*mcon).ttype = type::STR;
@@ -1553,7 +1553,7 @@ void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatco
 		(*mcon).lval = false;
 		(*mcon).numeric= true;
 }
-
+*/
 void Compiler::block69_identlist_ident(List** outIdentListptr, std::string inIdent){
 	(*outIdentListptr) = List::mklist(inIdent));
 }
