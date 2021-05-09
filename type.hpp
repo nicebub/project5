@@ -45,7 +45,8 @@ enum class type{
 	STR,
 	REFINT,
 	REFFLOAT,
-	REFSTR
+	REFSTR,
+	IDENT
 };
 
 enum class mbool{
@@ -53,26 +54,6 @@ enum class mbool{
 	FALSE
 };
 
-struct Funcb {
-	std::vector<type> param_type;
-//	type* param_type;
-	type 	returntype;
-	bool 	bodydef;
-	int 	num_param;
-	int 	label;
-	int 	localcount;
-	int 	actual_num;
-};
-
-struct Varb {
-	ucc::type 	type;
-	int 	offset;
-};
-
-struct Paramb {
-	ucc::type 	type;
-	int 	offset;
-};
 
 struct Pair{
 	int one;

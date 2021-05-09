@@ -12,15 +12,15 @@
 #include "type.hpp"
 #include "List.hpp"
 #include "data.hpp"
-
+#include "cpptypes.hpp"
 
 using namespace ucc;
 namespace ucc{
 extern int error(std::string,std::string);
 
 TableEntry::TableEntry() : TableEntry{""} {}
-TableEntry::TableEntry(std::string name) :name{name}, binding{NULL}, self{btype::FUNC} {}
-TableEntry::TableEntry(std::string name, void* binding, btype self) : name{name}, binding{binding}, self{self} {}
+TableEntry::TableEntry(std::string name) :name{name}, binding{nullptr}, self{btype::FUNC} {}
+TableEntry::TableEntry(std::string name, ReturnPacket* binding, btype self) : name{name}, binding{binding}, self{self} {}
 TableEntry::~TableEntry(){
 	if(binding){
 //		delete binding;
@@ -44,7 +44,7 @@ void TableEntry::setName(std::string inName){
 std::string TableEntry::getName() const{
 	return name;
 }
-void* TableEntry::getBinding(){
+ReturnPacket* TableEntry::getBinding(){
 	return binding;
 }
 
@@ -74,7 +74,7 @@ TableEntry* Table::lookupB(const std::string name){
 	}
 	catch(std::exception& e){
 		// not in table
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -448,16 +448,11 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 	
 	if(!name.empty()){
 		//Funcb * tBinding = (Funcb*)temp->binding;
-        Funcb * tBinding = NULL;
+        Funcb* tBinding{};
 		//((Funcb*)(temp->binding)) = (Funcb*) malloc(sizeof(Funcb));
 		//((Funcb*)(temp->binding))->returntype = returntype;
-		tBinding = new Funcb;
-		tBinding->returntype = returntype;
-        tBinding->num_param = 0;
-        tBinding->bodydef = false;
-        tBinding->label = 0;
-        tBinding->localcount=0;
-        tBinding->actual_num=0;
+		tBinding = new Funcb{returntype};
+
 //        tBinding->param_type=NULL;
 //        temp->binding = tBinding;
 			temp = new TableEntry{name,tBinding,btype::FUNC};
@@ -473,18 +468,18 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
             fprintf(stderr,"in Function install- extraBind->num_param is: %d\n", extraBind->num_param);
             #endif
 
-			tBinding->num_param = paramlist->size();
+			tBinding->setnum_param(paramlist->size());
         }
 /*		else
 			tBinding->num_param=0;
 */
-		if(tBinding->num_param >0){
+		if(tBinding->getnum_param() >0){
 //			tBinding->param_type = (type*)malloc((sizeof(type) * paramlist->size()));
 //			tempP = paramlist->list;
 			for(auto element : *paramlist){
 //			for(a=0;a<paramlist->size();a++){
 	PListNode * n_element{dynamic_cast<PListNode*>(element)};
-				tBinding->param_type.push_back(n_element->gettype());
+				tBinding->getparam_type().push_back(n_element->gettype());
 
 				#ifdef DEBUG
 				fprintf(stderr,"in Function install type is %d\n",n_element->gettype());
@@ -501,8 +496,8 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 
 			}
 			if(elip == true) {
-				tBinding->actual_num= tBinding->num_param;
-				tBinding->num_param = -1;
+				tBinding->setactual_num(tBinding->getnum_param());
+				tBinding->setnum_param(-1);
 			}
 		}
 /*		else
@@ -519,33 +514,33 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 }
 
 TableEntry* SymbolTable::createVar(std::string name, type t_type, int offset){
-	TableEntry * temp;
+	TableEntry * temp{nullptr};
 	//Varb * tBindingV = (Varb *)temp->binding;
-    Varb * tBindingV = NULL;
+    Varb* tBindingV{nullptr};
 	//((Varb*)(temp->binding)) = (Varb*) malloc(sizeof(Varb));
-	tBindingV = new Varb;
-    tBindingV->type = t_type;
+	tBindingV = new Varb{};
+	tBindingV->settype(t_type);
+ 	tBindingV->setoffset(offset);
 
 	//((Varb*)(temp->binding))->type = t_type;
 	#ifdef DEBUG
 	fprintf(stderr,"in Var install type is :%d\n",t_type);
 	#endif
     //((Varb*)(temp->binding))->offset = offset;
-	tBindingV->offset = offset;
 //    temp->binding = tBindingV;
 	temp = new TableEntry{name,tBindingV,btype::VAR};
 	return temp;
 }
 
 TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
-	TableEntry * temp;
+	TableEntry* temp{nullptr};
 //    temp->binding = NULL;
-    Paramb* tBindingP = NULL;
+    Paramb* tBindingP{nullptr};
 	//((Paramb*)(temp->binding)) = (Paramb*) malloc(sizeof(Varb));
 	//((Paramb*)(temp->binding))->type = t_type;
-	tBindingP = new Paramb;
-	tBindingP->type = t_type;
-   tBindingP->offset = offset;
+	tBindingP = new Paramb{};
+	tBindingP->settype(t_type);
+   tBindingP->setoffset(offset);
 //   temp->binding = tBindingP;
 	#ifdef DEBUG
 	fprintf(stderr,"in Param install type is :%d\n",t_type);

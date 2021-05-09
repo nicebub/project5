@@ -269,7 +269,7 @@ char { /* keyword char*/
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
 //				yylval.ttype = type::STR;
 				std::string tempstr(yytext);
-				yylval->emplace<std::string>(tempstr);
+				yylval->emplace<ucc::Identifier>( Identifier{tempstr});
 //				return uccParser::make_Ident(tempstr,*loc);
 				return(token::Ident);
 				}

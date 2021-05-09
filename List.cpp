@@ -37,19 +37,19 @@ void ListNode::setval(std::string in){
 	val = in;
 }
 
-ExprListNode::ExprListNode() : ExprListNode{NULL} {}
+ReturnPacketListNode::ReturnPacketListNode() : ReturnPacketListNode{NULL} {}
 
-ExprListNode::ExprListNode(exprtype* expr) : BasicListNode{eNodeType::EXPR}, expr{expr}{}
+ReturnPacketListNode::ReturnPacketListNode(ReturnPacket* expr) : BasicListNode{eNodeType::EXPR}, expr{expr}{}
 
-ExprListNode::~ExprListNode(){
+ReturnPacketListNode::~ReturnPacketListNode(){
 	if(expr){
 		delete expr;
 	}
 }
-ExprListNode::ExprListNode(const ExprListNode& in) : BasicListNode{in.get_nodeType()} {
+ReturnPacketListNode::ReturnPacketListNode(const ReturnPacketListNode& in) : BasicListNode{in.get_nodeType()} {
 	expr = in.expr;
 }
-ExprListNode& ExprListNode::operator=(const ExprListNode& in){
+ReturnPacketListNode& ReturnPacketListNode::operator=(const ReturnPacketListNode& in){
 	if(this != &in){
 		expr = in.expr;
 	}
@@ -99,19 +99,28 @@ void List::push_back(BasicListNode* in){
 }
 
 List* List::mklist(std::string inVal){
+	return (new List{})->appendList(inVal);
+	/*
 	List* temp{new List{}};
 	temp->appendList(inVal);
 	return temp;
+	*/
 }
 List* List::mklist(std::string inVal, type inType){
+	return (new List{})->appendList(inVal,inType);
+	/*
 	List* temp{new List{}};
 	temp->appendList(inVal,inType);
 	return temp;
+	*/
 }
-List* List::mklist(exprtype* inExpr){
+List* List::mklist(ReturnPacket* inExpr){
+	return (new List{})->appendList(inExpr);
+	/*
 	List* temp{new List{}};
 	temp->appendList(inExpr);
 	return temp;
+	*/
 }
 
 List* List::appendList(std::string inVal){
@@ -124,8 +133,8 @@ List* List::appendList(std::string inVal, type inType){
 	list.push_back(dynamic_cast<BasicListNode*>(nnode));
 	return this;
 }
-List* List::appendList(exprtype* inexpr){
-	ExprListNode* nnode{new ExprListNode{inexpr}};
+List* List::appendList(ReturnPacket* inexpr){
+	ReturnPacketListNode* nnode{new ReturnPacketListNode{inexpr}};
 	list.push_back(dynamic_cast<BasicListNode*>(nnode));
 	return this;
 }

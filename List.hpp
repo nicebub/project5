@@ -4,7 +4,7 @@
 #include <string>
 
 #include "type.hpp"
-
+#include "cpptypes.hpp"
 namespace ucc{
 
 
@@ -32,15 +32,15 @@ class ListNode : public BasicListNode {
 	private:
 		std::string val;
 };
-class ExprListNode : public BasicListNode {
+class ReturnPacketListNode : public BasicListNode {
 	public:
-		ExprListNode();
-		ExprListNode(exprtype* expr);
-		virtual ~ExprListNode();
-		ExprListNode(const ExprListNode& in);
-		virtual ExprListNode& operator=(const ExprListNode& in);
+		ReturnPacketListNode();
+		ReturnPacketListNode(ReturnPacket* expr);
+		virtual ~ReturnPacketListNode();
+		ReturnPacketListNode(const ReturnPacketListNode& in);
+		virtual ReturnPacketListNode& operator=(const ReturnPacketListNode& in);
 	private:
-		exprtype* expr;
+		ReturnPacket* expr;
 };
 class PListNode : public ListNode {
 	public:
@@ -64,12 +64,12 @@ class List{
 		std::vector<BasicListNode*> getlist();
 		static List* mklist(std::string inVal);
 		static List* mklist(std::string inVal, type inType);
-		static List* mklist(exprtype* expr);
+		static List* mklist(ReturnPacket* expr);
 		std::vector<BasicListNode*>::iterator begin();
 		std::vector<BasicListNode*>::iterator end();
 		List* appendList(std::string inVal);
 		List* appendList(std::string inVal, ucc::type inType);
-		List* appendList(exprtype* expr);
+		List* appendList(ReturnPacket* expr);
 //		void printListP(ListP * inList);
 		int size() const;
 	private:

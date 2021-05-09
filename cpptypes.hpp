@@ -10,7 +10,8 @@ namespace ucc{
 	
 class ReturnPacket{
 	public:
-		ReturnPacket(bool, ucc::type, bool);
+		ReturnPacket();
+		ReturnPacket(bool lval , ucc::type ttype, bool ifnum, int offset);
 		bool getlval() const;
 		void setlval(const bool in);
 		ucc::type gettype() const;
@@ -18,15 +19,26 @@ class ReturnPacket{
 		bool getnumeric() const;
 		void setnumeric(const bool in);
 		virtual ~ReturnPacket();
-	private:
+		int getoffset() const;
+		void setoffset(const int in);
+		struct Pair m_pair;
+	protected:
+		int offset;
 		bool lval;
-		ucc::type ttype;
 		bool numeric;
+		ucc::type ttype;
+
 };
 
+class Constant : public ReturnPacket{
+	public:
+		Constant(bool lval , ucc::type ttype, bool ifnum, int offset);
+		virtual ~Constant();
+//		ReturnPacket
+	private:
+};
 
-
-class IntConstant : public ReturnPacket{
+class IntConstant : public Constant{
 	public:
 		IntConstant();
 		IntConstant(const int invalue);
@@ -38,7 +50,7 @@ class IntConstant : public ReturnPacket{
 	private:
 		int value;
 };
-class StrConstant : public ReturnPacket{
+class StrConstant : public Constant{
 	public:
 		StrConstant();
 		StrConstant(const std::string invalue);
@@ -50,7 +62,7 @@ class StrConstant : public ReturnPacket{
 	private:
 		std::string value;
 };
-class FloatConstant : public ReturnPacket{
+class FloatConstant : public Constant{
 	public:
 		FloatConstant();
 		FloatConstant(const float invalue);
@@ -62,6 +74,68 @@ class FloatConstant : public ReturnPacket{
 	private:
 		float value;
 };
+
+class Identifier : public Constant {
+	public:
+		Identifier();
+		Identifier(const std::string invalue);
+		Identifier(const StrConstant&);
+		virtual ~Identifier();
+		Identifier& operator=(const Identifier& in);
+		std::string getvalue() const;
+		void setvalue(const std::string in);
+	private:
+			std::string value;
+};
+class Funcb : public ReturnPacket {
+	public:
+		Funcb();
+		Funcb(ucc::type returntype);
+		Funcb(ucc::type returntype, bool bodydef, int num_param, std::vector<ucc::type> param_type, int label, int localcount, int actual_num);
+		Funcb(const Funcb& in);
+		Funcb& operator=(const Funcb& in);
+		virtual ~Funcb();
+		std::vector<type> getparam_type();
+		type getreturntype();
+		bool getbodydef();
+		int getnum_param();
+		int getlabel();
+		int getlocalcount();
+		int getactual_num();
+		void setparam_type(std::vector<type> param_type);
+		void setreturntype( ucc::type returntype );
+		void setbodydef(bool bodydef);
+		void setnum_param(int num_param);
+		void setlabel(int label);
+		void setlocalcount(int localcount);
+		void setactual_num(int actual_num);
+
+	private:
+		std::vector<type> param_type;
+		type 	returntype;
+		bool 	bodydef;
+		int 	num_param;
+		int 	label;
+		int 	localcount;
+		int 	actual_num;
+};
+
+class Varb : public ReturnPacket {
+	public:
+		Varb();
+		virtual ~Varb();
+	private:
+};
+
+class Paramb : public ReturnPacket {
+	public:
+		Paramb();
+		virtual ~Paramb();
+	private:
+};
+
+
+
 
 }
 

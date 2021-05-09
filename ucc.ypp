@@ -63,7 +63,7 @@ int yyerror(std::string err,Compiler& compiler);
 } 
 
 
-%token <std::string> Ident "Identifier"
+%token <ucc::Identifier> Ident "Identifier"
 %token <ucc::IntConstant> IntConstant "IntConstant"
 %token <ucc::FloatConstant> FloatConstant "FloatConstant"
 %token <ucc::StrConstant> StrConstant "StrConstant"
@@ -125,8 +125,14 @@ int yyerror(std::string err,Compiler& compiler);
 %type <int> uminus
 %nterm <List*> paramdeflist paramdef
 %nterm <funcheadertype*> funcheader
-%nterm <exprtype*> expr
-%nterm <ReturnPacket*> constant
+%nterm <ReturnPacket*> expr
+%nterm <ReturnPacket*> stmt stmtlist ifexprstmt
+%nterm <Constant*> constant
+%nterm <ReturnPacket*> factor
+%nterm <ReturnPacket*> TERM
+%nterm <ReturnPacket*> simpleexpr
+%nterm <ReturnPacket*> relexpr
+%nterm <ReturnPacket*> equalexpr
 
 %start starter
 
@@ -221,42 +227,42 @@ stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 		|				lcbra stmtlist error rcbra				{	yyerrok; compiler.error("(unexpected token before rcbra in stmt)",""); }	//closescope(mysymtab);
 ;
 
-ifexprstmt:			ift lpar expr								{	compiler.block38_ifexprstmt_if_lpar_expr_source(); }
-						rpar stmt									{	compiler.block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(); }
+ifexprstmt:			ift lpar expr								<struct Pair	>{	compiler.block38_ifexprstmt_if_lpar_expr_source(); }
+						rpar stmt									{	$$ = $3; $$->m_pair = $4; }
 ;
 
 expr:					equalexpr equalt equalexpr				{	compiler.block40_expr_equalexpr_equal_equalexpr(); }
-		|				equalexpr									{	compiler.block41_expr_equalexpr(); }
+		|				equalexpr									{	$$ = $1; }
 		|				equalexpr equalt error					{	yyerrok; compiler.error("(unexpected token after equalt operator in expr)","");}
 ;
 
 equalexpr:			relexpr eqop								{	compiler.block42_equalexpr_relexpr_eqop_source(); }
 						relexpr										{	compiler.block43_equalexpr_relexpr_eqop_source_relexpr(); }
-		|				relexpr										{	compiler.block44_equalexpr_relexpr(); }
+		|				relexpr										{	$$ = $1; }
 		|				relexpr eqop error						{	yyerrok; compiler.error("(unexpected token after equality operator in expr)","");}
 ;
 
 relexpr:				simpleexpr relop							{	compiler.block45_relexpr_simpleexpr_relop_source(); }
 						simpleexpr 									{	compiler.block46_relexpr_simpleexpr_relop_source_simpleexpr(); }
-		|				simpleexpr									{	compiler.block47_relexpr_simpleexpr(); }
+		|				simpleexpr									{	$$ = $1; }
 		|				simpleexpr relop error					{	yyerrok; compiler.error("(unexpected token after relational operator",""); }
 ;
 
 simpleexpr:			simpleexpr addop							{	compiler.block48_simpleexpr_simpleexpr_addop_source(); }
-						term											{	compiler.block49_simpleexpr_simpleexpr_addop_source_term(); }
-		|				term											{	compiler.block50_simpleepr_term(); }
+						TERM											{	compiler.block49_simpleexpr_simpleexpr_addop_source_term(); }
+		|				TERM											{	$$ = $1; }
 		|				simpleexpr addop error					{	yyerrok; compiler.error("(unexpected token after additive operator)","");}
 ;
 
-term:					term mulop									{	compiler.block51_term_term_mulop_source(); }
+TERM:					TERM mulop									{	compiler.block51_term_term_mulop_source(&$<ReturnPacket*>$,&$1); }
 						factor										{	compiler.block52_term_term_mulop_source_factor(); }
-		|				factor										{	compiler.block53_term_factor(); }
-		|				term mulop error							{	yyerrok; compiler.error("(unexpected token after multiplicative operator)",""); }
+		|				factor										{	$$ = $1; }
+		|				TERM mulop error							{	yyerrok; compiler.error("(unexpected token after multiplicative operator)",""); }
 ;
 
-factor:				constant										{	compiler.block54_factor_constant(); }
-		|				Ident											{	compiler.block55_factor_ident(); }
-		|				lpar expr rpar								{	compiler.block56_factor_lpar_expr_rpar(); }
+factor:				constant										{	compiler.block54_factor_constant(&$$,&$1); }
+		|				Ident											{	compiler.block55_factor_ident(&$$, $1); }
+		|				lpar expr rpar								{	$$ = $2; }
 		|				addop factor %prec uminus				{	compiler.block57_factor_addop_factor_uminus(); }
 		|				adof Ident									{	compiler.block58_factor_adof_ident(); }
 		|				function_call								{	compiler.block59_factor_function_call(); }

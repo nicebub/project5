@@ -9,6 +9,7 @@
 #include "List.hpp"
 #include "type.hpp"
 #include "compiler.hpp"
+#include "cpptypes.hpp"
 //extern int Line_Number;
 //extern FILE *infile;
 //extern int offset_counter;
@@ -25,17 +26,17 @@ namespace ucc{
 		public:
 			TableEntry();
 			TableEntry(std::string name);
-			TableEntry(std::string name, void* binding, btype self);
+			TableEntry(std::string name, ReturnPacket* binding, btype self);
 			~TableEntry();
 			TableEntry(const TableEntry& in);
 			TableEntry& operator=(const TableEntry& in);
 			std::string getName() const;
 			void setName(std::string name);
-			void* getBinding();
+			ReturnPacket* getBinding();
 			btype getself() const;
 		private:
 			std::string name;
-			void * binding;
+			ReturnPacket* binding;
 			btype self;
 	};
 	
@@ -52,7 +53,7 @@ namespace ucc{
 	};
 	
 	
-	using stable = std::map<std::string,void*,btype>;
+	using stable = std::map<std::string,ReturnPacket*,btype>;
 
 	class SymbolTable{
 		public:

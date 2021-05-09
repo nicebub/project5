@@ -621,21 +621,22 @@ void Compiler::block37_stmt_ifexprstmt(){
 	}
 }
 
-void Compiler::block38_ifexprstmt_if_lpar_expr_source(){
-	$$.one= othercounter;
+struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(){
+	struct Pair rvalue;
+	
+	rvalue.one= othercounter;
 	othercounter++;
-	$$.two= othercounter;
+	rvalue.two= othercounter;
 	othercounter++;
-	if(founderror==false){
-		if($3->lval==true && $3->numeric==true){
-			switch($3->type){
-				case type::INT:	code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	code_generator.gen_instr("fetchR"); code_generator.gen_instr("int"); break;
-                 default:    break;
-			}
+	if($3->lval==true && $3->numeric==true){
+		switch($3->type){
+			case type::INT:	code_generator.gen_instr("fetchI"); break;
+			case type::FLOAT:	code_generator.gen_instr("fetchR"); code_generator.gen_instr("int"); break;
+              default:    break;
 		}
-		code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",$$.one));
 	}
+	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",$$.one));
+	return rvalue;
 }
 
 void Compiler::block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(){
@@ -962,14 +963,17 @@ void Compiler::block50_simpleepr_term(){
 	$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric = $1.numeric; 
 }
 
-void Compiler::block51_term_term_mulop_source(){
-	if(founderror==false){
-		if($1.numeric==true){
-			switch($1.ttype){
-				case type::INT:	if($1.lval==true) code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	if($1.lval==true) code_generator.gen_instr("fetchR"); break;
-                 default:    break;
-			}
+void Compiler::block51_term_term_mulop_source(ReturnPacket** outPacket, ReturnPacket** inPacket){
+	if((*inPacket)->getnumeric() && (*inPacket)->getlval()){
+		switch((*inPacket)->gettype()){
+			case type::INT:
+				code_generator.gen_instr("fetchI"); 
+				break;
+			case type::FLOAT:
+				code_generator.gen_instr("fetchR"); 
+				break;
+			default:
+				break;
 		}
 	}
 }
@@ -1042,97 +1046,84 @@ void Compiler::block53_term_factor(){
 	$$.lval = $1.lval; $$.ttype = $1.ttype; $$ = $1; $$.numeric=$1.numeric;
 }
 
-void Compiler::block54_factor_constant(){
-	$$.ttype = $1.ttype; $$.lval = false; $$.numeric=true;
-		if(founderror==false){
-			if($$.ttype == type::INT)
-				code_generator.gen_instr_I("pushcI",$<value.ivalue>1);
-			else if($$.ttype == type::FLOAT)
-				code_generator.gen_instr_F("pushcR",$<value.fvalue>1);
-			else if($$.ttype == type::STR){
-				code_generator.gen_instr_S("pushs",$<value.svalue>1);
-				$$.numeric=false;
-			}
-			else
-				error("constant is not a correct type of constant","");
+void Compiler::block54_factor_constant(ReturnPacket** outPacket, Constant** inConstant){
+
+	(*outPacket) = (*inConstant;
+//	(*outPacket)->setlval(false); 
+
+	switch((*outPacket)->gettype()){
+		case type::INT:
+			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant).getvalue());
+			break;
+		case type::FLOAT:
+			code_generator.gen_instr_F("pushcR",dynamic_cast<FloatConstant*>(*inConstant).getvalue());
+			break;
+		case type::STR:
+			code_generator.gen_instr_S("pushs",dynamic_cast<StrConstant*>(*inConstant).getvalue()));
+			break;
+		default:
+			error("constant is not a correct type of constant","");
+			break;
 		}
 }
 
-void Compiler::block55_factor_ident(){
-	TableEntry*tempE, *tempE2; $<value.svalue>$ = $1;
-		if($<value.svalue>1 != "main"){
-			//if(lookup((char*)$<value.svalue>1, mysymtab) == NULL)
-			//	error("variable undeclared, please declare variables before using them","");
-			if(1){
-				tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
-				tempE2->name =$<value.svalue>1;
+void Compiler::block55_factor_ident(ReturnPacket** outPacket, std::string inIdent){
+	TableEntry *resultLookup;
+	TableEntry *tempE2; 
+	(*outPacket) = new Identifier{inIdent};
+//	(*outPacket) = (*inIdent);
+//	$<value.svalue>$ = $1;
+		if(inIdent != "main"){
 				#ifdef DEBUG
 				fprintf(stderr,"the name of the identifier here is:  %s\n", (char*)$<value.svalue>1);
 				#endif
-				if((tempE=  mysymtab->lookupB(tempE2->name)) !=NULL){
-
-					if(tempE->self == btype::VAR || tempE->self == btype::PARAM){
-						switch(tempE->self){
-							case btype::VAR:
-								$$.ttype = ((Varb*)(tempE->binding))->type;
-								#ifdef DEBUG
-								char temp_char = (char)$$.ttype;
-								if($$.ttype !=  NULL) fprintf(stderr,"type is: %s\n", &temp_char);
-								if(((Varb*)(tempE->binding))->type !=NULL) fprintf(stderr,"type is: %d\n", ((Varb*)(tempE->binding))->type);
-								#endif
-								$$.lval = true;
-								if(((Varb*)(tempE->binding))->type == type::INT || ((Varb*)(tempE->binding))->type == type::FLOAT) $$.numeric=true;
-								if(founderror==false){
-									if(mysymtab->inCscope(tempE2->name) == true)
-										code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
-									else{
-										code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(tempE2->name),((Varb*)(tempE->binding))->offset);
-										//do something else
-
-									}
-								}
-								break;
-							case btype::PARAM:
-								$$.ttype = ((Paramb*)(tempE->binding))->type;
-								#ifdef DEBUG
-								fprintf(stderr,"type is: %d\n", (int)$$.ttype);
-								#endif
-								$$.lval = true;
-								if(((Paramb*)(tempE->binding))->type == type::INT || ((Paramb*)(tempE->binding))->type == type::FLOAT) $$.numeric=true;
-								if(founderror==false){
-									if(mysymtab->inCscope(tempE2->name) ==true){
-										code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
-									}
-									else{
-										//do something else
-									}
-								}
-								break;
-                              default:        break;
-
-						}
-					}
-					else
-						error("Variable is unknown or undelcared","");
+				
+			if(( (resultLookup =  mysymtab->lookupB(inIdent)) != nullptr ){
+				(*outPacket)->settype(resultLookup->binding->gettype());
+				(*outPacket)->setlval(true);
+				if(resultLookup->binding->gettype() == type::INT || resultLookup->binding->gettype() == type::FLOAT){
+					 (*outPacket)->setnumeric(true);
+				 }
+				if(mysymtab->inCscope(inIdent)){
+					code_generator.gen_instr_I("pusha", resultLookup->binding->getoffset());
 				}
 				else{
-					$$.lval=false;
-					$$.numeric=false;
-					$$.ttype= type::VOID;
-					error("Variable is unknown or undelcared, couldn't find in symbol table'","");
+					switch(resultLookup->self){
+						case btype::VAR:
+
+							#ifdef DEBUG
+							char temp_char = (char)(*outPacket)->gettype();
+							if((*outPacket)->gettype() !=  nullptr) fprintf(stderr,"type is: %s\n", &temp_char);
+							if(resultLookup->binding->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->binding->gettype());
+							#endif
+
+							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inIdent,resultLookup->binding->getoffset());
+							break;
+
+						case btype::PARAM:
+							#ifdef DEBUG
+							fprintf(stderr,"type is: %d\n", (int)(*outPacket)->getttype());
+							#endif
+
+							break;
+						default:
+							error("Variable is unknown or undelcared","");
+							break;
+					}
 				}
+			}
+			else{
+				(*outPacket)->settype(type::VOID);
+				error("Variable is unknown or undelcared, couldn't be found in symbol table'","");
 			}
 		}
 		else{
 			error("Main is not a variable name","");
-				//tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
-				//tempE2->name = $<value.svalue>1;
-
 		}
 }
 
-void Compiler::block56_factor_lpar_expr_rpar(){
-	$$.lval = $2->lval; $$.ttype = $2->type; $$.numeric= $2->numeric;
+void Compiler::block56_factor_lpar_expr_rpar(ReturnPacket** outPacket, ReturnPacket** inPacket){
+	(*outPacket) = (*inPacket);
 }
 
 void Compiler::block57_factor_addop_factor_uminus(){
@@ -1163,9 +1154,9 @@ void Compiler::block57_factor_addop_factor_uminus(){
 			}
 		}
 	}
-			$$.lval = false;
-			$$.ttype = $2.ttype;
-			if($2.numeric ==true) $$.numeric=true;
+			(*outPacket)->lval = false;
+			(*outPacket)->ttype = $2.ttype;
+			if($2.numeric ==true) (*outPacket)->numeric=true;
 			else
 				error("cannot change sign of non numeric expression","");
 }
@@ -1183,13 +1174,13 @@ void Compiler::block58_factor_adof_ident(){
                    if(tempE->self == btype::VAR || tempE->self == btype::PARAM){
                        switch(tempE->self){
                            case btype::VAR:
-                               $$.ttype = ((Varb*)(tempE->binding))->type;
+                               (*outPacket)->ttype = ((Varb*)(tempE->binding))->type;
                                #ifdef DEBUG
-                               fprintf(stderr,"type is: %d\n", (int)$$.ttype);
+                               fprintf(stderr,"type is: %d\n", (int)(*outPacket)->ttype);
                                #endif
-                               $$.lval = false;
+                               (*outPacket)->lval = false;
                                if(((Varb*)(tempE->binding))->type == type::INT || ((Varb*)(tempE->binding))->type == type::FLOAT)
-                                   $$.numeric=true;
+                                   (*outPacket)->numeric=true;
 							if(founderror==false){
                                    if(mysymtab->inCscope($<value.svalue>2) == true)
                                        code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
@@ -1201,13 +1192,13 @@ void Compiler::block58_factor_adof_ident(){
                                }
                                break;
                            case btype::PARAM:
-                               $$.ttype = ((Paramb*)(tempE->binding))->type;
+                               (*outPacket)->ttype = ((Paramb*)(tempE->binding))->type;
                                #ifdef DEBUG
-                               fprintf(stderr,"type is: %d\n", (int)$$.ttype);
+                               fprintf(stderr,"type is: %d\n", (int)(*outPacket)->ttype);
                                #endif
-                               $$.lval = false;
+                               (*outPacket)->lval = false;
                                if(((Paramb*)(tempE->binding))->type == type::INT || ((Paramb*)(tempE->binding))->type == type::FLOAT)
-                                   $$.numeric=true;
+                                   (*outPacket)->numeric=true;
                                if(founderror==false){
                                    if(mysymtab->inCscope($<value.svalue>2) ==true){
                                        code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
@@ -1224,9 +1215,9 @@ void Compiler::block58_factor_adof_ident(){
 					error("Variable is unknown or undelcared", "");
                                        }
                                        else{
-                                               $$.lval=false;
-                                               $$.numeric=false;
-                                               $$.ttype= type::VOID;
+                                               (*outPacket)->lval=false;
+                                               (*outPacket)->numeric=false;
+                                               (*outPacket)->ttype= type::VOID;
                                                error("Variable is unknown or undelcared","");
                                        }
                                }
@@ -1240,11 +1231,11 @@ void Compiler::block58_factor_adof_ident(){
 }
 
 void Compiler::block59_factor_function_call(){
-	$$.ttype = $1.ttype; $$.lval = false; $$.numeric=$1.numeric; 
+	(*outPacket)->ttype = $1.ttype; (*outPacket)->lval = false; (*outPacket)->numeric=$1.numeric; 
 }
 
 void Compiler::block60_function_call_ident_lpar_rpar(){
-	$$.lval = false; Funcb* tempb; TableEntry* tempE; TableEntry*tempE2;
+	(*outPacket)->lval = false; Funcb* tempb; TableEntry* tempE; TableEntry*tempE2;
                                 if((tempb=(Funcb*) mysymtab->lookup($<value.svalue>1)) == NULL){
                                         error("function undeclared, please declare functions before using them","");
 				}
@@ -1253,11 +1244,11 @@ void Compiler::block60_function_call_ident_lpar_rpar(){
                                         tempE2->name = $<value.svalue>1;
                                         if((tempE=  mysymtab,lookupB($<value.svalue>1))!=NULL){
                                                 if(tempE->self == btype::FUNC){
-							if(tempb->returntype != type::VOID) $$.lval =true; else $$.lval=false;
+							if(tempb->returntype != type::VOID) (*outPacket)->lval =true; else (*outPacket)->lval=false;
                                                         if(tempb->num_param != 0)
                                                                 error("Function call without correct number of parameters if any","");
-                                                        $$.ttype = tempb->returntype;
-                                                        if($$.ttype == type::INT || $$.ttype == type::FLOAT) $$.numeric =true; else $$.numeric =false;
+                                                        (*outPacket)->ttype = tempb->returntype;
+                                                        if((*outPacket)->ttype == type::INT || (*outPacket)->ttype == type::FLOAT) (*outPacket)->numeric =true; else (*outPacket)->numeric =false;
 							if(founderror==false){
 								code_generator.gen_instr_I("enter",1);
 								code_generator.gen_call(code_generator.genlabelw($<value.svalue>1, tempb->label), 0);
@@ -1273,14 +1264,14 @@ void Compiler::block60_function_call_ident_lpar_rpar(){
 }
 
 void Compiler::block61_function_call_func_call_with_params(){
-	$$.ttype =$1.ttype; $$.numeric = $1.numeric; $$.lval = $1.lval;
+	(*outPacket)->ttype =$1.ttype; (*outPacket)->numeric = $1.numeric; (*outPacket)->lval = $1.lval;
 }
 
 void Compiler::block62_func_call_with_params_name_and_params_rpar(){
-	$$.numeric =$1.numeric; $$.lval = false; $$.ttype = $1.ttype;
+	(*outPacket)->numeric =$1.numeric; (*outPacket)->lval = false; (*outPacket)->ttype = $1.ttype;
 				if($1.funcent!=NULL){
 						if(($1.funcent)->self == btype::FUNC){
-							if( ((Funcb*)(($1.funcent)->binding))->returntype != type::VOID) $$.numeric = true; else $$.numeric=false;
+							if( ((Funcb*)(($1.funcent)->binding))->returntype != type::VOID) (*outPacket)->numeric = true; else (*outPacket)->numeric=false;
 						}
 						if(founderror==false){
 							if( "scanf" == $1.funcent->name){
@@ -1301,15 +1292,15 @@ void Compiler::block62_func_call_with_params_name_and_params_rpar(){
 }
 
 void Compiler::block63_name_and_params_ident_lpar_source(){
-	$$.funcent =NULL;
-	$$.funcent =  mysymtab->lookupB($<value.svalue>1);
+	(*outPacket)->funcent =NULL;
+	(*outPacket)->funcent =  mysymtab->lookupB($<value.svalue>1);
 	#ifdef DEBUG
 	printTree(mysymtab);
 	fprintf(stderr,"this the name of function called and the lookup value: %s\n",$1);
 	if( mysymtab->lookupB($1)==NULL) fprintf(stderr,"it was null\n");
 	else fprintf(stderr,"wasn't null\n");
 	#endif
-	if ($$.funcent != NULL){
+	if ((*outPacket)->funcent != NULL){
 		$$.name = $$.funcent->name;
 		if(founderror==false) code_generator.gen_instr_I("enter",1);
 	}
@@ -1554,11 +1545,11 @@ void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatco
 		(*mcon).numeric= true;
 }
 */
-void Compiler::block69_identlist_ident(List** outIdentListptr, std::string inIdent){
-	(*outIdentListptr) = List::mklist(inIdent));
+void Compiler::block69_identlist_ident(List** outIdentListptr, ucc::Identifier inIdent){
+	(*outIdentListptr) = List::mklist(inIdent);
 }
 
-void Compiler::block70_identlist_comma_ident(List** outIdentListptr, List** inIdentListptr, std::string inIdent){
+void Compiler::block70_identlist_comma_ident(List** outIdentListptr, List** inIdentListptr, ucc::Identifier inIdent){
 	(*outIdentListptr) = (*inIdentListptr)->appendList(inIdent);
 }
 
