@@ -65,6 +65,7 @@ struct exprtype{
 	ucc::type type;
 	bool numeric;
 };
+
 struct funcheadertype {
 	std::string 	name;
 	List*				paramlist;

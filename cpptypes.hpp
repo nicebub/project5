@@ -32,6 +32,7 @@ class ReturnPacket{
 
 class Constant : public ReturnPacket{
 	public:
+		Constant();
 		Constant(bool lval , ucc::type ttype, bool ifnum, int offset);
 		virtual ~Constant();
 //		ReturnPacket
@@ -111,7 +112,7 @@ class Funcb : public ReturnPacket {
 		void setactual_num(int actual_num);
 
 	private:
-		std::vector<type> param_type;
+		std::vector<ucc::type> param_type;
 		type 	returntype;
 		bool 	bodydef;
 		int 	num_param;

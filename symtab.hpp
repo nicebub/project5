@@ -45,7 +45,7 @@ namespace ucc{
 		public:
 			Table();
 			~Table();
-			void* lookup(const std::string name);
+			ReturnPacket* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
 			bool install(TableEntry * temp);
 		private:
@@ -63,7 +63,7 @@ namespace ucc{
 			void printTree() const;
 			void Swalk(const void *node, VISIT myorder, int level);
 			void install(TableEntry* entry);
-			void* lookup(const std::string name);
+			ReturnPacket* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
 			bool inCscope(const std::string name);
 			void openscope();

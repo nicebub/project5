@@ -48,18 +48,17 @@ Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *th
 }
 
 Compiler::~Compiler(){
+	#ifdef DEBUG
+	std::cerr << "Closing file\n";
+	#endif
+
 	if(outfile->good()){
-
-		#ifdef DEBUG
-		std::cerr << "Closing file\n";
-		#endif
-
 		outfile->flush();
 	}
 
-	if(mysymtab != NULL){
+	if(mysymtab != nullptr){
 		delete mysymtab;
-		mysymtab = NULL;
+		mysymtab = nullptr;
 	}
 }
 int Compiler::warning(const std::string s1, const std::string s2) noexcept
@@ -200,57 +199,60 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 }
 void Compiler::block3_func_funcheader_source_funcbody(){
 				code_generator.gen_instr("returnf");
-//			if(currentFunc == NULL)
-//				closemainscope(mysymtab);
-//			else
 				mysymtab->closescope();
 }
 void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 	funcheadertype* inFuncHeader{*inFuncHeaderptr};
-   TableEntry* temp; Funcb* found; int a;
-   #ifdef DEBUG
+   TableEntry* temp{nullptr}; 
+	Funcb* found{nullptr};
+	int a;
+
+	#ifdef DEBUG
 	printTree(mysymtab);
-   #endif
-   temp =  mysymtab->createFunc(inFuncHeader->name, inFuncHeader->returntype, (List*)(inFuncHeader->paramlist));
-   if(inFuncHeader->paramlist !=NULL) delete ((List*)(inFuncHeader->paramlist));
-   if(inFuncHeader !=NULL) free(inFuncHeader);
-   if( temp->getName() == "main"){
-		if( ((Funcb*)(temp->binding))->returntype != type::INT)
+	#endif
+	
+   temp =  mysymtab->createFunc(inFuncHeader->name, inFuncHeader->returntype, inFuncHeader->paramlist);
+// if(inFuncHeader->paramlist != nullptr) delete inFuncHeader->paramlist;
+//   if(inFuncHeader !=NULL) free(inFuncHeader);
+	
+	
+   if( inFuncHeader->name == "main"){
+		if( inFuncHeader->returntype != type::INT)
 			error("Main function needs return type of int","");
-		if( ((Funcb*)(temp->binding))->num_param != 1)
+		if( inFuncHeader->paramlist.size() != 1)
 			error("Main function only takes 1 parameter","");
-		if( ((Funcb*)(temp->binding))->param_type[0] != type::VOID)
+		if( inFuncHeader->param_list[0] != type::VOID)
 			error("Main function parameter has to be void","");
 		delete temp;
    }
    else{
-	   found = (Funcb*)( mysymtab->lookup(temp->getName()));
+	   found = mysymtab->lookup(inFuncHeader->name);
           #ifdef DEBUG
-		if(temp->name ==NULL)
+		if(temp->getName().empty())
          	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", "NULL");
 		 else
-         	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", temp->name);
+         	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", temp->getName());
 		 #endif
-          Funcb * paramOftemp = (Funcb*)temp->binding;
+          Funcb* paramOftemp =temp->binding;
           #ifdef DEBUG
-          fprintf(stderr,"binding of temp as Funcb: value num_param in symbol table: %d\n", (paramOftemp->num_param));
-          fprintf(stderr,"param_type of paramOftemp as typeOftemp: value param_type in symbol table: %d\n", (paramOftemp->param_type[2]));
+          fprintf(stderr,"binding of temp as Funcb: value num_param in symbol table: %d\n", (paramOftemp->getnum_param()));
+          fprintf(stderr,"param_type of paramOftemp as typeOftemp: value param_type in symbol table: %d\n", (paramOftemp->getparam_type()[2]));
           #endif
-	   if(found == NULL){ mysymtab->install(temp); /*printTree(mysymtab)*/;}
+	   if(found == nullptr){ mysymtab->install(temp); /*printTree(mysymtab)*/;}
 	   else{
-		if(((Funcb*)(temp->binding))->returntype != found->returntype)
+		if(temp->binding->getreturntype() != found->getreturntype())
 			error("Function already declared with different return type","");
-		if(((Funcb*)(temp->binding))->num_param == -1 || found->num_param == -1){
-			if(((Funcb*)(temp->binding))->param_type[0] != found->param_type[0])
+		if(temp->binding->getnum_param() == -1 || found->getnum_param() == -1){
+			if(temp->binding->getparam_type()[0] != found->getparam_type()[0])
 				error("In Function %s ", inFuncHeader->name);
 				fprintf(stderr,"argument 0 is of different type than in previous declaration\n");
 		}
 		else{
-			if(((Funcb*)(temp->binding))->num_param != found->num_param)
+			if(temp->binding->getnum_param() != found->getnum_param())
 				error("Function already decleared with different number of parameters","");
-			if( ((Funcb*)(temp->binding))->num_param > 0 && found->num_param >0){
-				for(a=0;a<((Funcb*)(temp->binding))->num_param && a<found->num_param ;a++){
-					if(((Funcb*)(temp->binding))->param_type[a] != found->param_type[a]){
+			if( temp->binding->getnum_param() > 0 && found->getnum_param() >0){
+				for(a=0;a<temp->binding->getnum_param() && a<found->getnum_param() ;a++){
+					if(temp->binding->getparam_type()[a] != found->getparam_type()[a]){
 						error("In Function %s ", inFuncHeader->name);
 						fprintf(stderr, "argument %d is of different type than in previous declaration\n", a);
 					}
@@ -385,10 +387,12 @@ void Compiler::block14_funcheader_int_ident_lpar_error_rpar(funcheadertype** out
 			tempP= (List*)tempLP;
 			outFuncHeader->paramlist= tempLP;
 }
+/*
 void Compiler::block15_paramdef_paramdeflist(List** outParamdefptr, List** inParamdeflistptr){
 	*outParamdefptr = *inParamdeflistptr;
 //	$<value.lstpvalue>$= $1;
 }
+*/
 void Compiler::block15_paramdef_paramdeflist_comma_elip(List** outParamdefptr, List** inParamdeflistptr){
 
 		*outParamdefptr = (*inParamdeflistptr)->appendList("...", type::VOID);
@@ -638,11 +642,11 @@ struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(){
 	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",$$.one));
 	return rvalue;
 }
-
+/*
 void Compiler::block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(){
 	$$.lval=$3->lval; $$.numeric=$3->numeric; $$.ttype = $3->type; $$.one = $4.one; $$.two=$4.two;
 }
-
+*/
 void Compiler::block40_expr_equalexpr_equal_equalexpr(){
 	if($1.lval !=true){
 		error("Cannot make assignment. Left hand side is not a correct lval","");
@@ -698,12 +702,12 @@ void Compiler::block40_expr_equalexpr_equal_equalexpr(){
 
 	}
 }
-
+/*
 void Compiler::block41_expr_equalexpr(){
 	$$ = (exprtype*) malloc(sizeof(exprtype));
 	$$->lval = $1.lval; $$->numeric = $1.numeric; $$->type =$1.ttype;
 }
-
+*/
 
 void Compiler::block42_equalexpr_relexpr_eqop_source(){
 	if(founderror==false){
@@ -779,11 +783,11 @@ void Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(){
 				}
 				else{ error("non numeric in operation",""); $$.numeric=true; }
 }
-
+/*
 void Compiler::block44_equalexpr_relexpr(){
 $$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric= $1.numeric;
 }
-
+*/
 void Compiler::block45_relexpr_simpleexpr_relop_source(){
 	if(founderror==false){
 		if($1.numeric==true){
@@ -879,11 +883,11 @@ void Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(){
 					$$.numeric=false;
 				}
 }
-
+/*
 void Compiler::block47_relexpr_simpleexpr(){
 		$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric=$1.numeric;
 }
-
+*/
 void Compiler::block48_simpleexpr_simpleexpr_addop_source(){
 	if(founderror==false){
                      if($1.numeric==true){
@@ -958,11 +962,11 @@ void Compiler::block49_simpleexpr_simpleexpr_addop_source_term(){
 				}
 
 }
-
+/*
 void Compiler::block50_simpleepr_term(){
 	$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric = $1.numeric; 
 }
-
+*/
 void Compiler::block51_term_term_mulop_source(ReturnPacket** outPacket, ReturnPacket** inPacket){
 	if((*inPacket)->getnumeric() && (*inPacket)->getlval()){
 		switch((*inPacket)->gettype()){
@@ -1041,14 +1045,14 @@ void Compiler::block52_term_term_mulop_source_factor(){
 			$$.numeric =false;
 		}
 }
-
+/*
 void Compiler::block53_term_factor(){
 	$$.lval = $1.lval; $$.ttype = $1.ttype; $$ = $1; $$.numeric=$1.numeric;
 }
-
+*/
 void Compiler::block54_factor_constant(ReturnPacket** outPacket, Constant** inConstant){
 
-	(*outPacket) = (*inConstant;
+	(*outPacket) = (*inConstant);
 //	(*outPacket)->setlval(false); 
 
 	switch((*outPacket)->gettype()){
@@ -1121,12 +1125,12 @@ void Compiler::block55_factor_ident(ReturnPacket** outPacket, std::string inIden
 			error("Main is not a variable name","");
 		}
 }
-
+/*
 void Compiler::block56_factor_lpar_expr_rpar(ReturnPacket** outPacket, ReturnPacket** inPacket){
 	(*outPacket) = (*inPacket);
 }
-
-void Compiler::block57_factor_addop_factor_uminus(){
+*/
+void Compiler::block57_factor_addop_factor_uminus(ReturnPacket** outPacket,ucc::addtype inop, ReturnPacket** inPacket){
 	if(founderror==false){
 		if($2.numeric==true){
 			if($1 == addtype::MIN){
@@ -1161,7 +1165,7 @@ void Compiler::block57_factor_addop_factor_uminus(){
 				error("cannot change sign of non numeric expression","");
 }
 
-void Compiler::block58_factor_adof_ident(){
+void Compiler::block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifier inPacket){
 	TableEntry*tempE, *tempE2; $<value.svalue>$ = $2;
                        if($<value.svalue>2 != "main"){
                                if( mysymtab->lookup($<value.svalue>2) == NULL)
@@ -1229,11 +1233,11 @@ void Compiler::block58_factor_adof_ident(){
 
                        }
 }
-
+/*
 void Compiler::block59_factor_function_call(){
 	(*outPacket)->ttype = $1.ttype; (*outPacket)->lval = false; (*outPacket)->numeric=$1.numeric; 
 }
-
+*/
 void Compiler::block60_function_call_ident_lpar_rpar(){
 	(*outPacket)->lval = false; Funcb* tempb; TableEntry* tempE; TableEntry*tempE2;
                                 if((tempb=(Funcb*) mysymtab->lookup($<value.svalue>1)) == NULL){
@@ -1262,11 +1266,11 @@ void Compiler::block60_function_call_ident_lpar_rpar(){
                                         free(tempE2); tempE2=NULL;
                                 }
 }
-
+/*
 void Compiler::block61_function_call_func_call_with_params(){
 	(*outPacket)->ttype =$1.ttype; (*outPacket)->numeric = $1.numeric; (*outPacket)->lval = $1.lval;
 }
-
+*/
 void Compiler::block62_func_call_with_params_name_and_params_rpar(){
 	(*outPacket)->numeric =$1.numeric; (*outPacket)->lval = false; (*outPacket)->ttype = $1.ttype;
 				if($1.funcent!=NULL){
@@ -1545,12 +1549,12 @@ void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatco
 		(*mcon).numeric= true;
 }
 */
-void Compiler::block69_identlist_ident(List** outIdentListptr, ucc::Identifier inIdent){
-	(*outIdentListptr) = List::mklist(inIdent);
+void Compiler::block69_identlist_ident(List** outIdentListptr, ucc::Identifier* inIdent){
+	(*outIdentListptr) = List::mklist(*inIdent);
 }
 
-void Compiler::block70_identlist_comma_ident(List** outIdentListptr, List** inIdentListptr, ucc::Identifier inIdent){
-	(*outIdentListptr) = (*inIdentListptr)->appendList(inIdent);
+void Compiler::block70_identlist_comma_ident(List** outIdentListptr, List** inIdentListptr, ucc::Identifier* inIdent){
+	(*outIdentListptr) = (*inIdentListptr)->appendList(*inIdent);
 }
 
 }

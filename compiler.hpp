@@ -108,10 +108,10 @@ namespace ucc{
 
 			void block54_factor_constant(ReturnPacket** outPacket, Constant** inConstant);
 			void block55_factor_ident(ReturnPacket** outPacket, ucc::Identifier inIdent);
-			void block56_factor_lpar_expr_rpar();
-			void block57_factor_addop_factor_uminus();
-			void block58_factor_adof_ident();
-			void block59_factor_function_call();
+			void block56_factor_lpar_expr_rpar(ReturnPacket** outPacket, ReturnPacket** inPacket);
+			void block57_factor_addop_factor_uminus(ReturnPacket** outPacket,ucc::addtype inop, ReturnPacket** inPacket);
+			void block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifier inPacket);
+			void block59_factor_function_call(ReturnPacket** outPacket,ReturnPacket** inPacket);
 
 			void block60_function_call_ident_lpar_rpar();
 			void block61_function_call_func_call_with_params();

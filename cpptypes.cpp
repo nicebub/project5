@@ -49,6 +49,7 @@ namespace ucc{
 
 	Constant::~Constant() {}
 
+	Constant::Constant() : ReturnPacket{} {}
 	Constant::Constant(bool lval , ucc::type ttype, bool ifnum, int offset) : ReturnPacket{lval,ttype,ifnum,offset} {}
 
 	IntConstant::IntConstant() : Constant{false,ucc::type::INT, true, 0}, value{0} {}

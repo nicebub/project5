@@ -60,12 +60,12 @@ Table::~Table(){
 //		delete element;
 	}
 }
-void* Table::lookup(const std::string name){
+ReturnPacket* Table::lookup(const std::string name){
 	auto result{table.find(name)};
 	if(result != table.end()){
 		return result->second;
 	}
-	return NULL;
+	return nullptr;
 }
 TableEntry* Table::lookupB(const std::string name){
 	try{
@@ -179,7 +179,7 @@ void SymbolTable::closemainscope(){
 }
 
 
-void* SymbolTable::lookup(const std::string name){
+ReturnPacket* SymbolTable::lookup(const std::string name){
 	TableEntry* temp;
 	int a;
 	if(!name.empty()){
