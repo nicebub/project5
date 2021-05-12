@@ -111,10 +111,7 @@ int yyerror(std::string err,Compiler& compiler);
 %type <multype> mulop
 %type <addtype> addop
 %type <eqtype> eqop
-//%type <std::string> Ident
-//%type <int> IntConstant
-//%type <float> FloatConstant
-//%type <std::string> StrConstant
+
 %type <int> whilet ift elset
 %type <int> intt
 %type <float> floatt
@@ -124,6 +121,7 @@ int yyerror(std::string err,Compiler& compiler);
 %type <eqtype> equequ neq
 %type <multype> divide star
 %type <int> uminus
+
 %nterm <List*> paramdeflist paramdef
 %nterm <funcheadertype*> funcheader
 %nterm <ReturnPacket*> expr
@@ -160,17 +158,17 @@ func:					funcheader									{	compiler.block2_func_funcheader_source(&$1); }
 funcheader:			voidt Ident lpar paramdef rpar		{	compiler.block6_funcheader_void_ident_lpar_paramdef_rpar(&$$,$2,$<List*>4); }
 		|				intt Ident lpar paramdef rpar			{	compiler.block7_funcheader_int_ident_lpar_paramdef_rpar(&$$,$2,$<List*>4); }
 		|				floatt Ident lpar paramdef rpar		{	compiler.block8_funcheader_float_ident_lpar_paramdef_rpar(&$$,$2,$<List*>4); }
-		|				voidt error rpar							{	compiler.block9_funcheader_void_error_rpar(&$$);
+		|				voidt error rpar							{	yyerrok; compiler.block9_funcheader_void_error_rpar(&$$);
 																			compiler.error("(expecting lpar before rpar in function)",""); }
-		|				intt error rpar							{	compiler.block10_funcheader_int_error_rpar(&$$);
+		|				intt error rpar							{	yyerrok; compiler.block10_funcheader_int_error_rpar(&$$);
 																			compiler.error("(expecting lpar before rpar in function)",""); }
-		|				floatt error rpar							{	compiler.block11_funcheader_float_error_rpar(&$$);
+		|				floatt error rpar							{	yyerrok; compiler.block11_funcheader_float_error_rpar(&$$);
 																			compiler.error("(expecting lpar before rpar in function)",""); }
-		|				voidt Ident lpar error rpar 			{	compiler.block12_funcheader_void_ident_lpar_error_rpar(&$$, $2);
+		|				voidt Ident lpar error rpar 			{	yyerrok; compiler.block12_funcheader_void_ident_lpar_error_rpar(&$$, $2);
 																			compiler.error("(unexpected token after lpar and before rpar in function)",""); }
-		|				floatt Ident lpar error rpar			{	compiler.block13_funcheader_float_ident_lpar_error_rpar(&$$,$2);
+		|				floatt Ident lpar error rpar			{	yyerrok; compiler.block13_funcheader_float_ident_lpar_error_rpar(&$$,$2);
 																			compiler.error("(unexpected token after lpar and before rpar in function)",""); }
-		|				intt Ident lpar error rpar				{	compiler.block14_funcheader_int_ident_lpar_error_rpar(&$$,$2);
+		|				intt Ident lpar error rpar				{	yyerrok; compiler.block14_funcheader_int_ident_lpar_error_rpar(&$$,$2);
 																			compiler.error("(unexpected token after lpar and before rpar in function)",""); }
 ;
 

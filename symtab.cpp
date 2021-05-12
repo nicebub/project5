@@ -63,7 +63,7 @@ Table::~Table(){
 ReturnPacket* Table::lookup(const std::string name){
 	auto result{table.find(name)};
 	if(result != table.end()){
-		return result->second;
+		return result->getBinding();
 	}
 	return nullptr;
 }

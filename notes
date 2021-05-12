@@ -1,0 +1,38 @@
+--function definitions--
+if input is the main function - process
+
+otherwise if input is not main function -process
+
+main process
+	check function declaration for accuracy
+	open a fresh scope if needed
+	set flags if needed
+	generate code
+
+not main process
+	if name exists in symbol table and is a function
+	check function definition against declaration/usage
+	if all check went through
+		open a fresh scope if needed
+		set flags if needed
+		create all parameters and install in symbol table
+		generate code
+		
+		
+--function declarations--
+
+if input is the main function then -- process
+
+otherwise if another function then -- process
+
+main process
+	check function definition accuracy for main
+other function process
+	if function doesn't already exist in symbol table
+		create a new function table entry
+		install into symbol table
+	if a similar symbol was found in the symbol table
+		check symbol table existing against new
+		making sure declarations match
+		
+

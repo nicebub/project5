@@ -63,12 +63,14 @@ Compiler::~Compiler(){
 }
 int Compiler::warning(const std::string s1, const std::string s2) noexcept
 {
-	std::cerr << "Warning:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " << s2 << "\n";
+	std::cerr << "Warning:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " 
+				 << s2 << "\n";
     return 0;
 }
 
 int Compiler::error(const std::string s1, const std::string s2) noexcept {
-	std::cerr << "Error:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " << s2 << "\n";
+	std::cerr << "Error:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " 
+				 << s2 << "\n";
 	founderror=true;
 	code_generator.stop();
 	 return 0;
@@ -84,68 +86,85 @@ void Compiler::block1_start_trans_unit(){
 	code_generator.gen_instr("return");
 }
 void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
+	Funcb* currentFunc{nullptr};
+	if(is_function_decl_or_def_accurate(inFuncHeaderptr,currentFunc,false)){
+		mysymtab->openscope();
+		if((*inFuncHeadPtr)->name == "main"){
+			code_generator.gen_label(code_generator.genlabelw("main", mainlabel));
+		}
+		else{
+			install_parameters_into_symbol_table_curren_scope(inFuncHeaderptr);
+			code_generator.gen_label(code_generator.genlabelw(inFuncHeader->name,currentFunc->getlabel() ));
+		}
+		
+	}
+}
+/*
+void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 				funcheadertype* inFuncHeader{*inFuncHeaderptr};
-				TableEntry* tempEntry;
-				Funcb* tempb;
-				//Funcb* found;
-				int a;
-				List* templist;
-                 templist= NULL;
-				//type tempparam;
-				ListNode* tempnode;
+				TableEntry* tempEntry{nullptr};
+				Funcb* tempb{nullptr};
+				int a{0};
+				List* templist{nullptr};
+				ListNode* tempnode{nullptr};
+				bool stop{false};
+				bool alreadyopen{false};
+
 				#ifdef DEBUG
 				printTree(mysymtab);
 				#endif
-				bool stop=false;
-				bool alreadyopen=false;
-                 tempnode = NULL;
+
 				if("main" == (inFuncHeader->name)){
-		                        #ifdef DEBUG
-             			        fprintf(stderr,"hello from inside\n");
-          				        #endif
-					templist = (List*)inFuncHeader->paramlist;
+
+					#ifdef DEBUG
+					fprintf(stderr,"hello from inside\n");
+					#endif
+					
+					templist = inFuncHeader->paramlist;
 //main function
 					if(inFuncHeader->returntype != type::INT)
-						error("Main function has to have int as return type","");
-					if(templist != NULL && templist->size() != 1)
+						error("Main function has to have int as return type","");                
+					if(templist != nullptr && templist->size() != 1)
 						error("Main function only has one parameter","");
 					else if(inFuncHeader->ttype != type::VOID)
 						error("Main function has to have one parameter of void","");
-					#ifdef DEBUG							
+
+					#ifdef DEBUG
 					fprintf(stderr, "opening up a new scope\n");
 					#endif
+
 					mysymtab->openscope();
-					 alreadyopen=true;
+
+					alreadyopen=true;
 					code_generator.gen_label(code_generator.genlabelw("main", mainlabel));
+
 				}
 				else{
-					if((tempb=(Funcb*) mysymtab->lookup(inFuncHeader->name)) ==NULL)
+					if((tempb=mysymtab->lookup(inFuncHeader->name)) == nullptr)
 						error("Function name not in symbol table","");
 					else{
-						TableEntry*tempEn; TableEntry* tempEn2;
-						tempEn2 = (TableEntry*) malloc(sizeof(TableEntry));
+						TableEntry* tempEn{mysymtab->lookupB(inFuncHeader->name)}; 
+						TableEntry* tempEn2{new TableEntry{}};
 						tempEn2->setName(inFuncHeader->name);
-						tempEn =  mysymtab->lookupB(inFuncHeader->name);
-						//tempEn = *(TableEntry**)tfind((void*)tempEn2, (void**) &(SymbolTable::Stack[SymbolTable::actualStacksize -1]),Ecmp);
-						if(tempEn!=NULL && tempEn->getself() == btype::FUNC){
+						if(tempEn!= nullptr && tempEn->getself() == btype::FUNC){
 							if(tempb->returntype != inFuncHeader->returntype)
 								error("Function declared with different return type","");
 							else{
-								templist= (List*)inFuncHeader->paramlist;
+								templist=inFuncHeader->paramlist;
 								if(tempb->num_param == -1)
 									error("Function cannot have those parameters","");
-								else if( templist!=NULL && (templist->size()) != tempb->num_param)
+								else if( templist!= nullptr && (templist->size()) != tempb->num_param)
 									error("Function has different number of parameters","");
 								else{
-									if(templist!=NULL){
-										tempnode = (ListNode*)templist->getlist();
-										for(a=0;a<templist->size() && a<tempb->num_param &&  stop!=true;a++){
+									if(templist! = nullptr){
+										tempnode = templist->getlist();
+										for(a=0;a<templist->size() && a<tempb->num_param &&  !stop;a++){
 											if(tempb->param_type[a] != tempnode->ttype){
 												fprintf(stderr,"Error: Line: %d: argument %d: has different parameter type than in function declaration\n",Line_Number,(a+1));
 												fprintf(stderr, "\nThey are %d and %d\n", tempb->param_type[a], tempnode->ttype);
 												stop=true;
 											}
-											tempnode = (listnodeP*)tempnode->nextnode;
+											tempnode = tempnode->nextnode;
 										}
 									}
 									if(stop!= true){
@@ -177,11 +196,9 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 													tempnode = (listnodeP*)tempnode->nextnode;
 												}
 											}
-											if(founderror==false){
 												//tempb->label=getlabel();
 												code_generator.gen_label(code_generator.genlabelw(inFuncHeader->name,tempb->label ));
 
-											}
 										}
 									}
 									else error("Stopped","");
@@ -197,10 +214,27 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 					if(alreadyopen==false) mysymtab->openscope();
 				}
 }
+*/
 void Compiler::block3_func_funcheader_source_funcbody(){
 				code_generator.gen_instr("returnf");
 				mysymtab->closescope();
 }
+
+void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
+//   TableEntry* tempEntry{nullptr}; 
+	Funcb* currentFunc{nullptr};
+	if( ! (auto found = mysymtab.lookupB((*inFuncHeaderPtr)->name))){
+	   auto tempEntry =  mysymtab->createFunc(	(*inFuncHeader)->name, 
+												(*inFuncHeader)->returntype,
+												(*inFuncHeader)->paramlist 
+											 );
+		mysymtab.install(tempEntry);
+		return;
+	}
+	is_function_decl_or_def_accurate(inFuncHeadPtr,currentFunc,true);
+	}
+}
+/*
 void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 	funcheadertype* inFuncHeader{*inFuncHeaderptr};
    TableEntry* temp{nullptr}; 
@@ -211,7 +245,8 @@ void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 	printTree(mysymtab);
 	#endif
 	
-   temp =  mysymtab->createFunc(inFuncHeader->name, inFuncHeader->returntype, inFuncHeader->paramlist);
+   temp =  mysymtab->createFunc(inFuncHeader->name, inFuncHeader->returntype,
+			 									inFuncHeader->paramlist);
 // if(inFuncHeader->paramlist != nullptr) delete inFuncHeader->paramlist;
 //   if(inFuncHeader !=NULL) free(inFuncHeader);
 	
@@ -238,7 +273,7 @@ void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
           fprintf(stderr,"binding of temp as Funcb: value num_param in symbol table: %d\n", (paramOftemp->getnum_param()));
           fprintf(stderr,"param_type of paramOftemp as typeOftemp: value param_type in symbol table: %d\n", (paramOftemp->getparam_type()[2]));
           #endif
-	   if(found == nullptr){ mysymtab->install(temp); /*printTree(mysymtab)*/;}
+	   if(found == nullptr){ mysymtab->install(temp);} //printTree(mysymtab)
 	   else{
 		if(temp->binding->getreturntype() != found->getreturntype())
 			error("Function already declared with different return type","");
@@ -264,128 +299,88 @@ void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 	   }
    }
 }
+*/
 void Compiler::block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr){
 	funcheadertype* inFuncHeader{*inFuncHeaderptr};
-	if(inFuncHeader !=NULL) if(inFuncHeader->paramlist !=NULL) delete ((List*)(inFuncHeader->paramlist));
-	if(inFuncHeader !=NULL) free(inFuncHeader); inFuncHeader = NULL;
+	if(inFuncHeader !=nullptr){
+		 delete inFuncHeader;
+		 inFuncHeader = nullptr;
+	 }
 }
 void Compiler::block6_funcheader_void_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,std::string inIdent, List* inParamdeflist){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
-	outFuncHeader = (funcheadertype*)malloc(sizeof(funcheadertype));
-					outFuncHeader->returntype = type::VOID;
-					outFuncHeader->name = inIdent;
-                     outFuncHeader->paramlist=NULL;
-                     if(inParamdeflist.ttype == type::VOID) outFuncHeader->ttype = type::VOID;
-					//(ListP*)($$->paramlist) = $<value.lstpvalue>4;
-					List * tempLP = NULL;
-					tempLP = inParamdeflist;
-                     outFuncHeader->paramlist = tempLP;
+
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->returntype = type::VOID;
+	outFuncHeader->name = inIdent;
+	outFuncHeader->paramlist=inParamdeflist;
+
+	if(inParamdeflist.gettype() == type::VOID){
+		outFuncHeader->ttype = type::VOID;
+	}
 }
 void Compiler::block7_funcheader_int_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,std::string inIdent, List* inParamdeflist){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
-	outFuncHeader = (funcheadertype*)malloc(sizeof(funcheadertype));
-				outFuncHeader->returntype = type::INT;
-				outFuncHeader->name = inIdent;
-                  outFuncHeader->paramlist = NULL;
-				if(inParamdeflist.ttype == type::VOID) outFuncHeader->ttype = type::VOID;
-				//(List*)($$->paramlist) = $<value.lstpvalue>4;
-				List* tempLP = NULL;
-				tempLP = inParamdeflist;
-                  outFuncHeader->paramlist = tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->returntype = type::INT;
+	outFuncHeader->name = inIdent;
+	outFuncHeader->paramlist = inParamdeflist;
+	if(inParamdeflist.ttype == type::VOID){
+		outFuncHeader->ttype = type::VOID;
+	}
 }
 void Compiler::block8_funcheader_float_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent, inParamdeflist){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
-	outFuncHeader = (funcheadertype*)malloc(sizeof(funcheadertype));
-					outFuncHeader->returntype = type::FLOAT;
-					outFuncHeader->name = inIdent;
-                     if(inParamdeflist.ttype == type::VOID) outFuncHeader->ttype = type::VOID;
-					//(ListP*)($$->paramlist) = $<value.lstpvalue>4;
-					List* tempLP = NULL;
-					tempLP = inParamdeflist;
-                     outFuncHeader->paramlist = tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->returntype = type::FLOAT;
+	outFuncHeader->name = inIdent;
+	if(inParamdeflist.ttype == type::VOID){
+		outFuncHeader->ttype = type::VOID;
+	}
 }
 void Compiler::block9_funcheader_void_error_rpar(funcheadertype** outFuncHeaderptr){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
- List* tempP; yyerrok;
-		outFuncHeader =(funcheadertype*) malloc(sizeof(funcheadertype));
-		outFuncHeader->name ="";
-		outFuncHeader->returntype= type::VOID;
-		//(List*)($$->paramlist) = (ListP*) malloc(sizeof(List));
-		List* tempLP;
-		tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-		tempP= (List*)tempLP;
-		outFuncHeader->paramlist= tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->name ="";
+	outFuncHeader->returntype= type::VOID;
+	outFuncHeader->paramlist= List::mklist(std::string{"error"}, type::VOID);
 }
 
 void Compiler::block10_funcheader_int_error_rpar(funcheadertype** outFuncHeaderptr){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
- List* tempP; yyerrok;
-	outFuncHeader =(funcheadertype*) malloc(sizeof(funcheadertype));
+	outFuncHeader = new funcheadertype;
 	outFuncHeader->name ="";
 	outFuncHeader->returntype= type::INT;
-	//(List*)($$->paramlist) = (ListP*) malloc(sizeof(List));
-	List* tempLP;
-	tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-	tempP= (List*)tempLP;
-	outFuncHeader->paramlist= tempLP;
+	outFuncHeader->paramlist = List::mklist(std::string{"error"}, type::VOID);
 }
 void Compiler::block11_funcheader_float_error_rpar(funcheadertype** outFuncHeaderptr){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
- List* tempP; yyerrok;
-		outFuncHeader =(funcheadertype*) malloc(sizeof(funcheadertype));
-		outFuncHeader->name ="";
-		outFuncHeader->returntype= type::FLOAT;
-		//(List*)($$->paramlist) = (List*) malloc(sizeof(List));
-		List* tempLP;
-		tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-		tempP= (List*)tempLP;
-		outFuncHeader->paramlist= tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->name ="";
+	outFuncHeader->returntype= type::FLOAT;
+	outFuncHeader->paramlist= List::mklist(std::string{"error"}, type::VOID);
 }
 
 void Compiler::block12_funcheader_void_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
-	List* tempP; yyerrok;
-	outFuncHeader =(funcheadertype*) malloc(sizeof(funcheadertype));
+	outFuncHeader = new funcheadertype;
 	outFuncHeader->name = inIdent;
 	outFuncHeader->returntype= type::VOID;
-	//(Lis*)($$->paramlist) = NULL;
-	List* tempLP1 = (List *)outFuncHeader->paramlist;
-	tempLP1 = NULL;
-	//(List*)($$->paramlist) = (List*) malloc(sizeof(List));
-	List* tempLP;
-	tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-	tempP= (List*)tempLP;
-	outFuncHeader->paramlist= tempLP;
+	outFuncHeader->paramlist= List::mklist(std::string{"error"}, type::VOID);
 }
 void Compiler::block13_funcheader_float_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
- List* tempP; yyerrok;
-		outFuncHeader =(funcheadertype*) malloc(sizeof(funcheadertype));
-		outFuncHeader->name =inIdent;
-		outFuncHeader->returntype= type::FLOAT;
-		//(ListP*)($$->paramlist) = NULL;
-		List* tempLP1 = (List *)outFuncHeader->paramlist;
-		tempLP1 = NULL;
-		//(List*)($$->paramlist) = (List*) malloc(sizeof(List));
-		List* tempLP;
-		tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-		tempP= (List*)tempLP;
-		outFuncHeader->paramlist= tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->name =inIdent;
+	outFuncHeader->returntype= type::FLOAT;
+	outFuncHeader->paramlist= List::mklist(std::string{"error"}, type::VOID);
 }
 void Compiler::block14_funcheader_int_ident_lpar_error_rpar(funcheadertype** outFuncHeaderptr, std::string inIdent){
 	funcheadertype* outFuncHeader{*outFuncHeaderptr};
-	List* tempP; yyerrok;
-			outFuncHeader = (funcheadertype*)  malloc(sizeof(funcheadertype));
-			outFuncHeader->name= inIdent;
-			outFuncHeader->returntype= type::INT;
-			//(List*)($$->paramlist) = NULL;
-			List* tempLP1 = (List *)outFuncHeader->paramlist;
-			tempLP1 = NULL;
-			//(List*)($$->paramlist) = (List*) malloc(sizeof(List));
-			List* tempLP;
-			tempLP = (List*) List::mklist(std::string{"error"}, type::VOID);
-			tempP= (List*)tempLP;
-			outFuncHeader->paramlist= tempLP;
+	outFuncHeader = new funcheadertype;
+	outFuncHeader->name= inIdent;
+	outFuncHeader->returntype= type::INT;
+	outFuncHeader->paramlist= List::mklist(std::string{"error"}, type::VOID);
 }
 /*
 void Compiler::block15_paramdef_paramdeflist(List** outParamdefptr, List** inParamdeflistptr){
@@ -396,13 +391,14 @@ void Compiler::block15_paramdef_paramdeflist(List** outParamdefptr, List** inPar
 void Compiler::block15_paramdef_paramdeflist_comma_elip(List** outParamdefptr, List** inParamdeflistptr){
 
 		*outParamdefptr = (*inParamdeflistptr)->appendList("...", type::VOID);
-          #ifdef DEBUG
-          printListP(*outParamdefptr);
-          #endif
+
+		#ifdef DEBUG
+		printListP(*outParamdefptr);
+		#endif
 }
 void Compiler::block16_paramdef_void(List** outParamdefptr){
-	(*outParamdefptr) = NULL;
-	outParamdefptr->ttype = type::VOID;
+	(*outParamdefptr) = nullptr;
+	(*outParamdefptr)->ttype = type::VOID;
 }
 void Compiler::block17_paramdef_paramdeflist_error_rpar(List** inParamdeflistptr){
 	delete (*inParamdeflistptr);
@@ -412,39 +408,45 @@ void Compiler::block18_paramdef_paramdeflist_comma_error_rpar(List** inParamdefl
 }
 void Compiler::block19_paramdeflist_int_ident(List** outParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = List::mklist(inIdent, type::INT);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block20_paramdeflist_float_ident(List** outParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = List::mklist(inIdent, type::FLOAT);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block21_paramdeflist_char_star_ident(List** outParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = List::mklist(inIdent, type::STR);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block22_paramdeflist_paramdeflist_comma_int_ident(List** outParamdeflistptr, List** inParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = (*inParamdeflistptr)->appendList(inIdent,type::INT);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block23_paramdeflist_paramdeflist_comma_float_ident(List** outParamdeflistptr, List** inParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = (*intParamdeflistptr)->appendList(inIdent, type::FLOAT);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block24_paramdeflist_paramdeflist_comma_char_star_ident(List** outParamdeflistptr, List** inParamdeflistptr, std::string inIdent){
 	(*outParamdeflistptr) = (*inParamdeflistptr)->appendList(inIdent, type::STR);
-       #ifdef DEBUG
-       printListP((*outParamdeflistptr));
-       #endif
+
+	#ifdef DEBUG
+	printListP((*outParamdeflistptr));
+	#endif
 }
 void Compiler::block25_funcbody_lcbra_decls_source(){
 
