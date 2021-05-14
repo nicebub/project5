@@ -48,6 +48,9 @@ namespace ucc{
 			void block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr);
 
 			void block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr);
+
+			void funcheader_returntype_ident_lpar_paramdef_rpar_helper(funcheadertype** outFuncHeaderptr, ucc::Identifier inIdent, List* inParamdeflist,ucc::type inreturntype);
+			
 			void block6_funcheader_void_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,ucc::Identifier ident, List* paramdeflist);
 			void block7_funcheader_int_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr,ucc::Identifier inIdent, List* inParamdeflist);
 			void block8_funcheader_float_ident_lpar_paramdef_rpar(funcheadertype** outFuncHeaderptr, ucc::Identifier inIdent, List* inParamdeflist);
@@ -64,9 +67,12 @@ namespace ucc{
 			void block17_paramdef_paramdeflist_error_rpar(List** inParamdeflistptr);
 			void block18_paramdef_paramdeflist_comma_error_rpar(List** inParamdeflistptr);
 
+			void paramdeflist_type_ident_helper(List** outParamdeflistptr, ucc::Identifier inIdent, ucc::type intype);
 			void block19_paramdeflist_int_ident(List** outParamdeflistptr, ucc::Identifier inIdent);
 			void block20_paramdeflist_float_ident(List** outParamdeflistptr, ucc::Identifier inIdent);
 			void block21_paramdeflist_char_star_ident(List** outParamdeflistptr, ucc::Identifier inIdent);
+
+			void paramdeflist_paramdeflist_comma_type_ident_helper(List** outParamdeflistptr, List** inParamdeflistptr, ucc::Identifier inIdent, ucc::type intype);
 			void block22_paramdeflist_paramdeflist_comma_int_ident(List** outParamdeflistptr, List** inParamdeflist, ucc::Identifier inIdent);
 			void block23_paramdeflist_paramdeflist_comma_float_ident(List** outParamdeflistptr, List** inParamdeflist, ucc::Identifier inIdent);
 			void block24_paramdeflist_paramdeflist_comma_char_star_ident(List** outParamdeflistptr, List** inParamdeflist, ucc::Identifier inIdent);
@@ -74,16 +80,16 @@ namespace ucc{
 			void block25_funcbody_lcbra_decls_source();
 			void block26_funcbody_lcbra_decls_source_stmtlist_rcbra();
 
-			void block27_variabledecl_int_identlist_semi();
-			void block28_variabledecl_float_identlist_semi();
+			void block27_variabledecl_int_identlist_semi(List** inIdentlist);
+			void block28_variabledecl_float_identlist_semi(List** inIdentlist);
 
 			void block29_stmt_expr_semi();
 			void block30_stmt_return_semi();
-			void block31_stmt_return_expr_semi();
-			void block32_stmt_while_source();
-			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar();
-			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt();
-			void block35_stmt_ifexprstmt_else();
+			void block31_stmt_return_expr_semi(ReturnPacket** inPacket);
+			void block32_stmt_while_source(ReturnPacket** inPacket);
+			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
+			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
+			void block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr);
 			void block36_stmt_ifexprstmt_else_source_stmt();
 			void block37_stmt_ifexprstmt();
 
@@ -106,7 +112,7 @@ namespace ucc{
 			void block50_simpleepr_term();
 
 			void block51_term_term_mulop_source(ReturnPacket** outPacket, ReturnPacket** inPacket);
-			void block52_term_term_mulop_source_factor();
+			void block52_term_term_mulop_source_factor(ReturnPacket** outermptr,ReturnPacket** intermptr, ucc::multype inmulop,ReturnPacket** infactorptr);
 			void block53_term_factor();
 
 			void block54_factor_constant(ReturnPacket** outPacket, Constant** inConstant);
@@ -116,14 +122,14 @@ namespace ucc{
 			void block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifier inPacket);
 			void block59_factor_function_call(ReturnPacket** outPacket,ReturnPacket** inPacket);
 
-			void block60_function_call_ident_lpar_rpar();
+			void block60_function_call_ident_lpar_rpar(ReturnPacket** outPacket, ucc::Identifier inIdent);
 			void block61_function_call_func_call_with_params();
 
-			void block62_func_call_with_params_name_and_params_rpar();
+			void block62_func_call_with_params_name_and_params_rpar(ReturnPacket** funcCallWparamptr, ReturnPacket** nameAndparamptr);
 
-			void block63_name_and_params_ident_lpar_source();
-			void block64_name_and_params_ident_lpar_source_expr();
-			void block65_name_and_params_name_and_params_comma_expr();
+			void block63_name_and_params_ident_lpar_source(TableEntry** inEntryptr, ucc::Identifier inPacket);
+			void block64_name_and_params_ident_lpar_source_expr(ReturnPacket** outPacketptr, TableEntry** inEntryptr, ReturnPacket** inPacketptr);
+			void block65_name_and_params_name_and_params_comma_expr(ReturnPacket** outPacketptr, ReturnPacket** innameAndparamPacketptr, ReturnPacket** inexprPacketptr);
 
 			void block66_constant_strconstant(ucc::ReturnPacket* mcon, std::string instrconstant);
 			void block67_constant_intconstant(ucc::ReturnPacket* mcon, int intconstant);

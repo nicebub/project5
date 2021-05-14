@@ -63,7 +63,7 @@ Table::~Table(){
 ReturnPacket* Table::lookup(const std::string name){
 	auto result{table.find(name)};
 	if(result != table.end()){
-		return result->getBinding();
+		return result->second->getBinding();
 	}
 	return nullptr;
 }
@@ -101,7 +101,7 @@ bool Table::install(TableEntry* entry){
 }
 
 SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {}
-//SymbolTable::SymbolTable() : stack{}, compiler{NULL}, actualStacksize(1), Stacksize(1) {}
+//SymbolTable::SymbolTable() : stack{}, compiler{nullptr}, actualStacksize(1), Stacksize(1) {}
 SymbolTable::~SymbolTable(){}
 
 void SymbolTable::openmainscope(){
@@ -144,12 +144,12 @@ void SymbolTable::closescope(){
 		if(!stack.empty()) {
 			stack.pop_back();
 			/*
-			while(Stack[actualStacksize-1] != NULL){
+			while(Stack[actualStacksize-1] != nullptr){
 				temp = *((TableEntry**)(Stack[actualStacksize-1] ));
 				tdelete((void*)temp,(void **) &(Stack[actualStacksize-1]), Ecmp);
 				delete temp;
 			}
-			Stack[actualStacksize-1]=NULL;*/
+			Stack[actualStacksize-1]=nullptr;*/
 			actualStacksize -= 1;
 		}
 	}
@@ -165,13 +165,13 @@ void SymbolTable::closemainscope(){
 		if(!stack.empty()){
 			stack.pop_back();
 			/*
-			while(Stack[actualStacksize-1] != NULL){
+			while(Stack[actualStacksize-1] != nullptr){
 				temp = *((TableEntry**)(Stack[actualStacksize-1] ));
 				tdelete((void*)temp,(void **) &(Stack[actualStacksize-1]), Ecmp);
 				delete temp;
 
 			}
-			Stack[actualStacksize-1]=NULL;
+			Stack[actualStacksize-1]=nullptr;
 			*/
 			actualStacksize -= 1;
 		}
@@ -189,15 +189,15 @@ ReturnPacket* SymbolTable::lookup(const std::string name){
 		#endif
 		for(auto it = stack.rbegin(); it != stack.rend(); it++){
 			auto result = (*it)->lookup(name);
-			if(result != NULL){
+			if(result != nullptr){
 				return result;
 			}
 		}
-		return NULL;
+		return nullptr;
 	}
 	else{
 		compiler.error("cannot lookup variable without a name","");
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -222,7 +222,7 @@ bool Ecmp(const void *TableEntry1, const void *TableEntry2){
 */
 #ifdef DEBUG
 void SymbolTable::printTree(SymbolTable *symtab){
-	if(symtab != NULL){
+	if(symtab != nullptr){
 //		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);
 	}
 	else{
@@ -368,20 +368,20 @@ SymbolTable* SymbolTable::createTree(int Stacksize){
 void SymbolTable::deleteTree(SymbolTable *symtab){
 	TableEntry * temp;
 	//TableEntry ** found;
-	if(symtab != NULL){
+	if(symtab != nullptr){
 	   #ifdef DEBUG
 	   fprintf(stderr,"Deleting Tree: \n");
 	   #endif
 	    while(symtab->actualStacksize != 1)
 		closescope(symtab);
-	    if((symtab->Stack[symtab->actualStacksize-1]) !=NULL){
-                        while(symtab->Stack[symtab->actualStacksize-1] != NULL){
+	    if((symtab->Stack[symtab->actualStacksize-1]) !=nullptr){
+                        while(symtab->Stack[symtab->actualStacksize-1] != nullptr){
                                 temp = *((TableEntry**)(symtab->Stack[symtab->actualStacksize-1] ));
                                 tdelete((void*)temp,(void **) &(symtab->Stack[symtab->actualStacksize-1]), Ecmp);
                                 deleteTableEntry(temp);
 
                         }
-                        symtab->Stack[symtab->actualStacksize-1]=NULL;
+                        symtab->Stack[symtab->actualStacksize-1]=nullptr;
             }
 	    #ifdef DEBUG
 	    fprintf(stderr,"Deleting Stack\n");
@@ -391,13 +391,13 @@ void SymbolTable::deleteTree(SymbolTable *symtab){
 	    fprintf(stderr,"Deleting Symbol Table\n");
 	    #endif
 	    free(symtab);
-	    symtab=NULL;
+	    symtab=nullptr;
 	}
 }
 */
 /*
 void SymbolTable::deleteTableEntry(TableEntry * temp){
-	if(temp != NULL){
+	if(temp != nullptr){
 		switch(temp->self){
 
 			case(FUNC):
@@ -409,7 +409,7 @@ void SymbolTable::deleteTableEntry(TableEntry * temp){
 						free(temp->binding);
 						free(temp->name);
 						free(temp);
-						temp=NULL;
+						temp=nullptr;
 						break;
 			case(VAR):
 						#ifdef DEBUG
@@ -418,7 +418,7 @@ void SymbolTable::deleteTableEntry(TableEntry * temp){
 						free(temp->name);
 						free(temp->binding);
 						free(temp);
-						temp=NULL;
+						temp=nullptr;
 						break;
 			case(PARAM):
 						#ifdef DEBUG
@@ -427,7 +427,7 @@ void SymbolTable::deleteTableEntry(TableEntry * temp){
 						free(temp->name);
 						free(temp->binding);
 						free(temp);
-						temp= NULL;
+						temp= nullptr;
 						break;
 			default:	
 						#ifdef DEBUG	
@@ -453,11 +453,11 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 		//((Funcb*)(temp->binding))->returntype = returntype;
 		tBinding = new Funcb{returntype};
 
-//        tBinding->param_type=NULL;
+//        tBinding->param_type=nullptr;
 //        temp->binding = tBinding;
 			temp = new TableEntry{name,tBinding,btype::FUNC};
 
-        if(paramlist!=NULL ){
+        if(paramlist!=nullptr ){
             #ifdef DEBUG
             fprintf(stderr,"in Function install- temp->binding->num_param is: %d\n", ((Funcb*)(temp->binding))->num_param);
             #endif
@@ -501,7 +501,7 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 			}
 		}
 /*		else
-			tBinding->param_type = NULL;
+			tBinding->param_type = nullptr;
  */
 //		tBinding->bodydef = FALSE;
 //		tBinding->label=0;
@@ -509,7 +509,7 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 	}
 	else{
 		compiler.error("name not found\n","");
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -534,7 +534,7 @@ TableEntry* SymbolTable::createVar(std::string name, type t_type, int offset){
 
 TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
 	TableEntry* temp{nullptr};
-//    temp->binding = NULL;
+//    temp->binding = nullptr;
     Paramb* tBindingP{nullptr};
 	//((Paramb*)(temp->binding)) = (Paramb*) malloc(sizeof(Varb));
 	//((Paramb*)(temp->binding))->type = t_type;
@@ -554,7 +554,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 	int a;
 	ListNode * tempN;
 	TableEntry * temp;
-		if(myList !=NULL){
+		if(myList !=nullptr){
 //			tempN = (ListNode*)(myList->list);
 			for(auto element : *myList){
 				ListNode* n_element{dynamic_cast<ListNode*>(element)};
@@ -564,12 +564,12 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 					compiler.globalcount++;
 				}
 				install(temp);
-				temp = NULL;
+				temp = nullptr;
 //				tempN = (ListNode*)tempN->nextnode;
 			}
 			delete myList;
 		}
-		else compiler.error("myList was NULL","");
+		else compiler.error("myList was nullptr","");
 }
 
 TableEntry * SymbolTable::lookupB(const std::string name){
@@ -581,16 +581,16 @@ TableEntry * SymbolTable::lookupB(const std::string name){
 		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
 		for(auto it = stack.rbegin(); it != stack.rend(); it++){
-			auto result = (*it)->lookup(name);
-			if(result != NULL){
+			auto result = (*it)->lookupB(name);
+			if(result != nullptr){
 				return static_cast<TableEntry*>(result);
 			}
 		}
-		return NULL;
+		return nullptr;
 	}
 	else{
 		compiler.error("cannot lookup variable without a name","");
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -598,7 +598,7 @@ bool SymbolTable::inCscope(const std::string name){
         if(!name.empty()){
 			  auto table = stack.rbegin();
 			  auto result = (*table)->lookup(name);
-			  if(result != NULL){
+			  if(result != nullptr){
 				  return true;
 			  }
         }
@@ -607,7 +607,7 @@ bool SymbolTable::inCscope(const std::string name){
 
 int SymbolTable::getleveldif(std::string name){
 	TableEntry ** found;
-	found = NULL;
+	found = nullptr;
 	TableEntry *temp;
 	int a;
 	if(!name.empty()){
@@ -616,7 +616,7 @@ int SymbolTable::getleveldif(std::string name){
 			#endif
 			for(auto it = stack.rbegin(); it != stack.rend(); it++){
 				auto result = (*it)->lookup(name);
-				if(result != NULL){
+				if(result != nullptr){
 					return it - stack.rend();
 				}
 			}

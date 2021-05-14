@@ -198,8 +198,8 @@ decls:  /*empty*/
 		|				decls func									{}
 ;
 
-variabledecl:		intt identlist semi						{	compiler.block27_variabledecl_int_identlist_semi(); }
-		|				floatt identlist semi					{	compiler.block28_variabledecl_float_identlist_semi(); }
+variabledecl:		intt identlist semi						{	compiler.block27_variabledecl_int_identlist_semi(&$2); }
+		|				floatt identlist semi					{	compiler.block28_variabledecl_float_identlist_semi(&$2); }
 		|				error semi									{	yyerrok; compiler.error("(unexpected token in variable decl)",""); }
 ;
 
@@ -209,14 +209,14 @@ stmtlist:			stmtlist stmt 								{}
 
 stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 		|				returnt semi								{	compiler.block30_stmt_return_semi(); }
-		|				returnt expr semi 						{	compiler.block31_stmt_return_expr_semi(); }
+		|				returnt expr semi 						{	compiler.block31_stmt_return_expr_semi(&$2); }
 
-		|				whilet										{	compiler.block32_stmt_while_source(); }
-						lpar expr rpar								{	compiler.block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(); }
-						stmt											{	compiler.block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(); }
+		|				whilet										<ReturnPacket*>{	compiler.block32_stmt_while_source(&$$); }
+						lpar expr rpar								{	compiler.block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(&$2,&$4); }
+						stmt											{	compiler.block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(&$2,&$4); }
 
 		|				ifexprstmt 
-						elset											{	compiler.block35_stmt_ifexprstmt_else(); }
+						elset											{	compiler.block35_stmt_ifexprstmt_else(&$1); }
 						stmt											{	compiler.block36_stmt_ifexprstmt_else_source_stmt(); }
 
 		|				ifexprstmt									{	compiler.block37_stmt_ifexprstmt(); }
@@ -256,14 +256,14 @@ simpleexpr:			simpleexpr addop							{	compiler.block48_simpleexpr_simpleexpr_ad
 ;
 
 TERM:					TERM mulop									{	compiler.block51_term_term_mulop_source(&$<ReturnPacket*>$,&$1); }
-						factor										{	compiler.block52_term_term_mulop_source_factor(&$$,&$4); }
+						factor										{	compiler.block52_term_term_mulop_source_factor(&$$,&$1,$2,&$4); }
 		|				factor										{	$$ = $1; }
 		|				TERM mulop error							{	yyerrok; compiler.error("(unexpected token after multiplicative operator)",""); }
 ;
 
 factor:				constant										{	compiler.block54_factor_constant(&$$,&$1); }
 		|				Ident											{	compiler.block55_factor_ident(&$$, $1); }
-		|				lpar expr rpar								{	$$ = &$2; }
+		|				lpar expr rpar								{	$$ = $2; }
 		|				addop factor %prec uminus				{	compiler.block57_factor_addop_factor_uminus(&$$,$1,&$2); }
 		|				adof Ident									{	compiler.block58_factor_adof_ident(&$$,$2); }
 		|				function_call								{	$$ = $1; }
@@ -280,7 +280,7 @@ func_call_with_params: name_and_params rpar				{	compiler.block62_func_call_with
 
 name_and_params:	Ident lpar									<TableEntry*>{	compiler.block63_name_and_params_ident_lpar_source(&$$,$1); }
 						expr											{	compiler.block64_name_and_params_ident_lpar_source_expr(&$$,&$3,&$4); }
-		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(&$$, $1, &$4); }
+		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(&$$, &$1, &$4); }
 ;
 
 
