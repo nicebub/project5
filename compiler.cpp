@@ -568,48 +568,60 @@ void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr){
 	code_generator.gen_label(code_generator.genlabelw("",(*insourcePacketptr)->one));
 }
 
-void Compiler::block36_stmt_ifexprstmt_else_source_stmt(){
-	if($1.numeric !=true)
-			error("non numeric expression in if statement","");
-		else{
-			if($1.ttype != type::INT)
-				error("expression in if statement is not an integer","");
-			else{
-				if(founderror==false){
-					code_generator.gen_label(code_generator.genlabelw("",$1.two));
-				}
-			}
-		}
-}
-
-void Compiler::block37_stmt_ifexprstmt(){
-	if($1.numeric !=true)
+void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr){
+	ReturnPacket *inPacket{*inPacketptr};
+	if(! inPacket.getnumeric()){
 		error("non numeric expression in if statement","");
+	}
 	else{
-		if($1.ttype != type::INT)
+		if(inPacket.gettype() != ucc::type::INT){
 			error("expression in if statement is not an integer","");
+		}
 		else{
-
-			if(founderror==false) code_generator.gen_label(code_generator.genlabelw("",$1.one));
+			code_generator.gen_label(code_generator.genlabelw("",inPacket.two));
 		}
 	}
 }
 
-struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(){
+void Compiler::block37_stmt_ifexprstmt(ReturnPacket** inPacketptr){
+	ReturnPacket* inPacket{inPacketptr};
+
+	if( ! inPacket.getnumeric()){
+		error("non numeric expression in if statement","");
+	}
+	else{
+		if(inPacket.gettype() != ucc::type::INT){
+			error("expression in if statement is not an integer","");
+		}
+		else{
+			code_generator.gen_label(code_generator.genlabelw("",inPacket.one));
+		}
+	}
+}
+
+struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(struct Pair* outPair, ReturnPacket** inexprPacketptr){
+	ReturnPacket* inexprPacket{*inexprPacketptr};
+
 	struct Pair rvalue;
 	
 	rvalue.one= othercounter;
 	othercounter++;
 	rvalue.two= othercounter;
 	othercounter++;
-	if($3->lval==true && $3->numeric==true){
-		switch($3->type){
-			case type::INT:	code_generator.gen_instr("fetchI"); break;
-			case type::FLOAT:	code_generator.gen_instr("fetchR"); code_generator.gen_instr("int"); break;
-              default:    break;
+	if(inexprPacket->getlval() && inexprPacket->getnumeric() ){
+		switch(inexprPacket->gettype() ){
+			case type::INT:
+								code_generator.gen_instr("fetchI"); 
+								break;
+			case type::FLOAT:
+								code_generator.gen_instr("fetchR"); 
+								code_generator.gen_instr("int"); 
+								break;
+			default:
+								break;
 		}
 	}
-	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",$$.one));
+	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",outPair->one));
 	return rvalue;
 }
 /*
@@ -617,57 +629,66 @@ void Compiler::block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(){
 	$$.lval=$3->lval; $$.numeric=$3->numeric; $$.ttype = $3->type; $$.one = $4.one; $$.two=$4.two;
 }
 */
-void Compiler::block40_expr_equalexpr_equal_equalexpr(){
-	if($1.lval !=true){
+void Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketptr, ReturnPacket** inequalexprPacketptr,ReturnPacket** inotherequalexprPacketptr){
+	ReturnPacket* outPacket{*outPacketptr};
+	ReturnPacket* inequalexprPacket{*inequalexprPacketptr};
+	ReturnPacket* inotherequalexprPacket{*inotherequalexprPacketptr};
+
+	if( ! inequalexpr->getlval() ){
 		error("Cannot make assignment. Left hand side is not a correct lval","");
 	}
-	else if($3.numeric !=true){
+	else if( ! inotherexprPacket->getnumeric() ){
 		error("Cannot make assignment, Right hand side is not numeric.","");
 	}
 	else {
-		if(founderror==false){
-			if($3.lval==true){
-				switch($3.ttype){
-					case type::INT:	code_generator.gen_instr("fetchI"); break;
-					case type::FLOAT:	code_generator.gen_instr("fetchR"); break;
-                        default:    break;
-				}
+		if(inotherexprPacket->getlval()){
+			switch(inotherexprPacket->gettype() ){
+				case type::INT:	code_generator.gen_instr("fetchI");
+										break;
+				case type::FLOAT:	code_generator.gen_instr("fetchR");
+										break;
+				default:				break;
 			}
 		}
-		if(($1.ttype== type::INT && $3.ttype == type::INT) || ($1.ttype == type::FLOAT && $3.ttype== type::FLOAT)) {
-			$$ = (exprtype*) malloc(sizeof(exprtype));
-			if(founderror==false){
-				switch($1.ttype){
-					case(type::INT): $$->type= type::INT; code_generator.gen_instr("storeI"); break;
-					case(type::FLOAT): $$->type= type::FLOAT; code_generator.gen_instr("storeR"); break;
-                        default:    break;
-				}
-			}
-			$$->lval = true;
-			$$->numeric =true;
+		if((inexprPacket->gettype() == ucc::type::INT && 
+				inotherexprPacket->gettype() == ucc::type::INT) || 
+				(inexprPacket->gettype() == ucc::type::FLOAT && 
+				inotherexprPacket->gettype() == type::FLOAT)) {
 
-		}
-		else if($1.ttype == type::INT && $3.ttype== type::FLOAT){
+		outPacket = new ReturnPacket{};
+
+			switch(inexprPacket->gettype()){
+				case(ucc::type::INT): outPacket->settype(ucc::type::INT);
+				 								code_generator.gen_instr("storeI");
+												break;
+				case(ucc::type::FLOAT): outPacket->settype(ucc::type::FLOAT);
+												code_generator.gen_instr("storeR");
+												break;
+				default:						break;
+			}
+			outPacket->setlval(true);
+			outPacket->setnumeric(true);
+
+	}
+		else if(inexprPacket->gettype() == ucc::type::INT && 
+					inotherexprPacket->getttype() == type::FLOAT){
 			warning("expressons are of different type, data may be lost","");
-			$$ = (exprtype*) malloc(sizeof(exprtype));
-			$$->type = type::INT;
-			$$->lval=true;
-			$$->numeric=true;
-			if(founderror==false){
-				code_generator.gen_instr("int");
-				code_generator.gen_instr("storeI");
-			}
+			outPacket = new ReturnPacket{};
+			outPacket->settype(ucc::type::INT);
+			outPacket->setlval(true);
+			outPacket->setnumeric(true);
+			code_generator.gen_instr("int");
+			code_generator.gen_instr("storeI");
 		}
-		else if($1.ttype == type::FLOAT && $3.ttype == type::INT) {
+		else if(inexprPacket->gettype() == ucc::type::FLOAT && 
+					inotherexprPacket->gettype() == ucc::type::INT) {
 			warning("expression are of different type, data may be lost","");
-			$$ = (exprtype*) malloc(sizeof(exprtype));
-			$$->type= type::FLOAT;
-			$$->numeric=true;
-			$$->lval=true;
-			if(founderror==false){
-				code_generator.gen_instr("flt");
-				code_generator.gen_instr("storeR");
-			}
+			outPackt = new ReturnPacket{};
+			outPacket->settype(ucc::type::FLOAT);
+			outPacket->setlval(true);
+			outPacket->setnumeric(true);
+			code_generator.gen_instr("flt");
+			code_generator.gen_instr("storeR");
 		}
 
 	}
@@ -679,95 +700,114 @@ void Compiler::block41_expr_equalexpr(){
 }
 */
 
-void Compiler::block42_equalexpr_relexpr_eqop_source(){
-	if(founderror==false){
-		if($1.numeric==true){
-			switch($1.ttype){
-				case type::INT:	if($1.lval==true) code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	if($1.lval==true) code_generator.gen_instr("fetchR"); break;
-                 default:    break;
+void Compiler::block42_equalexpr_relexpr_eqop_source(ReturnPacket** relexprPacketptr){
+	ReturnPacket* relexprPacket{ *relexprPacketptr};
+	if( relexprPacket->getnumeric() ){
+		if( relexprPacket->getlval() ){
+			switch(relexprPacket->gettype()){
+				case ucc::type::INT:
+										code_generator.gen_instr("fetchI");
+										break;
+				case ucc::type::FLOAT:	
+										code_generator.gen_instr("fetchR");
+										break;
+				default:				break;
 			}
 		}
 	}
 }
 
-void Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(){
-	if(founderror==false){
-		if($4.numeric==true){
-			switch($4.ttype){
-				case type::INT:	if($4.lval==true) code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	if($4.lval==true) code_generator.gen_instr("fetchR"); break;
-                 default:    break;
+void Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ReturnPacket** outPacketptr, ucc::eqtype ineqop, ReturnPacket** relexprPacketptr, ReturnPacket** otherrelexprPacketptr){
+	ReturnPacket * outPacket{* outPacketptr};
+	ReturnPacket * relexprPacket{* relexprPacketptr};
+	ReturnPacket * otherrelexprPacket{* otherrelexprPacketptr};
+	
+	if( otherrelexprPacket->getnumeric()){
+		if(otherrelexprPacket->getlval()){
+			switch(otherrelexprPacket->gettype()){
+				case type::INT:	code_generator.gen_instr("fetchI");
+										break;
+				case type::FLOAT:	code_generator.gen_instr("fetchR");
+										break;
+				default:				break;
 			}
 		}
 	}
-				$$.lval = false;
-				if($1.numeric==true && $4.numeric==true){
-					$$.numeric = true;
-					$$.ttype= type::INT;
-					if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype= type::INT;
-						if(founderror==false){
-                                                                     switch($<value.eqopvalue>2){
-                                                                             case eqtype::NEQ:       if($1.ttype== type::INT) code_generator.gen_instr("neI");
-                                                                                             else if($1.ttype== type::FLOAT) code_generator.gen_instr("neR");
-                                                                                             break;
-                                                                             case eqtype::EQEQ:      if($1.ttype== type::INT) code_generator.gen_instr("eqI");
-                                                                                             else if($1.ttype== type::FLOAT) code_generator.gen_instr("eqR");
-                                                                                             break;
-                                                                             default:    break;
-                                                                     }
-                                                     }
+	outPacket->setlval(false);
+	if(relexprPacket->getnumeric() && otherrelexprPacket->getnumeric() ){
+		outPacket->setnumeric(true);
+		outPacket->settype(ucc::type::INT);
+		if((relexprPacket->gettype() == ucc::type::INT && otherrelexprPacket->gettype() == type::INT) 
+		|| (relexprPacket->gettype() == type::FLOAT && otherrelexprPacket->gettype() == type::FLOAT) ){
+			outPacket->settype( ucc::type::INT);
+			switch(ineqop){
+				case eqtype::NEQ:	
+										if(relexprPacket->gettype() == ucc::type::INT)
+											code_generator.gen_instr("neI");
+										else if(relexprPacket->gettype() == ucc::type::FLOAT)
+											code_generator.gen_instr("neR");
+										break;
+				case eqtype::EQEQ: if(relexprPacket->gettype() == ucc::type::INT)
+											code_generator.gen_instr("eqI");
+										else if(relexprPacket->gettype() == ucc::type::FLOAT)
+											code_generator.gen_instr("eqR");
+										break;
+				default:				break;
+			}
+		}
+		else if(relexprPacket->gettype() == ucc::type::INT && 
+						otherrelexprPacket->gettype()== ucc::type::FLOAT){
+			warning("expressons are of different type, data may be lost","");
+			outPacket->settype(ucc::type::INT);
+			switch(ineqop){
+				case eqtype::NEQ: 	code_generator.gen_instr("fltb");
+											code_generator.gen_instr("neR");
+											break;
+				case eqtype::EQEQ: 	code_generator.gen_instr("fltb");
+											code_generator.gen_instr("eqR");
+											break;
+				default:					break;
+			}
 
+		}
+		else if(relexprPacket->gettype() == ucc::type::FLOAT && 
+					otherrelexprPacket->gettype() == ucc::type::INT) {
+					warning("expression are of different type, data may be lost","");
+					outPacket->settype( ucc::type::INT);
+					switch(ineqop){
+						case eqtype::NEQ:		code_generator.gen_instr("flt");
+													code_generator.gen_instr("neR");
+													break;
+						case eqtype::EQEQ:	code_generator.gen_instr("flt");
+													code_generator.gen_instr("eqR");
+													break;
+						default:					break;
 					}
-					else if($1.ttype == type::INT && $4.ttype== type::FLOAT){
-						warning("expressons are of different type, data may be lost","");
-						$$.ttype = type::INT;
-							if(founderror==false){
-                                                                     switch($<value.eqopvalue>2){
-                                                                             case eqtype::NEQ:       code_generator.gen_instr("fltb");
-                                                                                             code_generator.gen_instr("neR");
-                                                                                             break;
-                                                                             case eqtype::EQEQ:       code_generator.gen_instr("fltb");
-                                                                                             code_generator.gen_instr("eqR");
-                                                                                             break;
-                                                                             default:    break;
-                                                                     }
-                                                             }
-
-					}
-					else if($1.ttype == type::FLOAT && $4.ttype == type::INT) {
-						 warning("expression are of different type, data may be lost","");
-						$$.ttype= type::INT;
-						if(founderror==false){
-                                                                     switch($<value.eqopvalue>2){
-                                                                             case eqtype::NEQ:       code_generator.gen_instr("flt");
-                                                                                             code_generator.gen_instr("neR");
-                                                                                             break;
-                                                                             case eqtype::EQEQ:       code_generator.gen_instr("flt");
-                                                                                             code_generator.gen_instr("eqR");
-                                                                                             break;
-                                                                             default:    break;
-                                                                     }
-                                                      }
-					}
-				}
-				else{ error("non numeric in operation",""); $$.numeric=true; }
+		}
+	}
+	else{
+		error("non numeric in operation","");
+		outPacket->setnumeric(true); 
+	}
 }
 /*
 void Compiler::block44_equalexpr_relexpr(){
 $$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric= $1.numeric;
 }
 */
-void Compiler::block45_relexpr_simpleexpr_relop_source(){
-	if(founderror==false){
-		if($1.numeric==true){
-			switch($1.ttype){
-				case type::INT:	if($1.lval==true) code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	if($1.lval==true) code_generator.gen_instr("fetchR"); break;
-                 default:    break;
-             }
+void Compiler::block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr){
+	ReturnPacket * insimplePacket{*insimplePacketptr};
+		if(insimplePacket->getnumeric()){
+			switch(insimplePacket->gettype()){
+				case type::INT:	if(insimplePacket->getlval())
+											code_generator.gen_instr("fetchI");
+										break;
+				case type::FLOAT:	if(insimplePacket->getlval())
+											code_generator.gen_instr("fetchR");
+										break;
+				default:				break;
+			}
 		}
-	}
 }
 
 void Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(){
@@ -858,17 +898,21 @@ void Compiler::block47_relexpr_simpleexpr(){
 		$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric=$1.numeric;
 }
 */
-void Compiler::block48_simpleexpr_simpleexpr_addop_source(){
-	if(founderror==false){
-                     if($1.numeric==true){
-                             switch($1.ttype){
-                                     case type::INT:       if($1.lval==true) code_generator.gen_instr("fetchI"); break;
-                                     case type::FLOAT:     if($1.lval==true) code_generator.gen_instr("fetchR"); break;
-                                     default:        break;
-                             }
-                     }
-             }
-
+void Compiler::block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr){
+	ReturnPacket** insimplePacket{ * insimplePacketptr};
+	if(insimplePacket->getnumeric() ){
+		switch(insimplePacket->gettype()){
+			case type::INT:	if(insimplePacket->getlval()){
+										code_generator.gen_instr("fetchI");
+									}
+									break;
+			case type::FLOAT:	if(insimplePacket->getlval()){
+										code_generator.gen_instr("fetchR");
+									}
+									break;
+			default:				break;
+		}
+	}
 }
 
 void Compiler::block49_simpleexpr_simpleexpr_addop_source_term(){

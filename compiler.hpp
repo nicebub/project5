@@ -90,20 +90,20 @@ namespace ucc{
 			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
 			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
 			void block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr);
-			void block36_stmt_ifexprstmt_else_source_stmt();
-			void block37_stmt_ifexprstmt();
+			void block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr);
+			void block37_stmt_ifexprstmt(ReturnPacket** inPacketptr);
 
-			struct Pair block38_ifexprstmt_if_lpar_expr_source();
+			struct Pair block38_ifexprstmt_if_lpar_expr_source(struct Pair* outPair, ReturnPacket** inexprPacketptr);
 			void block39_ifexprstmt_if_lpar_expr_source_rpar_stmt();
 
-			void block40_expr_equalexpr_equal_equalexpr();
+			void block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketptr, ReturnPacket** inequalexprPacketptr,ReturnPacket** inotherequalexprPacketptr);
 			void block41_expr_equalexpr();
 
-			void block42_equalexpr_relexpr_eqop_source();
-			void block43_equalexpr_relexpr_eqop_source_relexpr();
+			void block42_equalexpr_relexpr_eqop_source(ReturnPacket** relexprPacketptr);
+			void block43_equalexpr_relexpr_eqop_source_relexpr(ReturnPacket** outPacketptr, ucc::eqtype ineqop, ReturnPacket** relexprPacketptr, ReturnPacket** otherrelexprPacketptr);
 			void block44_equalexpr_relexpr();
 
-			void block45_relexpr_simpleexpr_relop_source();
+			void block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr);
 			void block46_relexpr_simpleexpr_relop_source_simpleexpr();
 			void block47_relexpr_simpleexpr();
 

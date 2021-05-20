@@ -217,9 +217,9 @@ stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 
 		|				ifexprstmt 
 						elset											{	compiler.block35_stmt_ifexprstmt_else(&$1); }
-						stmt											{	compiler.block36_stmt_ifexprstmt_else_source_stmt(); }
+						stmt											{	compiler.block36_stmt_ifexprstmt_else_source_stmt(&$1); }
 
-		|				ifexprstmt									{	compiler.block37_stmt_ifexprstmt(); }
+		|				ifexprstmt									{	compiler.block37_stmt_ifexprstmt(&$1); }
 
 		|				lcbra stmtlist rcbra 					{} //closescope(mysymtab);
 		|				returnt error								{	yyerrok; compiler.error("(unexpected token after return in return stmt)","");}
@@ -228,22 +228,22 @@ stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 		|				lcbra stmtlist error rcbra				{	yyerrok; compiler.error("(unexpected token before rcbra in stmt)",""); }	//closescope(mysymtab);
 ;
 
-ifexprstmt:			ift lpar expr								<struct Pair	>{	compiler.block38_ifexprstmt_if_lpar_expr_source(); }
+ifexprstmt:			ift lpar expr								<struct Pair	>{	compiler.block38_ifexprstmt_if_lpar_expr_source(&$$, &$3); }
 						rpar stmt									{	$$ = $3; $$->m_pair = $4; }
 ;
 
-expr:					equalexpr equalt equalexpr				{	compiler.block40_expr_equalexpr_equal_equalexpr(); }
+expr:					equalexpr equalt equalexpr				{	compiler.block40_expr_equalexpr_equal_equalexpr(&$$,&$1, &$3); }
 		|				equalexpr									{	$$ = $1; }
 		|				equalexpr equalt error					{	yyerrok; compiler.error("(unexpected token after equalt operator in expr)","");}
 ;
 
-equalexpr:			relexpr eqop								{	compiler.block42_equalexpr_relexpr_eqop_source(); }
-						relexpr										{	compiler.block43_equalexpr_relexpr_eqop_source_relexpr(); }
+equalexpr:			relexpr eqop								{	compiler.block42_equalexpr_relexpr_eqop_source(&$1); }
+						relexpr										{	compiler.block43_equalexpr_relexpr_eqop_source_relexpr(&$$,$2,&$1,&$4); }
 		|				relexpr										{	$$ = $1; }
 		|				relexpr eqop error						{	yyerrok; compiler.error("(unexpected token after equality operator in expr)","");}
 ;
 
-relexpr:				simpleexpr relop							{	compiler.block45_relexpr_simpleexpr_relop_source(); }
+relexpr:				simpleexpr relop							{	compiler.block45_relexpr_simpleexpr_relop_source(&$1); }
 						simpleexpr 									{	compiler.block46_relexpr_simpleexpr_relop_source_simpleexpr(); }
 		|				simpleexpr									{	$$ = $1; }
 		|				simpleexpr relop error					{	yyerrok; compiler.error("(unexpected token after relational operator",""); }
