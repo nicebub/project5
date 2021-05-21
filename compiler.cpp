@@ -12,7 +12,8 @@ Compiler::Compiler(): mysymtab{new SymbolTable{ *this} },
 							code_generator{},
 							lexer{nullptr,*this},
 							parser{nullptr},
-							founderror{false}
+							founderror{false},
+							currentFunc{nullptr}
 {
 	Line_Number=1;
 	globalcount=0;
@@ -37,7 +38,8 @@ Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *th
 																	offset_counter(5),
 																	othercounter(1),
 																	param_offset(0),
-																	mainlocal(0)
+																	mainlocal(0),
+																	currentFunc{nullptr}
 {
 	mainlabel = code_generator.getlabel();
 
@@ -86,7 +88,6 @@ void Compiler::block1_start_trans_unit(){
 	code_generator.gen_instr("return");
 }
 void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
-	Funcb* currentFunc{nullptr};
 	auto templabel{mainlabel};
 	if(is_function_decl_or_def_accurate(inFuncHeaderptr,currentFunc,false)){
 		mysymtab->openscope();
@@ -220,7 +221,6 @@ void Compiler::block3_func_funcheader_source_funcbody(){
 
 void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 //   TableEntry* tempEntry{nullptr}; 
-	Funcb* currentFunc{nullptr};
 	if( ! (auto found = mysymtab.lookupB((*inFuncHeaderptr)->name))){
 	   auto tempEntry =  mysymtab->createFunc(	(*inFuncHeaderptr)->name, 
 												(*inFuncHeaderptr)->returntype,
@@ -419,7 +419,7 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 	}
 	else{
 		currentFunc->setlocalcount( offset_counter - 5 - currentFunc->getnum_param());
-		temp = currntFunc->getlocalcount();
+		temp = currentFunc->getlocalcount();
 	}
 	code_generator.gen_instr_I("alloc", temp);
 }
@@ -525,14 +525,15 @@ void Compiler::block31_stmt_return_expr_semi(ReturnPacket** inPacket){
 		}
 	}
 }
-void Compiler::block32_stmt_while_source(ReturnPacket** inPacket){
-	(*inPacket)->
-		(*inPacket)->one=  othercounter;
+void Compiler::block32_stmt_while_source(ReturnPacket** inPacketptr){
+	ReturnPacket* inPacket{*inPacketptr};
+//	(*inPacket)->
+		inPacket->m_pair.one=  othercounter;
 		othercounter++;
-		(*inPacket)->two =  othercounter;
+		inPacket->m_pair.two =  othercounter;
 		othercounter++;
 
-		code_generator.gen_label(code_generator.genlabelw("",(*inPacket)->one));
+		code_generator.gen_label(code_generator.genlabelw("",inPacket->m_pair.one));
 }
 void Compiler::block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr){
 	ReturnPacket* inPacket{*inexprPacketptr};
@@ -548,7 +549,7 @@ void Compiler::block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnP
 				}
 			}
 		}
-		code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",(*insourcePacketptr)->two));
+		code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",(*insourcePacketptr)->m_pair.two));
 	}
 void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr){
 	ReturnPacket* inPacket{*inexprPacketptr};
@@ -559,42 +560,42 @@ void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_
 			if(inPacket->gettype() != type::INT){
 				error("expression in while statement is not an integer","");
 			}
-			code_generator.gen_instr_S("jump", code_generator.genlabelw("",(*insourcePacketptr)->one));
-			code_generator.gen_label(code_generator.genlabelw("",(*insourcePacketptr)->two));
+			code_generator.gen_instr_S("jump", code_generator.genlabelw("",(*insourcePacketptr)->m_pair.one));
+			code_generator.gen_label(code_generator.genlabelw("",(*insourcePacketptr)->m_pair.two));
 	}
 }
 void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr){
-	code_generator.gen_instr_S("jump", code_generator.genlabelw("",(*insourcePacketptr)->two));
-	code_generator.gen_label(code_generator.genlabelw("",(*insourcePacketptr)->one));
+	code_generator.gen_instr_S("jump", code_generator.genlabelw("",(*insourcePacketptr)->m_pair.two));
+	code_generator.gen_label(code_generator.genlabelw("",(*insourcePacketptr)->m_pair.one));
 }
 
 void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr){
 	ReturnPacket *inPacket{*inPacketptr};
-	if(! inPacket.getnumeric()){
+	if(! inPacket->getnumeric()){
 		error("non numeric expression in if statement","");
 	}
 	else{
-		if(inPacket.gettype() != ucc::type::INT){
+		if(inPacket->gettype() != ucc::type::INT){
 			error("expression in if statement is not an integer","");
 		}
 		else{
-			code_generator.gen_label(code_generator.genlabelw("",inPacket.two));
+			code_generator.gen_label(code_generator.genlabelw("",inPacket->m_pair.two));
 		}
 	}
 }
 
 void Compiler::block37_stmt_ifexprstmt(ReturnPacket** inPacketptr){
-	ReturnPacket* inPacket{inPacketptr};
+	ReturnPacket* inPacket{*inPacketptr};
 
-	if( ! inPacket.getnumeric()){
+	if( ! inPacket->getnumeric()){
 		error("non numeric expression in if statement","");
 	}
 	else{
-		if(inPacket.gettype() != ucc::type::INT){
+		if(inPacket->gettype() != ucc::type::INT){
 			error("expression in if statement is not an integer","");
 		}
 		else{
-			code_generator.gen_label(code_generator.genlabelw("",inPacket.one));
+			code_generator.gen_label(code_generator.genlabelw("",inPacket->m_pair.one));
 		}
 	}
 }
@@ -671,7 +672,7 @@ void Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketpt
 
 	}
 		else if(inexprPacket->gettype() == ucc::type::INT && 
-					inotherexprPacket->getttype() == type::FLOAT){
+					inotherexprPacket->gettype() == type::FLOAT){
 			warning("expressons are of different type, data may be lost","");
 			outPacket = new ReturnPacket{};
 			outPacket->settype(ucc::type::INT);
@@ -683,7 +684,7 @@ void Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketpt
 		else if(inexprPacket->gettype() == ucc::type::FLOAT && 
 					inotherexprPacket->gettype() == ucc::type::INT) {
 			warning("expression are of different type, data may be lost","");
-			outPackt = new ReturnPacket{};
+			outPacket = new ReturnPacket{};
 			outPacket->settype(ucc::type::FLOAT);
 			outPacket->setlval(true);
 			outPacket->setnumeric(true);
@@ -810,88 +811,104 @@ void Compiler::block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePa
 		}
 }
 
-void Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(){
-	if(founderror==false){
-		if($4.numeric==true){
-			switch($4.ttype){
-				case type::INT:	if($4.lval==true) code_generator.gen_instr("fetchI"); break;
-				case type::FLOAT:	if($4.lval==true) code_generator.gen_instr("fetchR"); break;
-                  default:    break;
+void Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::reltype inrelop, ReturnPacket** othersimpleexprPacketptr){
+	ReturnPacket * outPacket{*outPacketptr};
+	ReturnPacket * simpleexprPacket{*simpleexprPacketptr};
+	ReturnPacket * othersimpleexprPacket{*othersimpleexprPacketptr};
+	
+		if(othersimpleexprPacket->getnumeric()){
+			switch(othersimpleexprPacket->gettype()){
+				case type::INT:	if(othersimpleexprPacket->getlval()){
+												code_generator.gen_instr("fetchI");
+											}
+											break;
+				case type::FLOAT:	if(othersimpleexprPacket->getlval()){
+												code_generator.gen_instr("fetchR");
+											}
+										break;
+				default:		break;
 			}
 		}
-	}
-				$$.lval = false;
-				if($1.numeric == true && $4.numeric ==true){
-					$$.numeric=true;
-					$$.ttype= type::INT;
-					if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype= type::INT;
-						if(founderror==false){
-							switch($<value.relopvalue>2){
-                                  case reltype::LES:       if($1.ttype== type::INT) code_generator.gen_instr("ltI");
-                                                          else if($1.ttype== type::FLOAT) code_generator.gen_instr("ltR");
-                                                                      break;
-                                  case reltype::LEQ:       if($1.ttype== type::INT) code_generator.gen_instr("leI");
-                                                          else if($1.ttype== type::FLOAT) code_generator.gen_instr("leR");
-                                                                      break;
-								case reltype::GRE:	if($1.ttype== type::INT) code_generator.gen_instr("gtI");
-										else if($1.ttype== type::FLOAT) code_generator.gen_instr("gtR");
-										break;
-								case reltype::GEQ:	if($1.ttype== type::INT) code_generator.gen_instr("geI");
-										else if($1.ttype== type::FLOAT) code_generator.gen_instr("geR");
-										break;
-                                  default:    break;
-                                                                  }
-						}
-
-					}
-					else if($1.ttype == type::INT && $4.ttype== type::FLOAT){
-						warning("expressons are of different type, data may be lost","");
-						$$.ttype = type::INT;
-						if( founderror==false){
-                                          switch($<value.relopvalue>2){
-                                                  case reltype::LES:       code_generator.gen_instr("fltb");
-										code_generator.gen_instr("ltR");
-                                                                                          break;
-                                                  case reltype::LEQ:       code_generator.gen_instr("fltb");
-										code_generator.gen_instr("leR");
-                                                                                          break;
-                                                  case reltype::GRE:       code_generator.gen_instr("fltb");
-										code_generator.gen_instr("gtR");
-                                                                                          break;
-                                                  case reltype::GEQ:       code_generator.gen_instr("fltb");
-										code_generator.gen_instr("geR");
-                                                                                          break;
-                                                  default:    break;
-                                                                  }
-                                                          }
-					}
-					else if($1.ttype == type::FLOAT && $4.ttype == type::INT) {
-						warning("expression are of different type, data may be lost","");
-						$$.ttype = type::INT;
-						if( founderror==false){
-                                                                  switch($<value.relopvalue>2){
-                                                                          case reltype::LES:       code_generator.gen_instr("flt");
-                                                                                          code_generator.gen_instr("ltR");
-                                                                                          break;
-                                                                          case reltype::LEQ:       code_generator.gen_instr("flt");
-                                                                                          code_generator.gen_instr("leR");
-                                                                                          break;
-                                                                          case reltype::GRE:       code_generator.gen_instr("flt");
-                                                                                          code_generator.gen_instr("gtR");
-                                                                                          break;
-                                                                          case reltype::GEQ:       code_generator.gen_instr("flt");
-                                                                                          code_generator.gen_instr("geR");
-                                                                                          break;
-                                                                          default:     break;
-                                                                  }
-                                                          }
-					}
-
+		outPacket->setlval(false);
+		if(simpleexprPacket->getnumeric() && othersimpleexprPacket->getnumeric() ){
+			outPacket->setnumeric(true);
+			outPacket->settype( ucc::type::INT);
+			if((simpleexprPacket->gettype() == type::INT && 
+				othersimpleexprPacket->gettype() == type::INT) 
+				|| (simpleexprPacket->gettype() == type::FLOAT && 
+				othersimpleexprPacket->gettype() == type::FLOAT)) {
+					outPacket->settype( ucc::type::INT);
+				switch(inrelop){
+					case reltype::LES:	if(simpleexprPacket->gettype() == type::INT) 
+													code_generator.gen_instr("ltI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("ltR");
+												break;
+					case reltype::LEQ:	if(simpleexprPacket->gettype() == type::INT)
+													code_generator.gen_instr("leI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("leR");
+													break;
+					case reltype::GRE:	if(simpleexprPacket->gettype() == type::INT)
+													code_generator.gen_instr("gtI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("gtR");
+													break;
+					case reltype::GEQ:	if(simpleexprPacket->gettype() == type::INT)
+													code_generator.gen_instr("geI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("geR");
+													break;
+					default:					break;
 				}
-				else{
-					error("non numeric in operation","");
-					$$.numeric=false;
+
+			}
+			else if(simpleexprPacket->gettype() == ucc::type::INT && 
+						othersimpleexprPacket->gettype() == type::FLOAT){
+				warning("expressons are of different type, data may be lost","");
+				outPacket->settype( ucc::type::INT);
+				switch(inrelop){
+					case reltype::LES:	code_generator.gen_instr("fltb");
+												code_generator.gen_instr("ltR");
+												break;
+					case reltype::LEQ:	code_generator.gen_instr("fltb");
+												code_generator.gen_instr("leR");
+												break;
+					case reltype::GRE:	code_generator.gen_instr("fltb");
+												code_generator.gen_instr("gtR");
+												break;
+					case reltype::GEQ:	code_generator.gen_instr("fltb");
+												code_generator.gen_instr("geR");
+												break;
+					default:					break;
 				}
+			}
+			else if(simpleexprPacket->gettype() == type::FLOAT && 
+						othersimpleexprPacket->gettype() == type::INT) {
+				warning("expression are of different type, data may be lost","");
+				outPacket->settype( ucc::type::INT);
+				switch(inrelop){
+					case reltype::LES:	code_generator.gen_instr("flt");
+												code_generator.gen_instr("ltR");
+												break;
+					case reltype::LEQ:	code_generator.gen_instr("flt");
+												code_generator.gen_instr("leR");
+												break;
+					case reltype::GRE:	code_generator.gen_instr("flt");
+												code_generator.gen_instr("gtR");
+												break;
+					case reltype::GEQ:	code_generator.gen_instr("flt");
+												code_generator.gen_instr("geR");
+												break;
+					default:					break;
+				}
+			}
+
+		}
+		else{
+			error("non numeric in operation","");
+			outPacket->setnumeric(false);
+		}
 }
 /*
 void Compiler::block47_relexpr_simpleexpr(){
@@ -899,7 +916,7 @@ void Compiler::block47_relexpr_simpleexpr(){
 }
 */
 void Compiler::block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr){
-	ReturnPacket** insimplePacket{ * insimplePacketptr};
+	ReturnPacket* insimplePacket{ * insimplePacketptr};
 	if(insimplePacket->getnumeric() ){
 		switch(insimplePacket->gettype()){
 			case type::INT:	if(insimplePacket->getlval()){
@@ -915,66 +932,75 @@ void Compiler::block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimpl
 	}
 }
 
-void Compiler::block49_simpleexpr_simpleexpr_addop_source_term(){
-	if(founderror==false){
-                          if($4.numeric ==true){
-                                  switch($4.ttype){
-                                          case type::INT:       if($4.lval==true) code_generator.gen_instr("fetchI"); break;
-                                          case type::FLOAT:     if($4.lval==true) code_generator.gen_instr("fetchR"); break;
-                                          default:        break;
-                                  }
-                          }
-                  }
-				$$.lval = false;
-				if($1.numeric == true && $4.numeric==true){
-					$$.numeric=true;
-					if(($1.ttype== type::INT && $4.ttype == type::INT) || ($1.ttype == type::FLOAT && $4.ttype== type::FLOAT)) {$$.ttype=$1.ttype;
-						if(founderror==false){
-  		                                                switch($<value.addopvalue>2){
-          		                                                case addtype::PLS:       if($1.ttype== type::INT) code_generator.gen_instr("addI");
-                  		                                                        else if($1.ttype== type::FLOAT) code_generator.gen_instr("addR");
-                          		                                                break;
-                                  		                        case addtype::MIN:       if($1.ttype== type::INT) code_generator.gen_instr("subI");
-                                          		                                else if($1.ttype== type::FLOAT) code_generator.gen_instr("subR");
-                                                  		                        break;
-                                                                  default:        break;
-                     	                       		      	}
-                             	            	}
-					}
-					else if($1.ttype ==type::INT && $4.ttype== type::FLOAT){ warning("expressons are of different type, data may be lost","");
-						$$.ttype = type::FLOAT;
-                                                if( founderror==false){
-                                                        switch($<value.addopvalue>2){
-                                                                case addtype::PLS:       code_generator.gen_instr("fltb");
-                                                                                code_generator.gen_instr("addR");
-                                                                                break;
-                                                                case addtype::MIN:       code_generator.gen_instr("fltb");
-                                                                                code_generator.gen_instr("subR");
-                                                                                break;
-                                                                  default:        break;
-                                                        }
-                                                }
-					}
-					else if($1.ttype == type::FLOAT && $4.ttype == type::INT) { warning("expression are of different type, data may be lost","");
-						$$.ttype = type::FLOAT;
-                  		                        if( founderror==false){
-                  		                                switch($<value.addopvalue>2){
-                  		                                        case addtype::PLS:       code_generator.gen_instr("flt");
-                  		                                                        code_generator.gen_instr("addR");
-                  		                                                        break;
-                  		                                        case addtype::MIN:       code_generator.gen_instr("flt");
-                  		                                                        code_generator.gen_instr("subR");
-          		                                                                break;
-                                                                  default:                break;
-          		                                        }
-                                                }
-					}
-				}
-				else{
-					error("non numeric in operation","");
-					$$.numeric=false;
-				}
+void Compiler::block49_simpleexpr_simpleexpr_addop_source_term(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::addtype inaddop, ReturnPacket** termPacketptr){
+	ReturnPacket * outPacket{*outPacketptr};
+	ReturnPacket * simpleexprPacket{*simpleexprPacketptr};
+	ReturnPacket * termPacket{*termPacketptr};
 
+	if(termPacket->getnumeric()){
+		switch(termPacket->gettype()){
+			case type::INT:	if(termPacket->getlval())
+										code_generator.gen_instr("fetchI");
+										break;
+			case type::FLOAT:	if(termPacket->getlval())
+										code_generator.gen_instr("fetchR");
+										break;
+			default:				break;
+		}
+	}
+	outPacket->setlval(false);
+	if(simpleexprPacket->getnumeric() && termPacket->getnumeric()){
+		outPacket->setnumeric(true);
+		if((simpleexprPacket->gettype() == type::INT && termPacket->gettype() == type::INT) 
+			|| (simpleexprPacket->gettype() == type::FLOAT && termPacket->gettype() == type::FLOAT)){
+				outPacket->settype( simpleexprPacket->gettype());
+				switch(inaddop){
+					case addtype::PLS:	if(simpleexprPacket->gettype() == type::INT)
+													code_generator.gen_instr("addI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("addR");
+												break;
+					case addtype::MIN:	if(simpleexprPacket->gettype() == type::INT)
+													code_generator.gen_instr("subI");
+												else if(simpleexprPacket->gettype() == type::FLOAT)
+													code_generator.gen_instr("subR");
+												break;
+					default:					break;
+				}
+			}
+			else if(simpleexprPacket->gettype() == ucc::type::INT 
+				&& termPacket->gettype() == type::FLOAT){
+					warning("expressons are of different type, data may be lost","");
+					outPacket->settype( ucc::type::FLOAT);
+					switch(inaddop){
+						case addtype::PLS:	code_generator.gen_instr("fltb");
+													code_generator.gen_instr("addR");
+													break;
+						case addtype::MIN:	code_generator.gen_instr("fltb");
+													code_generator.gen_instr("subR");
+													break;
+						default:					break;
+					}
+			}
+			else if(simpleexprPacket->gettype() == ucc::type::FLOAT 
+				&& termPacket->gettype() == type::INT) {
+					warning("expression are of different type, data may be lost","");
+					outPacket->settype( ucc::type::FLOAT);
+					switch(inaddop){
+						case addtype::PLS:	code_generator.gen_instr("flt");
+													code_generator.gen_instr("addR");
+													break;
+						case addtype::MIN:	code_generator.gen_instr("flt");
+													code_generator.gen_instr("subR");
+													break;
+						default:					break;
+					}
+			}
+		}
+		else{
+			error("non numeric in operation","");
+			outPacket->setnumeric(false);
+		}
 }
 /*
 void Compiler::block50_simpleepr_term(){

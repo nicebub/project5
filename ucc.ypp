@@ -24,7 +24,7 @@ using namespace ucc;
 #define YYERROR_VERBOSE 1
 
 #include "compiler.hpp"
-Funcb* currentFunc;
+//Funcb* currentFunc;
 
 int yyerror(std::string err,Compiler& compiler);
 %}
@@ -244,13 +244,13 @@ equalexpr:			relexpr eqop								{	compiler.block42_equalexpr_relexpr_eqop_sourc
 ;
 
 relexpr:				simpleexpr relop							{	compiler.block45_relexpr_simpleexpr_relop_source(&$1); }
-						simpleexpr 									{	compiler.block46_relexpr_simpleexpr_relop_source_simpleexpr(); }
+						simpleexpr 									{	compiler.block46_relexpr_simpleexpr_relop_source_simpleexpr(&$$,&$1,$2,&$4); }
 		|				simpleexpr									{	$$ = $1; }
 		|				simpleexpr relop error					{	yyerrok; compiler.error("(unexpected token after relational operator",""); }
 ;
 
-simpleexpr:			simpleexpr addop							{	compiler.block48_simpleexpr_simpleexpr_addop_source(); }
-						TERM											{	compiler.block49_simpleexpr_simpleexpr_addop_source_term(); }
+simpleexpr:			simpleexpr addop							{	compiler.block48_simpleexpr_simpleexpr_addop_source(&$1); }
+						TERM											{	compiler.block49_simpleexpr_simpleexpr_addop_source_term(&$$,&$1,$2,&$4); }
 		|				TERM											{	$$ = $1; }
 		|				simpleexpr addop error					{	yyerrok; compiler.error("(unexpected token after additive operator)","");}
 ;

@@ -104,11 +104,11 @@ namespace ucc{
 			void block44_equalexpr_relexpr();
 
 			void block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr);
-			void block46_relexpr_simpleexpr_relop_source_simpleexpr();
+			void block46_relexpr_simpleexpr_relop_source_simpleexpr(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::reltype inrelop, ReturnPacket** othersimpleexprPacketptr);
 			void block47_relexpr_simpleexpr();
 
-			void block48_simpleexpr_simpleexpr_addop_source();
-			void block49_simpleexpr_simpleexpr_addop_source_term();
+			void block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr);
+			void block49_simpleexpr_simpleexpr_addop_source_term(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::addtype inaddop, ReturnPacket** termPacketptr);
 			void block50_simpleepr_term();
 
 			void block51_term_term_mulop_source(ReturnPacket** outPacket, ReturnPacket** inPacket);
@@ -143,7 +143,7 @@ namespace ucc{
 			
 			
 			
-			
+			Funcb*			currentFunc;
 			std::ostream*	outfile;
 			std::string 	filename;
 			int 				Line_Number;
