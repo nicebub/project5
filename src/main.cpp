@@ -19,23 +19,15 @@ Debug::set_yydebug(1);
 #include "trans.hpp"
 #include "compiler.hpp"
 
-//#ifndef YYSTYPE
-//#define YYSTYPE ucc::data
-//#endif
 
 #include "ucc.tab.hpp"
 
-//extern FILE* 			yyin;
-
-//extern int 				yyparse(void);
-//extern int 				error(std::string s1, std::string s2);
 
 using namespace ucc;
 
-//Compiler compiler{};
-
 int main(int argc, const char **argv){
 	Compiler compiler{};
+
 	if(compiler.checkargs(argc,argv) == -1){
 
 		#ifdef DEBUG
@@ -50,11 +42,12 @@ int main(int argc, const char **argv){
 
 	compiler.code_generator.setstream(compiler.outfile);
 
+	/*
 	if(compiler.mysymtab == NULL){
 		compiler.error("Unable to construct symbol table","");
 		return -1;
 	}
-
+	*/
 	compiler.parser->parse();
 
 	#ifdef DEBUG
