@@ -111,7 +111,7 @@ namespace ucc{
 			void block49_simpleexpr_simpleexpr_addop_source_term(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::addtype inaddop, ReturnPacket** termPacketptr);
 			void block50_simpleepr_term();
 
-			void block51_term_term_mulop_source(ReturnPacket** outPacket, ReturnPacket** inPacket);
+			void block51_term_term_mulop_source(ReturnPacket** inPacketptr);
 			void block52_term_term_mulop_source_factor(ReturnPacket** outermptr,ReturnPacket** intermptr, ucc::multype inmulop,ReturnPacket** infactorptr);
 			void block53_term_factor();
 

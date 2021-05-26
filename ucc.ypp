@@ -255,7 +255,7 @@ simpleexpr:			simpleexpr addop							{	compiler.block48_simpleexpr_simpleexpr_ad
 		|				simpleexpr addop error					{	yyerrok; compiler.error("(unexpected token after additive operator)","");}
 ;
 
-TERM:					TERM mulop									{	compiler.block51_term_term_mulop_source(&$<ReturnPacket*>$,&$1); }
+TERM:					TERM mulop									{	compiler.block51_term_term_mulop_source(&$1); }
 						factor										{	compiler.block52_term_term_mulop_source_factor(&$$,&$1,$2,&$4); }
 		|				factor										{	$$ = $1; }
 		|				TERM mulop error							{	yyerrok; compiler.error("(unexpected token after multiplicative operator)",""); }
