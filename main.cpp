@@ -28,7 +28,7 @@ Debug::set_yydebug(1);
 //extern FILE* 			yyin;
 
 //extern int 				yyparse(void);
-extern int 				error(std::string s1, std::string s2);
+//extern int 				error(std::string s1, std::string s2);
 
 using namespace ucc;
 
@@ -44,18 +44,18 @@ int main(int argc, const char **argv){
 
 		return -1;
 	}
-	if(!compiler.openOutputFile(argc, argv)){
+	if( ! compiler.openOutputFile(argc, argv) ){
 		return -1;
 	}
 
-	compiler.code_generator.set_stream(compiler.outfile);
+	compiler.code_generator.setstream(compiler.outfile);
 
 	if(compiler.mysymtab == NULL){
-		error("Unable to construct symbol table","");
+		compiler.error("Unable to construct symbol table","");
 		return -1;
 	}
 
-	compiler.parser->yyparse();
+	compiler.parser->parse();
 
 	#ifdef DEBUG
 	compiler.mysymtab.printTree();

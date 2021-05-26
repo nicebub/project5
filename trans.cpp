@@ -13,8 +13,8 @@ CodeGenerator::CodeGenerator() : labelcounter{1}, outfile{&std::cout}, canGenera
 
 CodeGenerator::CodeGenerator(std::ostream& out) : labelcounter{1}, outfile{&out}, canGenerate{true} {}
 
-inline void CodeGenerator::setstream(std::ostream& outfile){
-	this->outfile = &outfile;
+inline void CodeGenerator::setstream(std::ostream* outfile){
+	this->outfile = outfile;
 }
 
 

@@ -8,24 +8,31 @@
 using namespace ucc;
 namespace ucc{
 
-Compiler::Compiler(): mysymtab{new SymbolTable{ *this} }, 
+Compiler::Compiler(): mysymtab{nullptr}, 
 							code_generator{},
 							lexer{nullptr,*this},
 							parser{nullptr},
 							founderror{false},
-							currentFunc{nullptr}
+							currentFunc{nullptr},
+							Line_Number{1},
+							globalcount{0},
+							offset_counter{5},
+							othercounter{1},
+							param_offset{0},
+							mainlocal{0}
 {
-	Line_Number=1;
-	globalcount=0;
-	offset_counter=5;
-	othercounter=1;
-	param_offset=0;
-	mainlocal=0;
+	try{
+		mysymtab = new SymbolTable{ *this};
+	}
+	catch(std::bad_alloc& e){
+		std::cerr << e.what();
+	}
 	mainlabel = code_generator.getlabel();
-
+	/*
 	if(mysymtab == nullptr){
 		error("Unable to construct symbol table","");
 	}
+	*/
 }
 
 Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *this} }, 
@@ -221,7 +228,8 @@ inline void Compiler::block3_func_funcheader_source_funcbody(){
 
 void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 //   TableEntry* tempEntry{nullptr}; 
-	if( (auto found = mysymtab.lookupB((*inFuncHeaderptr)->name)) != nullptr ){
+	auto found = mysymtab->lookupB((*inFuncHeaderptr)->name);
+	if(  found  != nullptr ){
 	   auto tempEntry =  mysymtab->createFunc(	(*inFuncHeaderptr)->name, 
 												(*inFuncHeaderptr)->returntype,
 												(*inFuncHeaderptr)->paramlist 
@@ -484,9 +492,9 @@ inline void Compiler::block31_stmt_return_expr_semi_helper(ReturnPacket* inPacke
 		}
 	}
 }
-void Compiler::variableFetchWithNumericCheck(ReturnPacket* inPacketptr, bool conversionNeeded){
+inline void Compiler::variableFetchWithNumericCheck(ReturnPacket** inPacketptr, bool conversionNeeded){
 	if((*inPacketptr)->getnumeric() ){
-		block31_stmt_return_expr_semi_helper(*inPacket,conversionNeeded);
+		block31_stmt_return_expr_semi_helper(*inPacketptr,conversionNeeded);
 	}
 }
 void Compiler::block31_stmt_return_expr_semi(ReturnPacket** inPacket){
@@ -555,7 +563,7 @@ inline void Compiler::block34_5_stmt_helper(int one, int two){
 	code_generator.gen_instr_S("jump", code_generator.genlabelw("",one));
 	code_generator.gen_label(code_generator.genlabelw("",two));
 }
-void Compiler::while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr, std::string while_or_if){
+void Compiler::while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr, int number, std::string while_or_if){
 	ReturnPacket* inPacket{*inexprPacketptr};
 	if(! inPacket->getnumeric()){
 		error("non numeric expression in " + while_or_if + " statement","");
@@ -573,7 +581,7 @@ void Compiler::while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPack
 	}
 }
 inline void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr){
-	while_and_if_reducer(insourcePacketptr,inexprPacketptr,"while");
+	while_and_if_reducer(insourcePacketptr,inexprPacketptr,0,"while");
 }
 
 inline void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr){
@@ -581,7 +589,7 @@ inline void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacket
 }
 
 inline void Compiler::block36_7_stmt_helper(ReturnPacket** inPacketptr, int number){
-	while_and_if_reducer(insourcePacketptr,inexprPacketptr,"if");
+	while_and_if_reducer(insourcePacketptr,inexprPacketptr,number,"if");
 }
 
 inline void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr){
@@ -613,8 +621,8 @@ void Compiler::block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(){
 */
 
 void Compiler::block40_expr_equalexpr_helper(ReturnPacket** outPacketptr, ucc::type intype){
-	const static std::string instruction{""};
-	const static std::string letter{""};
+	static std::string instruction{""};
+	static std::string letter{""};
 	switch(intype){
 		case ucc::type::INT:
 										instruction = "int";
@@ -628,7 +636,7 @@ void Compiler::block40_expr_equalexpr_helper(ReturnPacket** outPacketptr, ucc::t
 										break;
 	}
 	warning("expressons are of different type, data may be lost","");
-	outPacket = new ReturnPacket{true,intype,true,0};
+	(*outPacketptr) = new ReturnPacket{true,intype,true,0};
 
 	code_generator.gen_instr(instruction);
 	code_generator.gen_instr("store" + letter);
@@ -638,19 +646,19 @@ void Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketpt
 	ReturnPacket* inequalexprPacket{*inequalexprPacketptr};
 	ReturnPacket* inotherequalexprPacket{*inotherequalexprPacketptr};
 
-	if( ! inequalexpr->getlval() ){
+	if( ! inequalexprPacket->getlval() ){
 		error("Cannot make assignment. Left hand side is not a correct lval","");
 		return;
 	}
-	else if( ! inotherexprPacket->getnumeric() ){
+	else if( ! inotherequalexprPacket->getnumeric() ){
 		error("Cannot make assignment, Right hand side is not numeric.","");
 		return;
 	}
-	block31_stmt_return_expr_semi_helper(inotherexprPacket,false); //conversion to integer not needed
+	block31_stmt_return_expr_semi_helper(inotherequalexprPacket,false); //conversion to integer not needed
 
-	if( inexprPacket->gettype() == inotherexprPacket->gettype() ) {
+	if( inequalexprPacket->gettype() == inotherequalexprPacket->gettype() ) {
 		outPacket = new ReturnPacket{true,ucc::type::INT,true,0};
-		switch(inexprPacket->gettype()){
+		switch(inequalexprPacket->gettype()){
 			case(ucc::type::INT):	//outPacket->settype(ucc::type::INT);
 			 								code_generator.gen_instr("storeI");
 											break;
@@ -661,12 +669,12 @@ void Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketpt
 		}
 
 	}
-	else if(inexprPacket->gettype() == ucc::type::INT && 
-				inotherexprPacket->gettype() == type::FLOAT){
+	else if(inequalexprPacket->gettype() == ucc::type::INT && 
+				inotherequalexprPacket->gettype() == type::FLOAT){
 		block40_expr_equalexpr_helper(outPacketptr,ucc::type::INT);
 	}
-	else if(inexprPacket->gettype() == ucc::type::FLOAT && 
-				inotherexprPacket->gettype() == ucc::type::INT) {
+	else if(inequalexprPacket->gettype() == ucc::type::FLOAT && 
+				inotherequalexprPacket->gettype() == ucc::type::INT) {
 		block40_expr_equalexpr_helper(outPacketptr,ucc::type::FLOAT);
 	}
 
@@ -682,7 +690,7 @@ inline void Compiler::block42_equalexpr_relexpr_eqop_source(ReturnPacket** relex
 	variableFetchWithNumericCheck(relexprPacketptr,false);
 }
 
-void Compiler::block43_equalexpr_relexpr_helper(ReturnPacket** outPacketptr, std::string& need_letter_b){
+void Compiler::block43_equalexpr_relexpr_helper(ReturnPacket** outPacketptr, ucc::eqtype ineqop, std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	(*outPacketptr)->settype(ucc::type::INT);
 	switch(ineqop){
@@ -725,11 +733,11 @@ void Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ReturnPacket** outP
 		}
 		else if(relexprPacket->gettype() == ucc::type::INT && 
 						otherrelexprPacket->gettype()== ucc::type::FLOAT){
-			block43_equalexpr_relexpr_helper(outPacketptr,"b");
+			block43_equalexpr_relexpr_helper(outPacketptr,ineqop,"b");
 		}
 		else if(relexprPacket->gettype() == ucc::type::FLOAT && 
 					otherrelexprPacket->gettype() == ucc::type::INT) {
-			block43_equalexpr_relexpr_helper(outPacketptr,"");
+			block43_equalexpr_relexpr_helper(outPacketptr,ineqop,"");
 		}
 	}
 	else{
@@ -745,7 +753,7 @@ $$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric= $1.numeric;
 inline void Compiler::block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr){
 	variableFetchWithNumericCheck(insimplePacketptr,false);
 }
-void Compiler::block46_relexpr_simpleexpr_relop_helper(ReturnPacket** outPacketptr, ucc::reltype inrelop, std::string& need_letter_b){
+void Compiler::block46_relexpr_simpleexpr_relop_helper(ReturnPacket** outPacketptr, ucc::reltype inrelop, std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	(*outPacketptr)->settype( ucc::type::INT);
 	switch(inrelop){
@@ -822,7 +830,7 @@ void Compiler::block47_relexpr_simpleexpr(){
 inline void Compiler::block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr){
 	variableFetchWithNumericCheck(insimplePacketptr,false);
 }
-void Compiler::block49_simpleexpr_addop_helper(ReturnPacket** outPacketptr, ucc::addtype inaddop,std::string& need_letter_b){
+void Compiler::block49_simpleexpr_addop_helper(ReturnPacket** outPacketptr, ucc::addtype inaddop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	(*outPacketptr)->settype( ucc::type::FLOAT);
 	switch(inaddop){
@@ -884,7 +892,7 @@ inline void Compiler::block51_term_term_mulop_source(ReturnPacket** inPacketptr)
 	variableFetchWithNumericCheck(inPacketptr,false);
 }
 
-void Compiler::block52_term_mulop_helper(ReturnPacket** outtermPacketptr, ucc::multype inmulop,std::string& need_letter_b){
+void Compiler::block52_term_mulop_helper(ReturnPacket** outtermPacketptr, ucc::multype inmulop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	(*outtermPacketptr)->settype(type::FLOAT);
 	switch(inmulop){
@@ -952,13 +960,13 @@ void Compiler::block54_factor_constant(ReturnPacket** outPacket, Constant** inCo
 
 	switch((*outPacket)->gettype()){
 		case type::INT:
-			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant).getvalue());
+			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant)->getvalue());
 			break;
 		case type::FLOAT:
-			code_generator.gen_instr_F("pushcR",dynamic_cast<FloatConstant*>(*inConstant).getvalue());
+			code_generator.gen_instr_F("pushcR",dynamic_cast<FloatConstant*>(*inConstant)->getvalue());
 			break;
 		case type::STR:
-			code_generator.gen_instr_S("pushs",dynamic_cast<StrConstant*>(*inConstant).getvalue()));
+			code_generator.gen_instr_S("pushs",dynamic_cast<StrConstant*>(*inConstant)->getvalue());
 			break;
 		default:
 			error("constant is not a correct type of constant","");
@@ -972,18 +980,18 @@ void Compiler::block55_factor_ident(ReturnPacket** outPacket, ucc::Identifier in
 	(*outPacket) = new Identifier{inIdent};
 //	(*outPacket) = (*inIdent);
 //	$<value.svalue>$ = $1;
-		if(inIdent != "main"){
+		if(inIdent.getvalue() != "main"){
 				#ifdef DEBUG
 				fprintf(stderr,"the name of the identifier here is:  %s\n", (char*)$<value.svalue>1);
 				#endif
 				
-			if(( (resultLookup =  mysymtab->lookupB(inIdent)) != nullptr ){
+			if( (resultLookup =  mysymtab->lookupB(inIdent.getvalue())) != nullptr ){
 				(*outPacket)->settype(resultLookup->binding->gettype());
 				(*outPacket)->setlval(true);
 				if(resultLookup->binding->gettype() == type::INT || resultLookup->binding->gettype() == type::FLOAT){
 					 (*outPacket)->setnumeric(true);
 				 }
-				if(mysymtab->inCscope(inIdent)){
+				if(mysymtab->inCscope(inIdent.getvalue())){
 					code_generator.gen_instr_I("pusha", resultLookup->binding->getoffset());
 				}
 				else{

@@ -85,33 +85,58 @@ namespace ucc{
 
 			void block29_stmt_expr_semi();
 			void block30_stmt_return_semi();
+			void block31_stmt_return_expr_semi_helper(ReturnPacket* inPacket, bool conversionNeeded);
 			void block31_stmt_return_expr_semi(ReturnPacket** inPacket);
+
+			void variableFetchWithNumericCheck(ReturnPacket** inPacketptr, bool conversionNeeded);
+
 			void block32_stmt_while_source(ReturnPacket** inPacket);
 			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
+
+			void block34_5_stmt_helper(int one, int two);
+
+			void while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr, int number, std::string while_or_if);
+
 			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
 			void block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr);
+
+			void block36_7_stmt_helper(ReturnPacket** inPacketptr, int number);
+
 			void block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr);
 			void block37_stmt_ifexprstmt(ReturnPacket** inPacketptr);
 
 			struct Pair block38_ifexprstmt_if_lpar_expr_source(struct Pair* outPair, ReturnPacket** inexprPacketptr);
 			void block39_ifexprstmt_if_lpar_expr_source_rpar_stmt();
 
+			void block40_expr_equalexpr_helper(ReturnPacket** outPacketptr, ucc::type intype);
 			void block40_expr_equalexpr_equal_equalexpr(ReturnPacket** outPacketptr, ReturnPacket** inequalexprPacketptr,ReturnPacket** inotherequalexprPacketptr);
 			void block41_expr_equalexpr();
 
 			void block42_equalexpr_relexpr_eqop_source(ReturnPacket** relexprPacketptr);
+
+			void block43_equalexpr_relexpr_helper(ReturnPacket** outPacketptr, ucc::eqtype ineqop, std::string need_letter_b);
+
 			void block43_equalexpr_relexpr_eqop_source_relexpr(ReturnPacket** outPacketptr, ucc::eqtype ineqop, ReturnPacket** relexprPacketptr, ReturnPacket** otherrelexprPacketptr);
 			void block44_equalexpr_relexpr();
 
 			void block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr);
+			
+			void block46_relexpr_simpleexpr_relop_helper(ReturnPacket** outPacketptr, ucc::reltype inrelop, std::string need_letter_b);
+
 			void block46_relexpr_simpleexpr_relop_source_simpleexpr(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::reltype inrelop, ReturnPacket** othersimpleexprPacketptr);
 			void block47_relexpr_simpleexpr();
 
 			void block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr);
+
+			void block49_simpleexpr_addop_helper(ReturnPacket** outPacketptr, ucc::addtype inaddop,std::string need_letter_b);
+
 			void block49_simpleexpr_simpleexpr_addop_source_term(ReturnPacket** outPacketptr, ReturnPacket** simpleexprPacketptr, ucc::addtype inaddop, ReturnPacket** termPacketptr);
 			void block50_simpleepr_term();
 
 			void block51_term_term_mulop_source(ReturnPacket** inPacketptr);
+
+			void block52_term_mulop_helper(ReturnPacket** outtermPacketptr, ucc::multype inmulop,std::string need_letter_b);
+
 			void block52_term_term_mulop_source_factor(ReturnPacket** outermptr,ReturnPacket** intermptr, ucc::multype inmulop,ReturnPacket** infactorptr);
 			void block53_term_factor();
 

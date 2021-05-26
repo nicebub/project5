@@ -17,7 +17,7 @@ class CodeGenerator{
 		CodeGenerator(std::ostream& outfile);
 		~CodeGenerator();
 		void initializelabel(void);
-		void setstream(std::ostream& outfile);
+		void setstream(std::ostream* outfile);
 		int getlabel(void); 	//return next available label number
 		void gen_label(std::string name);	//generate label with label name : name
 		std::string genlabelw(std::string name, int labelnum); //generate a label with $<labelname><labelnumber>
