@@ -23,10 +23,10 @@ namespace ucc{
 	
 	class Compiler{
 		public:
+			SymbolTable* 			mysymtab{};
+			CodeGenerator 			code_generator{};
 			uccLexer	 				lexer;
-			uccParser*				parser;
-			CodeGenerator 			code_generator;
-			SymbolTable* 			mysymtab;
+			uccParser*				parser{};
 
 			Compiler();
 			Compiler(int argc, const char** argv);

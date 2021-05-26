@@ -4,14 +4,14 @@ namespace ucc{
 								code_generator{},
 								lexer{nullptr,*this},
 								parser{nullptr},
-								founderror{false},
 								currentFunc{nullptr},
 								Line_Number{1},
 								globalcount{0},
 								offset_counter{5},
 								othercounter{1},
 								param_offset{0},
-								mainlocal{0}
+								mainlocal{0},
+								founderror{false}
 	{
 		try{
 			mysymtab = new SymbolTable{ *this};
@@ -28,17 +28,17 @@ namespace ucc{
 	}
 
 	Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *this} }, 
-																		code_generator{}, 
-																		founderror{false}, 
-																		lexer{nullptr,*this}, 
+																		code_generator{},
+																		lexer{nullptr,*this},
 																		parser{nullptr},
+																		currentFunc{nullptr},
 																		Line_Number(1),
 																		globalcount(0),
 																		offset_counter(5),
 																		othercounter(1),
 																		param_offset(0),
 																		mainlocal(0),
-																		currentFunc{nullptr}
+																		founderror{false}
 	{
 		mainlabel = code_generator.getlabel();
 

@@ -3,20 +3,20 @@
 
 namespace ucc{
 	ReturnPacket::ReturnPacket() :
-										lval{false}, 
-										ttype{ucc::type::INT}, 
-										numeric{false}, 
-										offset{0}
+										offset{0},
+										lval{false},
+										numeric{false},
+										ttype{ucc::type::INT}
 										{}
 		
 	ReturnPacket::ReturnPacket(bool lval , 
 										ucc::type ttype=ucc::type::INT, 
 										bool ifnum=false, 
 										int inoffset=0) : 
-										lval{lval}, 
-										ttype{ttype}, 
-										numeric{ifnum}, 
-										offset{inoffset} 
+										offset{inoffset},
+										lval{lval},
+										numeric{ifnum},
+										ttype{ttype}
 										{}
 
 	ReturnPacket::~ReturnPacket(){}
@@ -158,32 +158,32 @@ namespace ucc{
 		value = in;
 	}
 
-	Funcb::Funcb() :	bodydef{false}, 
-							num_param{0}, 
-							label{0}, 
-							localcount{0}, 
-							actual_num{0}, 
-							param_type{}, 
-							returntype{ucc::type::VOID}
+	Funcb::Funcb() :	param_type{},
+							returntype{ucc::type::VOID},
+							bodydef{false},
+							num_param{0},
+							label{0},
+							localcount{0},
+							actual_num{0}
 	{}
 	Funcb::Funcb(ucc::type returntype, bool bodydef, int num_param, std::vector<ucc::type> param_type, int label, int localcount, int actual_num) :
+						param_type{param_type},
 		 				returntype{returntype},
 						bodydef{bodydef},
 						num_param{num_param},
 						label{label},
 						localcount{localcount},
-						actual_num{actual_num},
-						param_type{param_type}
+						actual_num{actual_num}
 	{}
 		Funcb::Funcb(ucc::type returntype) : Funcb{} {this->returntype = returntype;}
 	Funcb::Funcb(const Funcb& in) : 
+						param_type{in.param_type},
 						returntype{in.returntype},
 						bodydef{in.bodydef},
 						num_param{in.num_param},
 						label{in.label},
 						localcount{in.localcount},
-						actual_num{in.actual_num},
-						param_type{in.param_type}
+						actual_num{in.actual_num}
 	{}
 		
 	Funcb& Funcb::operator=(const Funcb& in) {
