@@ -27,122 +27,6 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 		code_generator.gen_label(code_generator.genlabelw((*inFuncHeaderptr)->name, templabel ));
 	}
 }
-/*
-void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
-				funcheadertype* inFuncHeader{*inFuncHeaderptr};
-				TableEntry* tempEntry{nullptr};
-				Funcb* tempb{nullptr};
-				int a{0};
-				List* templist{nullptr};
-				ListNode* tempnode{nullptr};
-				bool stop{false};
-				bool alreadyopen{false};
-
-				#ifdef DEBUG
-				printTree(mysymtab);
-				#endif
-
-				if("main" == (inFuncHeader->name)){
-
-					#ifdef DEBUG
-					fprintf(stderr,"hello from inside\n");
-					#endif
-					
-					templist = inFuncHeader->paramlist;
-//main function
-					if(inFuncHeader->returntype != type::INT)
-						error("Main function has to have int as return type","");                
-					if(templist != nullptr && templist->size() != 1)
-						error("Main function only has one parameter","");
-					else if(inFuncHeader->ttype != type::VOID)
-						error("Main function has to have one parameter of void","");
-
-					#ifdef DEBUG
-					fprintf(stderr, "opening up a new scope\n");
-					#endif
-
-					mysymtab->openscope();
-
-					alreadyopen=true;
-					code_generator.gen_label(code_generator.genlabelw("main", mainlabel));
-
-				}
-				else{
-					if((tempb=mysymtab->lookup(inFuncHeader->name)) == nullptr)
-						error("Function name not in symbol table","");
-					else{
-						TableEntry* tempEn{mysymtab->lookupB(inFuncHeader->name)}; 
-						TableEntry* tempEn2{new TableEntry{}};
-						tempEn2->setName(inFuncHeader->name);
-						if(tempEn!= nullptr && tempEn->getself() == btype::FUNC){
-							if(tempb->returntype != inFuncHeader->returntype)
-								error("Function declared with different return type","");
-							else{
-								templist=inFuncHeader->paramlist;
-								if(tempb->num_param == -1)
-									error("Function cannot have those parameters","");
-								else if( templist!= nullptr && (templist->size()) != tempb->num_param)
-									error("Function has different number of parameters","");
-								else{
-									if(templist! = nullptr){
-										tempnode = templist->getlist();
-										for(a=0;a<templist->size() && a<tempb->num_param &&  !stop;a++){
-											if(tempb->param_type[a] != tempnode->ttype){
-												fprintf(stderr,"Error: Line: %d: argument %d: has different parameter type than in function declaration\n",Line_Number,(a+1));
-												fprintf(stderr, "\nThey are %d and %d\n", tempb->param_type[a], tempnode->ttype);
-												stop=true;
-											}
-											tempnode = tempnode->nextnode;
-										}
-									}
-									if(stop!= true){
-										if(tempb->bodydef == true){
-											error("Function definition is previously declared","");
-										}
-										else{
-											//tempb->localcount=offset_counter;
-											mysymtab->openscope();
-											alreadyopen=true;
-											if(templist!=nullptr){
-												tempnode= (listnodeP*)templist->list;
-											#ifdef DEBUG
-											if(tempnode->ttype != type::VOID){
-											    fprintf(stderr,"in funcheader before funcbody, param val and type is ");
-			//								    fprintf(stderr,"%s %s\n",tempnode->val,(char*)tempnode->ttype);
-											}
-											else{
-											    fprintf(stderr,"in funcheader before funcbody type is ");
-											    fprintf(stderr,"%s\n",(char*)tempnode->ttype);
-											}
-											#endif
-											}
-											if(templist!=nullptr){
-												for(a=0;a<templist->size();a++){
-													tempEntry = mysymtab->createParam(tempnode->getval(), tempnode->ttype,(offset_counter));
-													mysymtab->install(tempEntry);
-													offset_counter++;
-													tempnode = (listnodeP*)tempnode->nextnode;
-												}
-											}
-												//tempb->label=getlabel();
-												code_generator.gen_label(code_generator.genlabelw(inFuncHeader->name,tempb->label ));
-
-										}
-									}
-									else error("Stopped","");
-
-								}
-							}
-						}
-						else
-							error("Not a function", "");
-						if(tempEn2!=nullptr){ free(tempEn2); tempEn2=nullptr;}
-					currentFunc=tempb; //fprintf(stderr,"createFunc: return type %d\ntempb: return type %d\n",currentFunc->returntype, tempb->returntype);
-					}
-					if(alreadyopen==false) mysymtab->openscope();
-				}
-}
-*/
 inline void Compiler::block3_func_funcheader_source_funcbody(){
 				code_generator.gen_instr("returnf");
 				mysymtab->closescope();
@@ -162,72 +46,6 @@ void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
 	is_function_decl_or_def_accurate(inFuncHeaderptr,currentFunc,true);
 	}
 }
-/*
-void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
-	funcheadertype* inFuncHeader{*inFuncHeaderptr};
-   TableEntry* temp{nullptr}; 
-	Funcb* found{nullptr};
-	int a;
-
-	#ifdef DEBUG
-	printTree(mysymtab);
-	#endif
-	
-   temp =  mysymtab->createFunc(inFuncHeader->name, inFuncHeader->returntype,
-			 									inFuncHeader->paramlist);
-// if(inFuncHeader->paramlist != nullptr) delete inFuncHeader->paramlist;
-//   if(inFuncHeader !=nullptr) free(inFuncHeader);
-	
-	
-   if( inFuncHeader->name == "main"){
-		if( inFuncHeader->returntype != type::INT)
-			error("Main function needs return type of int","");
-		if( inFuncHeader->paramlist.size() != 1)
-			error("Main function only takes 1 parameter","");
-		if( inFuncHeader->param_list[0] != type::VOID)
-			error("Main function parameter has to be void","");
-		delete temp;
-   }
-   else{
-	   found = mysymtab->lookup(inFuncHeader->name);
-          #ifdef DEBUG
-		if(temp->getName().empty())
-         	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", "nullptr");
-		 else
-         	 fprintf(stderr,"FUNCTION: temp before symbol table: %s\n", temp->getName());
-		 #endif
-          Funcb* paramOftemp =temp->binding;
-          #ifdef DEBUG
-          fprintf(stderr,"binding of temp as Funcb: value num_param in symbol table: %d\n", (paramOftemp->getnum_param()));
-          fprintf(stderr,"param_type of paramOftemp as typeOftemp: value param_type in symbol table: %d\n", (paramOftemp->getparam_type()[2]));
-          #endif
-	   if(found == nullptr){ mysymtab->install(temp);} //printTree(mysymtab)
-	   else{
-		if(temp->binding->getreturntype() != found->getreturntype())
-			error("Function already declared with different return type","");
-		if(temp->binding->getnum_param() == -1 || found->getnum_param() == -1){
-			if(temp->binding->getparam_type()[0] != found->getparam_type()[0])
-				error("In Function %s ", inFuncHeader->name);
-				fprintf(stderr,"argument 0 is of different type than in previous declaration\n");
-		}
-		else{
-			if(temp->binding->getnum_param() != found->getnum_param())
-				error("Function already decleared with different number of parameters","");
-			if( temp->binding->getnum_param() > 0 && found->getnum_param() >0){
-				for(a=0;a<temp->binding->getnum_param() && a<found->getnum_param() ;a++){
-					if(temp->binding->getparam_type()[a] != found->getparam_type()[a]){
-						error("In Function %s ", inFuncHeader->name);
-						fprintf(stderr, "argument %d is of different type than in previous declaration\n", a);
-					}
-
-				}
-			}
-		}
-	   delete temp;
-	   }
-   }
-}
-*/
 void Compiler::block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr){
 	funcheadertype* inFuncHeader{*inFuncHeaderptr};
 	if(inFuncHeader !=nullptr){
@@ -510,8 +328,8 @@ inline void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacket
 	block34_5_stmt_helper((*insourcePacketptr)->m_pair.two,(*insourcePacketptr)->m_pair.one);
 }
 
-inline void Compiler::block36_7_stmt_helper(ReturnPacket** inPacketptr, int number){
-	while_and_if_reducer(insourcePacketptr,inexprPacketptr,number,"if");
+inline void Compiler::block36_7_stmt_helper(ReturnPacket** insourcePacketptr, int number){
+	while_and_if_reducer(insourcePacketptr,NULL,number,"if"); //FIXME: need to acutally put in a value perhaps for inexprPacketptr
 }
 
 inline void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr){
@@ -908,25 +726,25 @@ void Compiler::block55_factor_ident(ReturnPacket** outPacket, ucc::Identifier in
 				#endif
 				
 			if( (resultLookup =  mysymtab->lookupB(inIdent.getvalue())) != nullptr ){
-				(*outPacket)->settype(resultLookup->binding->gettype());
+				(*outPacket)->settype(resultLookup->getBinding()->gettype());
 				(*outPacket)->setlval(true);
-				if(resultLookup->binding->gettype() == type::INT || resultLookup->binding->gettype() == type::FLOAT){
+				if(resultLookup->getBinding()->gettype() == type::INT || resultLookup->getBinding()->gettype() == type::FLOAT){
 					 (*outPacket)->setnumeric(true);
 				 }
 				if(mysymtab->inCscope(inIdent.getvalue())){
-					code_generator.gen_instr_I("pusha", resultLookup->binding->getoffset());
+					code_generator.gen_instr_I("pusha", resultLookup->getBinding()->getoffset());
 				}
 				else{
-					switch(resultLookup->self){
+					switch(resultLookup->getself()){
 						case btype::VAR:
 
 							#ifdef DEBUG
 							char temp_char = (char)(*outPacket)->gettype();
 							if((*outPacket)->gettype() !=  nullptr) fprintf(stderr,"type is: %s\n", &temp_char);
-							if(resultLookup->binding->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->binding->gettype());
+							if(resultLookup->getBinding()->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->getBinding()->gettype());
 							#endif
 
-							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inIdent,resultLookup->binding->getoffset());
+							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inIdent.getvalue()),resultLookup->getBinding()->getoffset());
 							break;
 
 						case btype::PARAM:
@@ -961,7 +779,7 @@ void Compiler::block57_factor_addop_factor_uminus(ReturnPacket** outPacketptr,uc
 	if(inPacket->getnumeric()){
 		switch(inop){
 			case ucc::addtype::MIN:
-					block31_stmt_return_expr_semi_helper(inPacketptr,false);
+					block31_stmt_return_expr_semi_helper(*inPacketptr,false);
 					switch(inPacket->gettype()){
 						case type::INT:	code_generator.gen_instr("negI");
 												break;
@@ -971,7 +789,7 @@ void Compiler::block57_factor_addop_factor_uminus(ReturnPacket** outPacketptr,uc
 					}
 												break;
 			case ucc::addtype::PLS:
-					block31_stmt_return_expr_semi_helper(inPacketptr,false);
+					block31_stmt_return_expr_semi_helper(*inPacketptr,false);
 												break;
 			default:							break;
 		}
@@ -981,55 +799,53 @@ void Compiler::block57_factor_addop_factor_uminus(ReturnPacket** outPacketptr,uc
 		if(inPacket->getnumeric()){
 			outPacket->setnumeric(true);
 		}
-		else
+		else{
 			error("cannot change sign of non numeric expression","");
 		}
 }
 
 void Compiler::block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifier inPacket){
-	TableEntry*tempE, *tempE2; $<value.svalue>$ = $2;
-	if($<value.svalue>2 != "main"){
-		if( mysymtab->lookup($<value.svalue>2) == nullptr)
+	TableEntry*tempE, *tempE2;
+	if( inPacket.getvalue() != "main"){
+		if( mysymtab->lookup(inPacket.getvalue()) == nullptr)
 		error("variable undeclared, please declare variables before using them","");
 		else{
-			tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
-			tempE2->name = $<value.svalue>2;
-			if((tempE=  mysymtab->lookupB($<value.svalue>2)) !=nullptr){
-				if(tempE->self == btype::VAR || tempE->self == btype::PARAM){
-					switch(tempE->self){
+			tempE2 = new TableEntry{inPacket.getvalue()};
+//			tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
+//			tempE2->name = inPacket.getvalue());
+			tempE =	mysymtab->lookupB(inPacket.getvalue());
+			if(tempE != nullptr){
+				if(tempE->getself() == btype::VAR || tempE->getself() == btype::PARAM){
+					switch(tempE->getself()){
 						case btype::VAR:
-						(*outPacket)->ttype = ((Varb*)(tempE->binding))->type;
+						(*outPacket)->settype(((Varb*)(tempE->getBinding()))->gettype());
 						#ifdef DEBUG
 						fprintf(stderr,"type is: %d\n", (int)(*outPacket)->ttype);
 						#endif
-						(*outPacket)->lval = false;
-						if(((Varb*)(tempE->binding))->type == type::INT || ((Varb*)(tempE->binding))->type == type::FLOAT)
-						(*outPacket)->numeric=true;
-						if(founderror==false){
-							if(mysymtab->inCscope($<value.svalue>2) == true)
-							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
-							else{
-								code_generator.gen_instr_tI("pushga",mysymtab->getleveldif($<value.svalue>2),((Varb*)(tempE->binding))->offset);
-								//do something else
-
-							}
+						(*outPacket)->setlval(false);
+						if(((Varb*)(tempE->getBinding()))->gettype() == type::INT || ((Varb*)(tempE->getBinding()))->gettype() == type::FLOAT)
+						(*outPacket)->setnumeric(true);
+						if(mysymtab->inCscope(inPacket.getvalue())){
+							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
 						}
-						break;
+						else{
+							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inPacket.getvalue()),((Varb*)(tempE->getBinding()))->getoffset());
+							//do something else
+						}
+							break;
 						case btype::PARAM:
-						(*outPacket)->ttype = ((Paramb*)(tempE->binding))->type;
+						(*outPacket)->settype( ((Paramb*)(tempE->getBinding()))->gettype());
 						#ifdef DEBUG
-						fprintf(stderr,"type is: %d\n", (int)(*outPacket)->ttype);
+						fprintf(stderr,"type is: %d\n", (int)(*outPacket)->gettype());
 						#endif
-						(*outPacket)->lval = false;
-						if(((Paramb*)(tempE->binding))->type == type::INT || ((Paramb*)(tempE->binding))->type == type::FLOAT)
-						(*outPacket)->numeric=true;
-						if(founderror==false){
-							if(mysymtab->inCscope($<value.svalue>2) ==true){
-								code_generator.gen_instr_I("pusha", ((Varb*)(tempE->binding))->offset);
-							}
-							else{
-								//do something else
-							}
+						(*outPacket)->setlval(false);
+						if(((Paramb*)(tempE->getBinding()))->gettype() == type::INT || ((Paramb*)(tempE->getBinding()))->gettype() == type::FLOAT)
+						(*outPacket)->setnumeric(true);
+						if(mysymtab->inCscope(inPacket.getvalue())){
+							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
+						}
+						else{
+							//do something else
 						}
 						break;
 						default:	break;
@@ -1039,9 +855,9 @@ void Compiler::block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifi
 				error("Variable is unknown or undelcared", "");
 			}
 			else{
-				(*outPacket)->lval=false;
-				(*outPacket)->numeric=false;
-				(*outPacket)->ttype= type::VOID;
+				(*outPacket)->setlval(false);
+				(*outPacket)->setnumeric(false);
+				(*outPacket)->settype(type::VOID);
 				error("Variable is unknown or undelcared","");
 			}
 		}
@@ -1059,32 +875,48 @@ void Compiler::block59_factor_function_call(){
 }
 */
 void Compiler::block60_function_call_ident_lpar_rpar(ReturnPacket** outPacket, ucc::Identifier inIdent){
-	(*outPacket)->lval = false; Funcb* tempb; TableEntry* tempE; TableEntry*tempE2;
-                                if((tempb=(Funcb*) mysymtab->lookup($<value.svalue>1)) == nullptr){
-                                        error("function undeclared, please declare functions before using them","");
+	(*outPacket)->setlval(false);
+	Funcb* tempb;
+	TableEntry* tempE;
+	TableEntry*tempE2;
+	if((tempb=(Funcb*) mysymtab->lookup(inIdent.getvalue())) == nullptr){
+		error("function undeclared, please declare functions before using them","");
+	}
+	else{
+		tempE2 = new TableEntry{inIdent.getvalue()};
+//		tempE2->name = $<value.svalue>1;
+		tempE =	mysymtab->lookupB(inIdent.getvalue());
+		if( tempE !=nullptr){
+			if(tempE->getself() == btype::FUNC){
+				if(tempb->getreturntype() != type::VOID){
+					(*outPacket)->setlval(true);
 				}
-                                else{
-                                        tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
-                                        tempE2->name = $<value.svalue>1;
-                                        if((tempE=  mysymtab,lookupB($<value.svalue>1))!=nullptr){
-                                                if(tempE->self == btype::FUNC){
-							if(tempb->returntype != type::VOID) (*outPacket)->lval =true; else (*outPacket)->lval=false;
-                                                        if(tempb->num_param != 0)
-                                                                error("Function call without correct number of parameters if any","");
-                                                        (*outPacket)->ttype = tempb->returntype;
-                                                        if((*outPacket)->ttype == type::INT || (*outPacket)->ttype == type::FLOAT) (*outPacket)->numeric =true; else (*outPacket)->numeric =false;
-							if(founderror==false){
-								code_generator.gen_instr_I("enter",1);
-								code_generator.gen_call(code_generator.genlabelw($<value.svalue>1, tempb->label), 0);
-							}
-                                                }
-                                                else
-                                                        error("Function call with an unknown function name", "");
-                                        }
-                                        else
-                                                error("fuction undeclared","");
-                                        free(tempE2); tempE2=nullptr;
-                                }
+				else{
+					(*outPacket)->setlval(false);
+				}
+				if(tempb->getnum_param() != 0){
+					error("Function call without correct number of parameters if any","");
+				}
+				(*outPacket)->settype( tempb->getreturntype());
+				if((*outPacket)->gettype() == type::INT || (*outPacket)->gettype() == type::FLOAT){
+					(*outPacket)->setnumeric(true);
+				}
+				else{
+					(*outPacket)->setnumeric(false);
+				}
+				code_generator.gen_instr_I("enter",1);
+				code_generator.gen_call(code_generator.genlabelw(inIdent.getvalue(), tempb->getlabel()), 0);
+			}
+			else{
+				error("Function call with an unknown function name", "");
+			}
+		}
+		else{
+			error("fuction undeclared","");
+		}
+		delete tempE2;
+		tempE2=nullptr;
+	}
 }
 /*
 void Compiler::block61_function_call_func_call_with_params(){
@@ -1092,167 +924,176 @@ void Compiler::block61_function_call_func_call_with_params(){
 }
 */
 void Compiler::block62_func_call_with_params_name_and_params_rpar(ReturnPacket** funcCallWparamptr, ReturnPacket** nameAndparamptr){
-	(*outPacket)->numeric =$1.numeric; (*outPacket)->lval = false; (*outPacket)->ttype = $1.ttype;
-				if($1.funcent!=nullptr){
-						if(($1.funcent)->self == btype::FUNC){
-							if( ((Funcb*)(($1.funcent)->binding))->returntype != type::VOID) (*outPacket)->numeric = true; else (*outPacket)->numeric=false;
-						}
-						if(founderror==false){
-							if( "scanf" == $1.funcent->name){
-//								code_generator.gen_call("$scanf",((Funcb*)($1.funcent->binding))->actual_num);
-								code_generator.gen_call("$scanf",$1.params);
-							}
-							else if("printf" ==  $1.funcent->name){
-//								code_generator.gen_call("$printf",((Funcb*)($1.funcent->binding))->actual_num);
-								code_generator.gen_call("$printf",$1.params);
-							}
-							else{
-								if( ((Funcb*)($1.funcent->binding))->label==0) ((Funcb*)($1.funcent->binding))->label= code_generator.getlabel();
-								code_generator.gen_call( code_generator.genlabelw($1.funcent->name,((Funcb*)($1.funcent->binding))->label),
-									((Funcb*)($1.funcent->binding))->num_param);
-							}
-						}
-				}
-}
-
-void Compiler::block63_name_and_params_ident_lpar_source(TableEntry** inEntryptr, ucc::Identifier inPacket){
-	(*outPacket)->funcent =nullptr;
-	(*outPacket)->funcent =  mysymtab->lookupB($<value.svalue>1);
-	#ifdef DEBUG
-	printTree(mysymtab);
-	fprintf(stderr,"this the name of function called and the lookup value: %s\n",$1);
-	if( mysymtab->lookupB($1)==nullptr) fprintf(stderr,"it was null\n");
-	else fprintf(stderr,"wasn't null\n");
-	#endif
-	if ((*outPacket)->funcent != nullptr){
-		$$.name = $$.funcent->name;
-		if(founderror==false) code_generator.gen_instr_I("enter",1);
+	(*funcCallWparamptr)->setnumeric((* nameAndparamptr)->getnumeric());
+	(*funcCallWparamptr)->setlval(false);
+	(*funcCallWparamptr)->settype((* nameAndparamptr)->gettype());
+	if((* nameAndparamptr)->funcent!=nullptr){
+		if(((* nameAndparamptr)->funcent)->getself() == btype::FUNC){
+			if( ((Funcb*)(((* nameAndparamptr)->funcent)->getBinding()))->getreturntype() != type::VOID){
+				(*funcCallWparamptr)->setnumeric(true);
+			}
+			else{
+				(*funcCallWparamptr)->setnumeric(false);
+			}
+		}
+		if( "scanf" == (*nameAndparamptr)->funcent->getName()){
+//				code_generator.gen_call("$scanf",((Funcb*)($1.funcent->getBinding()))->actual_num);
+			code_generator.gen_call("$scanf",(*nameAndparamptr)->params);
+		}
+		else if("printf" ==  (*nameAndparamptr)->funcent->getName()){
+//				code_generator.gen_call("$printf",((Funcb*)($1.funcent->getBinding()))->actual_num);
+			code_generator.gen_call("$printf",(*nameAndparamptr)->params);
+		}
+		else{
+			if( ((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getlabel()==0){
+				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->setlabel(code_generator.getlabel());
+			}
+			code_generator.gen_call( code_generator.genlabelw((*nameAndparamptr)->funcent->getName(),
+				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getlabel()),
+				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getnum_param());
+		}
 	}
 }
 
-void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** outPacketptr, TableEntry** inEntryptr, ReturnPacket** inPacketptr){
-        TableEntry*tempE, *tempE2;
-        $$.lval = false;
-        //listnodeE* tempexprN;
-        //ListE * tempLE;
-        //int a;
-        Funcb* tempB;
-        if((tempB= (Funcb*) mysymtab->lookup($<value.svalue>1)) ==nullptr){
-            error("function undelcared, please declare functions before using them","");
-            error("1","");
-            $$.funcent=nullptr;
-        }
-        else {
-					//warning("just checking value of entry: %s",$<value.funcentvalue>$->name);
-            tempE2 = (TableEntry*) malloc(sizeof(TableEntry));
-            tempE2->name =  $<value.svalue>1;
-            if( (tempE=  mysymtab->lookupB($<value.svalue>1))!=nullptr){
-                if(tempE->self != btype::FUNC){
-                    error("function undeclared, please declare functions before using them", "");
-                    error("2","");
-                    $$.funcent=nullptr;
-                }
-                else{
-                    if(tempB->num_param ==0){
-                        error("Paramter given for a function that takes no parameters.","");
-                    }
-                    else if(tempB->num_param == -1){
-                        #ifdef DEBUG
-                        fprintf(stderr,"SPRINTF OR PRINTF mismatch: FUNCTION NAME: %s\n",$1);
-                        fprintf(stderr,"SPRINTF OR PRINTF: FUNCTION TYPE: %d\n",(int)$4->type);
-//                                                            fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-  //                                                          fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-                        fprintf(stderr,"SPRINTF OR PRINTF: $4 TYPE: %d\n",(int)$4->type);
-                        fprintf(stderr,"SPRINTF OR PRINTF: tempB->param_type[0] TYPE: %d\n",(int)tempB->param_type[0]);
-                        #endif
-                        if($4->type != tempB->param_type[0]){
-                            error("parameter type is different in declaration and in function call","");
-                        }
-                        else{
-                            if(founderror==false){
-										//code_generator.gen_instr_S("pushs",$<value.svalue>4);
-                            }
-                        }
-                        $$.ttype = tempB->param_type[0];
-                        if($$.ttype== type::INT || $$.ttype == type::FLOAT)
-                            $$.numeric=true;
-                        else
-                            $$.numeric=false;
-                        $$.funcent=$3.funcent;
-						$$.params = 1;
-                    }
-                    else{
-                        if($4->lval==true && $4->numeric==true){
-                            if(founderror==false){
-                                switch($4->type){
-                                    case type::INT:	code_generator.gen_instr("fetchI"); break;
-                                    case type::FLOAT:	code_generator.gen_instr("fetchR"); break;
-                                    default:    break;
-                                }
-                            }
-                        }
-                        if(tempB->param_type !=nullptr){
-                            if($4->type != tempB->param_type[0]){
-                                #ifdef DEBUG
-                                fprintf(stderr,"Function mismatch 2: FUNCTION NAME: %s\n",$1);
-                                fprintf(stderr,"Function mismatch 2: FUNCTION TYPE: %d\n",(int)$4->type);
-                                            //                                                            fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-                                            //                                                          fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-                                #endif
-                                if(tempB->param_type[0]!= type::INT && tempB->param_type[0]!= type::FLOAT)
-                                    error("Parameter type is different in declaration and in function call","");
-                                else if(tempB->param_type[0]== type::INT){
-                                        #ifdef DEBUG
-                                        fprintf(stderr,"Function mismatch 3: FUNCTION NAME: %s\n",$1);
-                                        fprintf(stderr,"Function mismatch 3: FUNCTION TYPE: %d\n",(int)$4->type);
-                                                //                                                            fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-                                                //                                                          fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-                                        #endif
-                                        switch($4->type){
-                                            case type::FLOAT:
-                                                warning("Paramter expression will lose data because of different type","");
-                                                if(founderror==false)
-                                                    code_generator.gen_instr("int");
-                                                break;
-                                            case type::INT:	break;
-                                            default:	error("Parameter type is different in declaration and function call","");
-                                                        break;
-                                        }
-                                }
-                                else if(tempB->param_type[0]== type::FLOAT){
-                                    #ifdef DEBUG
-                                    fprintf(stderr,"Function mismatch 4: FUNCTION NAME: %s\n",$1);
-                                    #endif
-                                    switch($4->type){
-                                        case type::INT:	warning("Parameter expression is different type than in declaration","");
-                                                    if(founderror==false)
-                                                        code_generator.gen_instr("flt");
-                                                    break;
-                                        case type::FLOAT:	break;
-                                        default:	error("Parameter type is different in declaration and function call","");
-                                                            break;
-                                    }
-                                }
+void Compiler::block63_name_and_params_ident_lpar_source(ReturnPacket** inEntryptr, ucc::Identifier inPacket){
+	(*inEntryptr)->funcent =nullptr;
+	(*inEntryptr)->funcent =  mysymtab->lookupB(inPacket.getvalue());
+	#ifdef DEBUG
+	printTree(mysymtab);
+	fprintf(stderr,"this the name of function called and the lookup value: %s\n",inPacket.getvalue());
+	if( mysymtab->lookupB(inPacket.getvalue())==nullptr) fprintf(stderr,"it was null\n");
+	else fprintf(stderr,"wasn't null\n");
+	#endif
+	if ((*inEntryptr)->funcent != nullptr){
+		(*inEntryptr)->funcent->setName((*inEntryptr)->funcent->getName());
+		code_generator.gen_instr_I("enter",1);
+	}
+}
 
-                            }
-                        }
-                        $$.funcent=$3.funcent;
-
-                        if(tempB->param_type !=nullptr)
-                            $$.ttype=tempB->param_type[0];
-                        if($$.ttype== type::INT || $$.ttype== type::FLOAT)
-                            $$.numeric =true;
-                        else
-                            $$.numeric=false;
-                        $$.params=1;
-                    }
-                }
-            }
-            else
-                error("Function is undeclared","");
-            free(tempE2); tempE2=nullptr;
-
-        }
+void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** outPacketptr, ucc::Identifier inIdent, TableEntry** inEntryptr, ReturnPacket** inPacketptr){
+	TableEntry*tempE, *tempE2;
+	ReturnPacket* outPacket{*outPacketptr};
+	ReturnPacket* inPacket{*inPacketptr};
+	TableEntry* inEntry{*inEntryptr};
+	outPacket->setlval(false);
+	//listnodeE* tempexprN;
+	//ListE * tempLE;
+	//int a;
+	Funcb* tempB;
+	tempB = (Funcb*) mysymtab->lookup(inIdent.getvalue());
+	if(tempB ==nullptr){
+		error("function undelcared, please declare functions before using them","");
+		error("1","");
+		outPacket->funcent=nullptr;
+	}
+	else {
+		//warning("just checking value of entry: %s",$<value.funcentvalue>$->name);
+		tempE2 = new TableEntry{inIdent.getvalue()};
+//		tempE2->name =  $<value.svalue>1;
+		tempE = mysymtab->lookupB(inIdent.getvalue());
+		if( tempE !=nullptr){
+			if(tempE->getself() != btype::FUNC){
+				error("function undeclared, please declare functions before using them", "");
+				error("2","");
+				outPacket->funcent=nullptr;
+			}
+			else{
+				if(tempB->getnum_param() ==0){
+					error("Paramter given for a function that takes no parameters.","");
+				}
+				else if(tempB->getnum_param() == -1){
+					#ifdef DEBUG
+					fprintf(stderr,"SPRINTF OR PRINTF mismatch: FUNCTION NAME: %s\n",$1);
+					fprintf(stderr,"SPRINTF OR PRINTF: FUNCTION TYPE: %d\n",(int)$4->type);
+//					fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+//					fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+					fprintf(stderr,"SPRINTF OR PRINTF: $4 TYPE: %d\n",(int)$4->type);
+					fprintf(stderr,"SPRINTF OR PRINTF: tempB->param_type[0] TYPE: %d\n",(int)tempB->param_type[0]);
+					#endif
+					if(inPacket->gettype() != tempB->getparam_type()[0]){
+						error("parameter type is different in declaration and in function call","");
+					}
+					else{
+//							code_generator.gen_instr_S("pushs",$<value.svalue>4);
+					}
+					outPacket->settype(tempB->getparam_type()[0]);
+					if(outPacket->gettype() == type::INT || outPacket->gettype() == type::FLOAT){
+						outPacket->setnumeric(true);
+					}
+					else{
+						outPacket->setnumeric(false);
+					}
+					outPacket->funcent = inEntry;
+					outPacket->params = 1;
+				}
+				else{
+					if(inPacket->getlval()  && inPacket->getnumeric()){
+						switch(inPacket->gettype()){
+							case type::INT:	code_generator.gen_instr("fetchI");
+													break;
+							case type::FLOAT:	code_generator.gen_instr("fetchR");
+													break;
+							default:				break;
+						}
+					}
+					if( ! tempB->getparam_type().empty()){
+						if(inPacket->gettype() != tempB->getparam_type()[0]){
+							#ifdef DEBUG
+							fprintf(stderr,"Function mismatch 2: FUNCTION NAME: %s\n",$1);
+							fprintf(stderr,"Function mismatch 2: FUNCTION TYPE: %d\n",(int)$4->type);
+//							fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+//							fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+							#endif
+							if(tempB->getparam_type()[0]!= type::INT && tempB->getparam_type()[0]!= type::FLOAT)
+							error("Parameter type is different in declaration and in function call","");
+							else if(tempB->getparam_type()[0]== type::INT){
+								#ifdef DEBUG
+								fprintf(stderr,"Function mismatch 3: FUNCTION NAME: %s\n",$1);
+								fprintf(stderr,"Function mismatch 3: FUNCTION TYPE: %d\n",(int)$4->type);
+//								fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+//								fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
+								#endif
+								switch(inPacket->gettype()){
+									case type::FLOAT:
+															warning("Paramter expression will lose data because of different type","");
+															code_generator.gen_instr("int");
+															break;
+									case type::INT:	break;
+									default:				error("Parameter type is different in declaration and function call","");
+															break;
+								}
+							}
+							else if(tempB->getparam_type()[0]== type::FLOAT){
+								#ifdef DEBUG
+								fprintf(stderr,"Function mismatch 4: FUNCTION NAME: %s\n",$1);
+								#endif
+								switch(inPacket->gettype()){
+									case type::INT:	warning("Parameter expression is different type than in declaration","");
+															code_generator.gen_instr("flt");
+															break;
+									case type::FLOAT:	break;
+									default:				error("Parameter type is different in declaration and function call","");
+															break;
+								}
+							}
+						}
+					}
+					outPacket->funcent=inEntry;
+					if(! tempB->getparam_type().empty())
+						outPacket->settype(tempB->getparam_type()[0]);
+					if(outPacket->gettype() == type::INT || outPacket->gettype() == type::FLOAT)
+						outPacket->setnumeric(true);
+					else
+						outPacket->setnumeric(false);
+					outPacket->params=1;
+				}
+			}
+		}
+		else
+			error("Function is undeclared","");
+		delete tempE2;
+		tempE2=nullptr;
+	}
 }
 
 void Compiler::block65_name_and_params_name_and_params_comma_expr(ReturnPacket** outPacketptr, ReturnPacket** innameAndparamPacketptr, ReturnPacket** inexprPacketptr){
@@ -1272,7 +1113,7 @@ void Compiler::block65_name_and_params_name_and_params_comma_expr(ReturnPacket**
           tempE2->name = $1.funcent->name;
 		tempB= (Funcb*) mysymtab->lookup( $1.funcent->name);
           if( (tempE=  mysymtab->lookupB($1.funcent->name))!=nullptr){
-          	if(tempE->self != btype::FUNC){
+          	if(tempE->getself() != btype::FUNC){
               	error("function undeclared, please declare functions before using them", "");
 				error("4","");
 			}

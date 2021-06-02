@@ -22,12 +22,12 @@
 using namespace ucc;
 namespace ucc{
 	class Compiler;
-	class TableEntry{
+	class TableEntry {
 		public:
 			TableEntry();
 			TableEntry(std::string name);
 			TableEntry(std::string name, ReturnPacket* binding, btype self);
-			~TableEntry();
+			virtual ~TableEntry();
 			TableEntry(const TableEntry& in);
 			TableEntry& operator=(const TableEntry& in);
 			std::string getName() const;

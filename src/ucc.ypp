@@ -279,7 +279,7 @@ func_call_with_params: name_and_params rpar				{	compiler.block62_func_call_with
 ;
 
 name_and_params:	Ident lpar									<TableEntry*>{	compiler.block63_name_and_params_ident_lpar_source(&$$,$1); }
-						expr											{	compiler.block64_name_and_params_ident_lpar_source_expr(&$$,&$3,&$4); }
+						expr											{	compiler.block64_name_and_params_ident_lpar_source_expr(&$$,$1,&$3,&$4); }
 		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(&$$, &$1, &$4); }
 ;
 

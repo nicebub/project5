@@ -3,10 +3,9 @@
 
 #include <string>
 #include "type.hpp"
-
 namespace ucc{
 
-
+	class TableEntry;
 	
 class ReturnPacket{
 	public:
@@ -21,7 +20,10 @@ class ReturnPacket{
 		virtual ~ReturnPacket();
 		int getoffset() const;
 		void setoffset(const int in);
+
 		struct Pair m_pair;
+		TableEntry* funcent;
+		int params;
 	protected:
 		int offset;
 		bool lval;
