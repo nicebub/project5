@@ -13,7 +13,9 @@ CodeGenerator::CodeGenerator() : labelcounter{1}, outfile{&std::cout}, canGenera
 
 CodeGenerator::CodeGenerator(std::ostream& out) : labelcounter{1}, outfile{&out}, canGenerate{true} {}
 
-inline void CodeGenerator::setstream(std::ostream* outfile){
+CodeGenerator::~CodeGenerator() {}
+
+void CodeGenerator::setstream(std::ostream* outfile){
 	this->outfile = outfile;
 }
 
@@ -27,7 +29,7 @@ int CodeGenerator::getlabel(){
 	return (labelcounter-1);
 }
 
-inline void CodeGenerator::nullout(std::string& name, int length){
+void CodeGenerator::nullout(std::string& name, int length){
 	name.clear();
 	/*
 	int a;
@@ -67,14 +69,14 @@ void CodeGenerator::deletelabel(std::string label){
 	}
 }
 */
-inline void CodeGenerator::gen_instr(std::string name){
+void CodeGenerator::gen_instr(std::string name){
 	if(canGenerate){
 		*outfile << "\t" << name << "\n";
 		//	fprintf(infile, "\t%s\n", name);
 }
 }
 
-inline void CodeGenerator::gen_instr_I(std::string name, int arg){
+void CodeGenerator::gen_instr_I(std::string name, int arg){
 	*outfile << "\t" << name << "\t" << arg << "\n";
 //	fprintf(infile, "\t%s\t%d\n", name, arg);
 }
@@ -92,28 +94,28 @@ void CodeGenerator::gen_instr_S(std::string name, std::string inS){
 	}
 }
 
-inline void CodeGenerator::gen_label(std::string name){
+void CodeGenerator::gen_label(std::string name){
 	if(canGenerate){
 		//	fprintf(infile, "%s\n", name);
 			*outfile << name << "\n";
 	}
 }
 
-inline void CodeGenerator::gen_instr_F(std::string name, float arg){
+void CodeGenerator::gen_instr_F(std::string name, float arg){
 	if(canGenerate){
 		//	fprintf(infile, "\t%s\t%f\n", name, arg);
 			*outfile << "\t" << name << "\t" << arg << "\n";
 	}
 }
 
-inline void CodeGenerator::gen_call(std::string funcname, int numargs){
+void CodeGenerator::gen_call(std::string funcname, int numargs){
 	if(canGenerate){
 		//	fprintf(infile, "\tcall\t%s, %d\n",funcname,numargs);
 			*outfile << "\tcall\t" << funcname << ", " << numargs << "\n";
 	}
 }
 
-inline void CodeGenerator::gen_instr_tI(std::string name, int arg1, int arg2){
+void CodeGenerator::gen_instr_tI(std::string name, int arg1, int arg2){
 	if(canGenerate){
 		//	fprintf(infile, "\t%s\t%d, %d\n",name, arg1, arg2);
 			*outfile << "\t" << name << "\t" << arg1 << ", " << arg2 << "\n";
@@ -121,7 +123,7 @@ inline void CodeGenerator::gen_instr_tI(std::string name, int arg1, int arg2){
 }
 
 
-inline std::string CodeGenerator::concat(std::string char1, std::string char2){
+std::string CodeGenerator::concat(std::string char1, std::string char2){
 	return char1 + char2;
 	/*
 	char* tempstr;
@@ -134,13 +136,13 @@ inline std::string CodeGenerator::concat(std::string char1, std::string char2){
         return tempstr;
 		  */
 }
-inline bool CodeGenerator::canGenerateCode() const noexcept{
+bool CodeGenerator::canGenerateCode() const noexcept{
 	return canGenerate;
 }
-inline void CodeGenerator::stop() noexcept{
+void CodeGenerator::stop() noexcept{
 	canGenerate = false;
 }
-inline void CodeGenerator::start() noexcept{
+void CodeGenerator::start() noexcept{
 	canGenerate = true;	
 }
 

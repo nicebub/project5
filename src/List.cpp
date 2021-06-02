@@ -25,6 +25,8 @@ eNodeType BasicListNode::get_nodeType() const {
 void BasicListNode::set_nodeType(eNodeType in){
 	nodeType = in;
 }
+
+BasicListNode::~BasicListNode() {}
 	
 ListNode::ListNode() : ListNode("") {}
 

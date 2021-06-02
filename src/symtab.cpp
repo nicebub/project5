@@ -16,7 +16,7 @@
 
 using namespace ucc;
 namespace ucc{
-extern int error(std::string,std::string);
+//extern int error(std::string,std::string);
 
 TableEntry::TableEntry() : TableEntry{""} {}
 TableEntry::TableEntry(std::string name) :name{name}, binding{nullptr}, self{btype::FUNC} {}
@@ -85,7 +85,7 @@ bool Table::install(TableEntry* entry){
 	bool answer;
 	try{
 		table.at(entry->getName());
-		error("symbol already declared in current scope","");
+		fprintf(stderr,"symbol already declared in current scope");
 		answer = false;
 	}
 	catch(std::exception& e){
@@ -99,6 +99,7 @@ bool Table::install(TableEntry* entry){
 
 	return answer;
 }
+//SymbolTable::SymbolTable() : stack{}, compiler{}, actualStacksize(1),Stacksize(1),offset_counter{0} {}
 
 SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {}
 //SymbolTable::SymbolTable() : stack{}, compiler{nullptr}, actualStacksize(1), Stacksize(1) {}
@@ -357,9 +358,9 @@ void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
 
 */
 #endif
-SymbolTable* SymbolTable::createTree(int Stacksize){
+SymbolTable* SymbolTable::createTree(Compiler& compiler,int Stacksize){
 	SymbolTable *temp;
-	temp = new SymbolTable{};
+	temp = new SymbolTable{compiler};
 	temp->actualStacksize=1;
 	temp->Stacksize = Stacksize;
 	return temp;

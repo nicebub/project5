@@ -153,7 +153,7 @@ namespace ucc{
 			void block62_func_call_with_params_name_and_params_rpar(ReturnPacket** funcCallWparamptr, ReturnPacket** nameAndparamptr);
 
 			void block63_name_and_params_ident_lpar_source(ReturnPacket** inEntryptr, ucc::Identifier inPacket);
-			void block64_name_and_params_ident_lpar_source_expr(ReturnPacket** outPacketptr, ucc::Identifier inIdent, TableEntry** inEntryptr, ReturnPacket** inPacketptr);
+			void block64_name_and_params_ident_lpar_source_expr(ReturnPacket** outPacketptr, ucc::Identifier inIdent, ReturnPacket** inEntryptr, ReturnPacket** inPacketptr);
 			void block65_name_and_params_name_and_params_comma_expr(ReturnPacket** outPacketptr, ReturnPacket** innameAndparamPacketptr, ReturnPacket** inexprPacketptr);
 
 			void block66_constant_strconstant(ucc::ReturnPacket* mcon, std::string instrconstant);

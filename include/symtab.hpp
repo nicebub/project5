@@ -72,7 +72,7 @@ namespace ucc{
 			void closescope();
 			void deleteEntry(TableEntry * temp);
 			void deleteTree();
-			static SymbolTable* createTree(int Stacksize);
+			static SymbolTable* createTree(Compiler& compiler,int Stacksize);
 			void addtosymtab(type mytype, List* myList);
 			int getleveldif(std::string name);
 			TableEntry* createFunc(std::string name, type returntype, List* paramlist);

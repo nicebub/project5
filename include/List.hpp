@@ -13,7 +13,7 @@ enum class eNodeType { STANDARD, EXPR, P };
 class BasicListNode{
 	public:
 		BasicListNode(eNodeType t);
-		virtual ~BasicListNode() = 0;
+		virtual ~BasicListNode();
 		eNodeType get_nodeType() const;
 		void set_nodeType(eNodeType);
 	private:

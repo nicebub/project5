@@ -243,6 +243,9 @@ namespace ucc{
 	}
 
 	Varb::Varb() : ReturnPacket{} {}
+	Varb::~Varb(){}
+
 	Paramb::Paramb() : ReturnPacket{} {}
+	Paramb::~Paramb(){}
 }
 	

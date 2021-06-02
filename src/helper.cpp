@@ -55,7 +55,7 @@ namespace ucc{
 	 		error_and_return_false("Function definition is previously declared");
 		}
 
-		PListNode* tempnode{dynamic_cast<PListNode*>(*inFuncHeader->paramlist->begin())};
+//		PListNode* tempnode{dynamic_cast<PListNode*>(*inFuncHeader->paramlist->begin())};
 
 		#ifdef DEBUG
 		if(tempnode->gettype() != type::VOID){

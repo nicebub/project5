@@ -29,7 +29,7 @@ using token = uccParser::token;
 #define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
 %}
-
+%option noyywrap
 %option stack
 %option yylineno
 %option yyclass="uccLexer"

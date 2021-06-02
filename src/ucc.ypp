@@ -278,7 +278,7 @@ function_call:		Ident lpar rpar							{	compiler.block60_function_call_ident_lpa
 func_call_with_params: name_and_params rpar				{	compiler.block62_func_call_with_params_name_and_params_rpar(&$$,&$1); }
 ;
 
-name_and_params:	Ident lpar									<TableEntry*>{	compiler.block63_name_and_params_ident_lpar_source(&$$,$1); }
+name_and_params:	Ident lpar									<ReturnPacket*>{	compiler.block63_name_and_params_ident_lpar_source(&$$,$1); }
 						expr											{	compiler.block64_name_and_params_ident_lpar_source_expr(&$$,$1,&$3,&$4); }
 		|				name_and_params comma {} expr			{	compiler.block65_name_and_params_name_and_params_comma_expr(&$$, &$1, &$4); }
 ;
@@ -315,6 +315,7 @@ relop:				lesst											{	$$ = $1;}
 %%
 #include <iostream>
 int yyerror(std::string s, Compiler& compiler)
+//int ucc::uccParser::error(std::string s, Compiler& compiler)
 {
 	std::cerr << "Error:::"<< compiler.filename << ":"<< compiler.Line_Number << "-> " << s << "\n";
     return 0;
