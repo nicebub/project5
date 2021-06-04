@@ -61,6 +61,10 @@ int yyerror(std::string err,Compiler& compiler);
 %code{
 	#undef yylex
 	#define yylex compiler.lexer.yylex
+	
+	void ucc::uccParser::error(ucc::location const & loc, const std::string & message){
+		std::cout << "at " << loc << " : " << message << std::endl;
+	}
 } 
 
 
