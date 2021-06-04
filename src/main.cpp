@@ -2,24 +2,17 @@
 #include <cstdlib>
 #include <string>
 
-#define MAIN
-
-#ifdef DEBUGON
-#include "Debug.hpp"
-#ifndef DEBUG
-#define DEBUG
-#endif
-Debug::set_yydebug(1);
+#ifndef MAIN
+	#define MAIN
 #endif
 
+#include "debug.hpp"
 #include "type.hpp"
 #include "data.hpp"
-#include "List.hpp"
+#include "list.hpp"
 #include "symtab.hpp"
 #include "trans.hpp"
 #include "compiler.hpp"
-
-
 #include "ucc.tab.hpp"
 
 

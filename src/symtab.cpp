@@ -2,15 +2,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <search.h>
-#ifdef DEBUGON
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
 
 #include "symtab.hpp"
 #include "type.hpp"
-#include "List.hpp"
+#include "list.hpp"
 #include "data.hpp"
 #include "cpptypes.hpp"
 

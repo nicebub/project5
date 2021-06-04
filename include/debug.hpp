@@ -1,6 +1,12 @@
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
+#ifdef DEBUGON
+#ifndef DEBUG
+#define DEBUG
+#endif
+#endif
+
 namespace ucc{
 
 	class Debug{
@@ -15,5 +21,12 @@ namespace ucc{
 	void debugprint(std::string,std::string);
 	void debugprintd(std::string,int);
 }
+
+#ifndef DEBUG
+#define debugprint(x,y)
+
+#define debugprintd(x,y)
+
+#endif
 
 #endif

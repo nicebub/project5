@@ -4,16 +4,11 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef DEBUGON
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
-
+#include "debug.hpp"
 #include "compiler.hpp"
 #include "ucc.tab.hpp"
 
-using namespace ucc;
+//using namespace ucc;
 
 namespace ucc{
 

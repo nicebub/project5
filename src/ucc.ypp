@@ -2,14 +2,10 @@
 #include <cstdio>
 #include <string>
 
-#ifdef DEBUGON
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
+#include "debug.hpp"
 
 #include "type.hpp"
-#include "List.hpp"
+#include "list.hpp"
 #include "symtab.hpp"
 #include "data.hpp"
 #include "trans.hpp"
@@ -50,7 +46,7 @@ int yyerror(std::string err,Compiler& compiler);
 		class TableEntry;
 	}
 	#include "cpptypes.hpp"
-	#include "List.hpp"
+	#include "list.hpp"
 	#include "type.hpp"
 	using namespace ucc;
 }

@@ -1,10 +1,14 @@
 #include <iostream>
 
-#include "Debug.hpp"
+#include "debug.hpp"
 
 using namespace ucc;
 
 int Debug::yydebug = 0;
+
+#ifdef DEBUG
+Debug::set_yydebug(1);
+#endif
 
 Debug::Debug(){}
 

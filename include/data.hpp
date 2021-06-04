@@ -5,7 +5,7 @@
 
 #include "type.hpp"
 #include "symtab.hpp"
-#include "List.hpp"
+#include "list.hpp"
 
 namespace ucc {
 struct data{

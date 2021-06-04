@@ -2,16 +2,14 @@
 %{
 #include <cstdint>
 
-#ifdef DEBUGON
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
+
+#include "debug.hpp"
+
 
 #include "type.hpp"
 #include "cpptypes.hpp"
 #include "lex.hpp"
-#include "List.hpp"
+#include "list.hpp"
 #include "symtab.hpp"
 #include "data.hpp"
 
