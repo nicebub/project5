@@ -50,10 +50,12 @@ btype TableEntry::getself() const{
 
 Table::Table() : table{} {}
 Table::~Table(){
-	for(auto& element : table){
+/*
+    for(auto& element : table){
 		//decompose the element and delete the pointer data
 //		delete element;
 	}
+*/
 }
 ReturnPacket* Table::lookup(const std::string name){
 	auto result{table.find(name)};
@@ -75,7 +77,7 @@ TableEntry* Table::lookupB(const std::string name){
 
 bool Table::install(TableEntry* entry){
 	#ifdef DEBUG
-	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",actualStacksize, actualStacksize-1,Stacksize);
+//	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",actualStacksize, actualStacksize-1,Stacksize);
 	#endif
 	bool answer;
 	try{
@@ -89,7 +91,7 @@ bool Table::install(TableEntry* entry){
 	}
 	#ifdef DEBUG
 	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
-	printTree(symtab);
+//	printTree(symtab);
 	#endif
 
 	return answer;
@@ -118,14 +120,14 @@ void SymbolTable::openscope(){
 	else{
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
-		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+//		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
 
 	 	actualStacksize += 1;
 
 		offset_counter=5;
 		#ifdef DEBUG
-		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+//		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
 	}
 }
@@ -176,12 +178,12 @@ void SymbolTable::closemainscope(){
 
 
 ReturnPacket* SymbolTable::lookup(const std::string name){
-	TableEntry* temp;
-	int a;
+//	TableEntry* temp;
+//	int a;
 	if(!name.empty()){
 
 		#ifdef DEBUG
-		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+//		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
 		for(auto it = stack.rbegin(); it != stack.rend(); it++){
 			auto result = (*it)->lookup(name);
@@ -208,7 +210,7 @@ void SymbolTable::install(TableEntry* temp){
 
 	#ifdef DEBUG
 	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
-	printTree(symtab);
+//	printTree(symtab);
 	#endif
 }
 /*
@@ -217,14 +219,14 @@ bool Ecmp(const void *TableEntry1, const void *TableEntry2){
 }
 */
 #ifdef DEBUG
-void SymbolTable::printTree(SymbolTable *symtab){
+/*void SymbolTable::printTree(SymbolTable *symtab){
 	if(symtab != nullptr){
 //		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);
 	}
 	else{
 		fprintf(stderr,"Stack was null\n");
 	}
-}
+}*/
 /*
 void SymbolTable::Swalk(const void *node, VISIT myorder, int level){
 		TableEntry * temp;
@@ -438,8 +440,8 @@ void SymbolTable::deleteTableEntry(TableEntry * temp){
 
 TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* paramlist){
 	TableEntry * temp;
-	ListNode* tempP;
-	int a;
+//	ListNode* tempP;
+//	int a;
 	bool elip=false;
 	
 	if(!name.empty()){
@@ -455,13 +457,13 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 
         if(paramlist!=nullptr ){
             #ifdef DEBUG
-            fprintf(stderr,"in Function install- temp->binding->num_param is: %d\n", ((Funcb*)(temp->binding))->num_param);
+//            fprintf(stderr,"in Function install- temp->binding->num_param is: %d\n", ((Funcb*)(temp->binding))->num_param);
             #endif
 
 
             #ifdef DEBUG
-            Funcb * extraBind = (Funcb*)(temp->binding);
-            fprintf(stderr,"in Function install- extraBind->num_param is: %d\n", extraBind->num_param);
+//            Funcb * extraBind = (Funcb*)(temp->getBinding());
+//            fprintf(stderr,"in Function install- extraBind->num_param is: %d\n", extraBind->num_param);
             #endif
 
 			tBinding->setnum_param(paramlist->size());
@@ -547,8 +549,8 @@ TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
 }
 
 void SymbolTable::addtosymtab(type mytype, List * myList){
-	int a;
-	ListNode * tempN;
+//	int a;
+//	ListNode * tempN;
 	TableEntry * temp;
 		if(myList !=nullptr){
 //			tempN = (ListNode*)(myList->list);
@@ -569,12 +571,12 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 }
 
 TableEntry * SymbolTable::lookupB(const std::string name){
-	TableEntry* temp;
-	int a;
+//	TableEntry* temp;
+//	int a;
 	if(!name.empty()){
 
 		#ifdef DEBUG
-		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+//		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
 		for(auto it = stack.rbegin(); it != stack.rend(); it++){
 			auto result = (*it)->lookupB(name);
@@ -604,16 +606,16 @@ bool SymbolTable::inCscope(const std::string name){
 int SymbolTable::getleveldif(std::string name){
 	TableEntry ** found;
 	found = nullptr;
-	TableEntry *temp;
-	int a;
+//	TableEntry *temp;
+//	int a;
 	if(!name.empty()){
 			#ifdef DEBUG
-			fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
+//			fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 			#endif
 			for(auto it = stack.rbegin(); it != stack.rend(); it++){
 				auto result = (*it)->lookup(name);
 				if(result != nullptr){
-					return it - stack.rend();
+					return static_cast<int>(it - stack.rend());
 				}
 			}
 	}
