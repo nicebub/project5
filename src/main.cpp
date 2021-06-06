@@ -15,18 +15,15 @@
 #include "compiler.hpp"
 #include "ucc.tab.hpp"
 
+//extern int yydebug;
 
 using namespace ucc;
 
 int main(int argc, const char **argv){
 	Compiler compiler{};
-
-	if(compiler.checkargs(argc,argv) == -1){
-
-		#ifdef DEBUG
-			debugprint("No arguments given to compiler","");
-		#endif
-
+//		yydebug = 1;
+	if(! compiler.openedInputFile(argc,argv)){
+		debugprint("No arguments given to compiler","");	//only when in debug mode
 		return -1;
 	}
 	if( ! compiler.openOutputFile(argc, argv) ){
@@ -35,16 +32,10 @@ int main(int argc, const char **argv){
 
 	compiler.code_generator.setstream(compiler.outfile);
 
-	/*
-	if(compiler.mysymtab == NULL){
-		compiler.error("Unable to construct symbol table","");
-		return -1;
-	}
-	*/
 	compiler.parser->parse();
 
 	#ifdef DEBUG
-	compiler.mysymtab.printTree();
+	compiler.mysymtab->printTree();
 	#endif
 
 	return 0;

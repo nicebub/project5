@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <search.h>
 
+#include "debug.hpp"
 #include "symtab.hpp"
 #include "type.hpp"
 #include "list.hpp"
@@ -219,6 +220,8 @@ bool Ecmp(const void *TableEntry1, const void *TableEntry2){
 }
 */
 #ifdef DEBUG
+void ucc::SymbolTable::printTree() const{
+}
 /*void SymbolTable::printTree(SymbolTable *symtab){
 	if(symtab != nullptr){
 //		twalk((void*) (symtab->Stack[symtab->actualStacksize-1]), Swalk);

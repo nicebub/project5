@@ -2,10 +2,7 @@
 %{
 #include <cstdint>
 
-
 #include "debug.hpp"
-
-
 #include "type.hpp"
 #include "cpptypes.hpp"
 #include "lex.hpp"
@@ -22,9 +19,8 @@
 using namespace ucc;
 
 
-
 using token = uccParser::token;
-#define YY_USER_ACTION loc->step(); loc->columns(yyleng);
+#define YY_USER_ACTION loc->step(); loc->columns(yyleng); yylval = lval;
 
 %}
 %option noyywrap
@@ -55,9 +51,6 @@ ADOF	"&"
 
 
 %%
-%{
-	yylval = lval;
-%}
 <comment>{
 [^*\n]*
 [^*\n]*\n 	++compiler.Line_Number;
@@ -74,7 +67,7 @@ ADOF	"&"
 <astring>{
 \" {	BEGIN(INITIAL);
 	
-	yylval->emplace<ucc::StrConstant>(string_buf);
+	yylval->emplace<ucc::StrConstant>() = string_buf;
 	return(token::StrConstant);
 	
 //	return uccParser::make_StrConstant(string_buf,*loc);
@@ -267,7 +260,7 @@ char { /* keyword char*/
 {LETTER}({LETTER}|{DIGIT})* 	{/* identifier*/
 //				yylval.ttype = type::STR;
 				std::string tempstr(yytext);
-				yylval->emplace<ucc::Identifier>( Identifier{tempstr});
+				yylval->emplace<ucc::Identifier>() = Identifier{tempstr};
 //				return uccParser::make_Ident(tempstr,*loc);
 				return(token::Ident);
 				}
@@ -292,7 +285,7 @@ char { /* keyword char*/
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
 //					yylval.ttype = type::FLOAT;
-					yylval->emplace<float>(std::atof(yytext));
+					yylval->emplace<float>() = std::atof(yytext);
 //					yylval.value.fvalue=(float)std::atof(yytext);
 //					return uccParser::make_FloatConstant((float)std::atof(yytext),*loc);
 					return(token::FloatConstant);
@@ -309,7 +302,8 @@ char { /* keyword char*/
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
 //				yylval.ttype = type::INT;
-				yylval->emplace<int>(std::atoi(yytext));
+yylval = lval;
+				yylval->emplace<int>() = std::atoi(yytext);
 //				yylval.value.ivalue =(int)std::atoi(yytext);
 //				return uccParser::make_IntConstant((int)std::atoi(yytext),*loc);
 				return(token::IntConstant);

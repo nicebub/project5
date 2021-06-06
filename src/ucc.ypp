@@ -13,7 +13,7 @@
 #include "cpptypes.hpp"
 
 using namespace ucc;
-
+#define YYDEBUG 1
 #ifndef YYDEBUG
 #define YYDEBUG 0
 #endif
@@ -24,15 +24,16 @@ using namespace ucc;
 
 int yyerror(std::string err,Compiler& compiler);
 %}
+%verbose
+%define parse.trace
+%require "3.7"
 %expect 1
 %skeleton "lalr1.cc"
-%require "3.7"
 
-%define parse.assert
+//%define parse.assert
 
 %defines
 %locations
-
 %define api.value.type variant
 //%define api.token.constructor
 %define api.token.raw
@@ -49,6 +50,12 @@ int yyerror(std::string err,Compiler& compiler);
 	#include "list.hpp"
 	#include "type.hpp"
 	using namespace ucc;
+
+	# if !defined __EXCEPTIONS
+	#  define YY_EXCEPTIONS 0
+	# else
+	#  define YY_EXCEPTIONS 1
+	# endif
 }
 
 %parse-param{ Compiler& compiler }
@@ -150,7 +157,7 @@ translation_unit:	func											{}
 
 func:					funcheader									{	compiler.block2_func_funcheader_source(&$1); }
 						funcbody										{	compiler.block3_func_funcheader_source_funcbody(); }
-		|				funcheader semi							{	compiler.block4_func_funcheader_semi(&$1); }
+		|				funcheader semi							{	compiler.block4_func_funcheader_semi($1); }
 		|				funcheader error semi					{	yyerrok; compiler.error("(unexpected token before semi in function)","");
 																			compiler.block5_funcheader_error_semi(&$1); }
 ;

@@ -56,7 +56,7 @@ namespace ucc{
 		}
 
 //		PListNode* tempnode{dynamic_cast<PListNode*>(*inFuncHeader->paramlist->begin())};
-
+/*
 		#ifdef DEBUG
 		if(tempnode->gettype() != type::VOID){
 			fprintf(stderr,"in funcheader before funcbody, param val and type is ");
@@ -67,6 +67,7 @@ namespace ucc{
 			fprintf(stderr,"%s\n",(char*)tempnode->gettype());
 		}
 		#endif
+	    */
 		return true;
 	}
 	#undef error_and_return_false

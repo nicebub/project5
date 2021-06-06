@@ -4,9 +4,11 @@
 #ifdef DEBUGON
 #ifndef DEBUG
 #define DEBUG
+#define YYDEBUG 1
 #endif
 #endif
 
+#include <string>
 namespace ucc{
 
 	class Debug{
@@ -22,11 +24,5 @@ namespace ucc{
 	void debugprintd(std::string,int);
 }
 
-#ifndef DEBUG
-#define debugprint(x,y)
-
-#define debugprintd(x,y)
-
-#endif
 
 #endif

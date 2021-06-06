@@ -4,12 +4,14 @@
 
 using namespace ucc;
 
-int Debug::yydebug = 0;
 
 #ifdef DEBUG
-Debug::set_yydebug(1);
-#endif
+int Debug::yydebug = 1;
+#else
+int Debug::yydebug = 0;
 
+#endif
+namespace ucc{
 Debug::Debug(){}
 
 Debug::~Debug(){
@@ -23,18 +25,26 @@ void Debug::set_yydebug(const int value){
 	yydebug = value;
 }
 #ifdef DEBUG
-void Debug::debugprint(std::string s1, std::string s2){
-	if(!s1.empty() && ~s2.empty()){
-			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
+void debugprint(std::string s1, std::string s2){
+	if(!s1.empty() && !s2.empty()){
+			std::cerr << "Debug:::" <</* compiler.filename << ":" << yylineno << " yylineno-> " << */ s1 << "\"" << s2 << "\"\n";
 	}
-	else if(s1!=NULL && *s1 && s2==NULL){
-			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\n";
+	else if(!s1.empty() && s2.empty()){
+			std::cerr << "Debug:::" << /*compiler.filename << ":" << yylineno << " yylineno-> " <<*/ s1 << "\n";
 	}
 }
-void Debug::debugprintd(std::string s1, int s2){
+void debugprintd(std::string s1, int s2){
 	if(!s1.empty()){
-			std::cerr << "Debug:::" << compiler.filename << ":" << yylineno << " yylineno-> " << s1 << "\"" << s2 << "\"\n";
+			std::cerr << "Debug:::" << /*compiler.filename << ":" << yylineno << " yylineno-> " <<*/ s1 << "\"" << s2 << "\"\n";
 	}
 }
+/*
+#ifndef DEBUG
+#define debugprint(x,y)
 
+#define debugprintd(x,y)
+
+#endif
+*/
+}
 #endif

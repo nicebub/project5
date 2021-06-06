@@ -2,12 +2,7 @@
 #include <cstdlib>
 #include <string>
 
-#ifdef DEBUGON
-#ifndef DEBUG
-#define DEBUG
-#endif
-#endif
-
+#include "debug.hpp"
 #include "list.hpp"
 #include "type.hpp"
 
@@ -89,7 +84,7 @@ std::vector<BasicListNode*>::iterator List::end(){
 }
 
 int List::size() const{
-	return list.size();
+	return static_cast<int>(list.size());
 }
 
 List& List::operator=(const List& in){

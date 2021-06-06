@@ -8,8 +8,6 @@
 #include "compiler.hpp"
 #include "ucc.tab.hpp"
 
-//using namespace ucc;
-
 namespace ucc{
 
 bool Compiler::endsWC(const std::string& in){
@@ -17,34 +15,31 @@ bool Compiler::endsWC(const std::string& in){
 	extra = in[(in.size()-1)];
 	extra += in[(in.size()-2)];
 	return extra == "c.";
-	
 }
-int Compiler::checkargs(int argc, const char** argv){
+bool Compiler::openedInputFile(int argc, const char** argv){
 	if(argc >1){
-		std::string temp{argv[1]};
-		if(endsWC(temp)){
-			std::ifstream* next;
-			next = new std::ifstream;
-			next->open(argv[1], std::ifstream::in);
-			if(!next->is_open()){
-				std::cerr << argv[1] << ": cannot open input file\n";
-				return -1;
-			}
-			else{
+		if(endsWC(argv[1])){
+			try{
+			std::ifstream* next{new std::ifstream{argv[1], std::ifstream::in}};
+//			next = new std::ifstream;
+//			next->open(argv[1], std::ifstream::in);
+			if(next->is_open()){
 				lexer.switch_streams(next); 
-				return 1;
+				return true;
 			}
+			}
+			catch(std::bad_alloc& e){
+//				std::cerr << argv[1] << ": cannot open input file\n";
+				debugprint(e.what(),"");
+			}
+			std::cerr << argv[1] << ": cannot open input file\n";
 		}
-		else{
+		else
 			std::cerr << argv[1] << ": does not end in .c\n";
-			return -1;
-		}
 	}
-	else{
+	else
 		std::cerr << "did not recieve an input file\n";
-		return -1;
-	}
-
+	return false;
 }
 
 bool Compiler::openOutputFile(int argc, const char** argv){
@@ -54,25 +49,24 @@ bool Compiler::openOutputFile(int argc, const char** argv){
 
 		tempstr[a] = '.';
 		tempstr[a+1] = 'a';
-		tempstr += 's';
-		tempstr += 'm';
-		#ifdef DEBUG
-		std::cerr << "trying to open file: " << tempstr << std::endl;
-		#endif
-		std::ofstream* next{new std::ofstream{tempstr, std::fstream::out}};
-		if(!next->is_open()){
+		tempstr += "sm";
+		
+		debugprint("trying to open file: ", tempstr);
+		try{
+			std::ofstream* next{new std::ofstream{tempstr, std::fstream::out}};
+			if(next->is_open()){
+				outfile = next;
+				filename = tempstr;
+				return true;
+			}
+		}
+		catch(std::bad_alloc& e){
 			std::cerr << "cannot open file " << tempstr << " for writing\n";
-			return false;
-		}
-		else{
-			outfile = next;
-			filename = tempstr;
-			return true;
+			debugprint(e.what(),"");
+//			return false;
 		}
 	}
-	else{
 		return false;
-	}
 }
 
 #ifndef MAIN
@@ -81,11 +75,9 @@ bool Compiler::openOutputFile(int argc, const char** argv){
 int main(int argc, const char** argv){
 	Compiler compiler{};
 
-	if(compiler.checkargs(argc,argv) == -1){
-		#ifdef DEBUG
-			compiler.filename = "main.c";
-			debugprint("No arguments given to compiler","");
-		#endif
+	if(! compiler.openedInputFile(argc,argv) ){
+		compiler.filename = "main.c";
+		debugprint("No arguments given to compiler","");
 		return -1;
 	}
 	if(!compiler.openOutputFile(argc, argv)){

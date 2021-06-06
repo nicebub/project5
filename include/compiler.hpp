@@ -16,7 +16,6 @@
 //extern int error(std::string, std::string);
 
 
-const int INITIAL_TREE_SIZE = 100;
 
 namespace ucc{
 	class SymbolTable;
@@ -28,12 +27,26 @@ namespace ucc{
 			uccLexer	 				lexer;
 			uccParser*				parser{};
 
+				Funcb*			currentFunc;
+				std::ostream*	outfile;
+				std::string 	filename;
+				int 				Line_Number;
+				int 				globalcount;
+				int				offset_counter;
+				int				labelcounter;
+				int 				othercounter;
+				int 				param_offset;
+				int 				mainlocal;
+				int 				mainlabel;
+
+				constexpr static int INITIAL_TREE_SIZE{100};
+
 			Compiler();
 			Compiler(int argc, const char** argv);
 			~Compiler();
 
 			bool openOutputFile(int argc, const char** argv);
-			int checkargs(int argc, const char** argv);
+			bool openedInputFile(int argc, const char** argv);
 
 			 int error(std::string,std::string) noexcept;
 			 int warning(std::string,std::string) noexcept;
@@ -45,7 +58,7 @@ namespace ucc{
 
 			void block2_func_funcheader_source(funcheadertype** funcheaderptr);
 			void block3_func_funcheader_source_funcbody();
-			void block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr);
+			void block4_func_funcheader_semi(funcheadertype* inFuncHeaderptr);
 
 			void block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr);
 
@@ -168,17 +181,6 @@ namespace ucc{
 			
 			
 			
-			Funcb*			currentFunc;
-			std::ostream*	outfile;
-			std::string 	filename;
-			int 				Line_Number;
-			int 				globalcount;
-			int				offset_counter;
-			int				labelcounter;
-			int 				othercounter;
-			int 				param_offset;
-			int 				mainlocal;
-			int 				mainlabel;
 
 		protected:
 			static bool endsWC(const std::string& in);

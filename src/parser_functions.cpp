@@ -32,18 +32,18 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 				mysymtab->closescope();
 }
 
-void Compiler::block4_func_funcheader_semi(funcheadertype** inFuncHeaderptr){
+void Compiler::block4_func_funcheader_semi(funcheadertype* inFuncHeader){
 //   TableEntry* tempEntry{nullptr}; 
-	auto found = mysymtab->lookupB((*inFuncHeaderptr)->name);
+	auto found = mysymtab->lookupB(inFuncHeader->name);
 	if(  found  != nullptr ){
-	   auto tempEntry =  mysymtab->createFunc(	(*inFuncHeaderptr)->name, 
-												(*inFuncHeaderptr)->returntype,
-												(*inFuncHeaderptr)->paramlist 
+	   auto tempEntry =  mysymtab->createFunc(	inFuncHeader->name, 
+												inFuncHeader->returntype,
+												inFuncHeader->paramlist 
 											 );
 		mysymtab->install(tempEntry);
 		return;
 	}
-	is_function_decl_or_def_accurate(inFuncHeaderptr,currentFunc,true);
+	is_function_decl_or_def_accurate(&inFuncHeader,currentFunc,true);
 }
 
 void Compiler::block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr){
@@ -55,13 +55,13 @@ void Compiler::block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr){
 }
 
 void Compiler::funcheader_returntype_ident_lpar_paramdef_rpar_helper(funcheadertype** outFuncHeaderptr, ucc::Identifier inIdent, List* inParamdeflist,ucc::type inreturntype){
-	funcheadertype* outFuncHeader{*outFuncHeaderptr};
+	funcheadertype* outFuncHeader{nullptr};
 
 	outFuncHeader = new funcheadertype;
 	outFuncHeader->returntype = inreturntype;
 	outFuncHeader->name = inIdent.getvalue();
 	outFuncHeader->paramlist=inParamdeflist;
-
+    (*outFuncHeaderptr) = outFuncHeader;
 	/* FIXME: NEED TO REINCORPORATE THIS BACK IN. Somehow lists provide a type? where and why?
 	if(inParamdeflist->gettype() == type::VOID){
 		outFuncHeader->ttype = type::VOID;
@@ -109,7 +109,7 @@ void Compiler::block15_paramdef_paramdeflist(List** outParamdefptr, List** inPar
 		*outParamdefptr = (*inParamdeflistptr)->appendList("...", type::VOID);
 
 		#ifdef DEBUG
-		printListP(*outParamdefptr);
+//		printListP(*outParamdefptr);
 		#endif
 }
  void Compiler::block16_paramdef_void(List** outParamdefptr){
@@ -129,7 +129,7 @@ void Compiler::paramdeflist_type_ident_helper(List** outParamdeflistptr, ucc::Id
 	(*outParamdeflistptr) = List::mklist(inIdent.getvalue(), intype);
 
 	#ifdef DEBUG
-	printListP((*outParamdeflistptr));
+//	printListP((*outParamdeflistptr));
 	#endif
 	
 }
@@ -147,7 +147,7 @@ void Compiler::paramdeflist_type_ident_helper(List** outParamdeflistptr, ucc::Id
 	(*outParamdeflistptr) = (*inParamdeflistptr)->appendList(inIdent.getvalue(),intype);
 
 	#ifdef DEBUG
-	printListP((*outParamdeflistptr));
+//	printListP((*outParamdeflistptr));
 	#endif
 	
 }
@@ -174,7 +174,7 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 
  void Compiler::block26_funcbody_lcbra_decls_source_stmtlist_rcbra(){
 	#ifdef DEBUG
-	printTree(mysymtab);
+//	printTree(mysymtab);
 	#endif
 }
 
@@ -185,7 +185,7 @@ void Compiler::block27_variabledecl_int_identlist_semi(List** inIdentlist){
 
 	#ifdef DEBUG
 	fprintf(stderr,"Found a single Integer declaration or a list of integers being declared\n");
-	printTree(mysymtab);
+//	printTree(mysymtab);
 	#endif
 }
 void Compiler::block28_variabledecl_float_identlist_semi(List** inIdentlist){
@@ -194,7 +194,7 @@ void Compiler::block28_variabledecl_float_identlist_semi(List** inIdentlist){
 		}
 
 		#ifdef DEBUG
-		printTree(mysymtab);
+//		printTree(mysymtab);
 		#endif
 }
  void Compiler::block29_stmt_expr_semi(){
@@ -722,7 +722,7 @@ void Compiler::block55_factor_ident(ReturnPacket** outPacket, ucc::Identifier in
 //	$<value.svalue>$ = $1;
 		if(inIdent.getvalue() != "main"){
 				#ifdef DEBUG
-				fprintf(stderr,"the name of the identifier here is:  %s\n", (char*)$<value.svalue>1);
+//				fprintf(stderr,"the name of the identifier here is:  %s\n", (char*)$<value.svalue>1);
 				#endif
 				
 			if( (resultLookup =  mysymtab->lookupB(inIdent.getvalue())) != nullptr ){
@@ -737,19 +737,20 @@ void Compiler::block55_factor_ident(ReturnPacket** outPacket, ucc::Identifier in
 				else{
 					switch(resultLookup->getself()){
 						case btype::VAR:
-
+					    {
 							#ifdef DEBUG
-							char temp_char = (char)(*outPacket)->gettype();
-							if((*outPacket)->gettype() !=  nullptr) fprintf(stderr,"type is: %s\n", &temp_char);
-							if(resultLookup->getBinding()->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->getBinding()->gettype());
+//							char temp_char = (char)(*outPacket)->gettype();
+//							if((*outPacket)->gettype() !=  nullptr) fprintf(stderr,"type is: %s\n", &temp_char);
+//							if(resultLookup->getBinding()->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->getBinding()->gettype());
 							#endif
 
 							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inIdent.getvalue()),resultLookup->getBinding()->getoffset());
+					    }
 							break;
 
 						case btype::PARAM:
 							#ifdef DEBUG
-							fprintf(stderr,"type is: %d\n", (int)(*outPacket)->getttype());
+						   fprintf(stderr,"type is: %d\n", (int)(*outPacket)->gettype());
 							#endif
 
 							break;
@@ -820,7 +821,7 @@ void Compiler::block58_factor_adof_ident(ReturnPacket** outPacket, ucc::Identifi
 						case btype::VAR:
 						(*outPacket)->settype(((Varb*)(tempE->getBinding()))->gettype());
 						#ifdef DEBUG
-						fprintf(stderr,"type is: %d\n", (int)(*outPacket)->ttype);
+						fprintf(stderr,"type is: %d\n", (int)(*outPacket)->gettype());
 						#endif
 						(*outPacket)->setlval(false);
 						if(((Varb*)(tempE->getBinding()))->gettype() == type::INT || ((Varb*)(tempE->getBinding()))->gettype() == type::FLOAT)
@@ -959,8 +960,8 @@ void Compiler::block63_name_and_params_ident_lpar_source(ReturnPacket** inEntryp
 	(*inEntryptr)->funcent =nullptr;
 	(*inEntryptr)->funcent =  mysymtab->lookupB(inPacket.getvalue());
 	#ifdef DEBUG
-	printTree(mysymtab);
-	fprintf(stderr,"this the name of function called and the lookup value: %s\n",inPacket.getvalue());
+//	printTree(mysymtab);
+    fprintf(stderr,"this the name of function called and the lookup value: %s\n",inPacket.getvalue().c_str());
 	if( mysymtab->lookupB(inPacket.getvalue())==nullptr)
 		fprintf(stderr,"it was null\n");
 	else
@@ -1005,12 +1006,12 @@ void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** out
 				}
 				else if(tempB->getnum_param() == -1){
 					#ifdef DEBUG
-					fprintf(stderr,"SPRINTF OR PRINTF mismatch: FUNCTION NAME: %s\n",$1);
-					fprintf(stderr,"SPRINTF OR PRINTF: FUNCTION TYPE: %d\n",(int)$4->type);
+//					fprintf(stderr,"SPRINTF OR PRINTF mismatch: FUNCTION NAME: %s\n",$1);
+	//				fprintf(stderr,"SPRINTF OR PRINTF: FUNCTION TYPE: %d\n",(int)$4->type);
 //					fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
 //					fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
-					fprintf(stderr,"SPRINTF OR PRINTF: $4 TYPE: %d\n",(int)$4->type);
-					fprintf(stderr,"SPRINTF OR PRINTF: tempB->param_type[0] TYPE: %d\n",(int)tempB->param_type[0]);
+//					fprintf(stderr,"SPRINTF OR PRINTF: $4 TYPE: %d\n",(int)$4->type);
+//					fprintf(stderr,"SPRINTF OR PRINTF: tempB->param_type[0] TYPE: %d\n",(int)tempB->param_type[0]);
 					#endif
 					if(inPacket->gettype() != tempB->getparam_type()[0]){
 						error("parameter type is different in declaration and in function call","");
@@ -1041,8 +1042,8 @@ void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** out
 					if( ! tempB->getparam_type().empty()){
 						if(inPacket->gettype() != tempB->getparam_type()[0]){
 							#ifdef DEBUG
-							fprintf(stderr,"Function mismatch 2: FUNCTION NAME: %s\n",$1);
-							fprintf(stderr,"Function mismatch 2: FUNCTION TYPE: %d\n",(int)$4->type);
+//							fprintf(stderr,"Function mismatch 2: FUNCTION NAME: %s\n",$1);
+//							fprintf(stderr,"Function mismatch 2: FUNCTION TYPE: %d\n",(int)$4->type);
 //							fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
 //							fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
 							#endif
@@ -1050,8 +1051,8 @@ void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** out
 							error("Parameter type is different in declaration and in function call","");
 							else if(tempB->getparam_type()[0]== type::INT){
 								#ifdef DEBUG
-								fprintf(stderr,"Function mismatch 3: FUNCTION NAME: %s\n",$1);
-								fprintf(stderr,"Function mismatch 3: FUNCTION TYPE: %d\n",(int)$4->type);
+//								fprintf(stderr,"Function mismatch 3: FUNCTION NAME: %s\n",$1);
+//								fprintf(stderr,"Function mismatch 3: FUNCTION TYPE: %d\n",(int)$4->type);
 //								fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
 //								fprintf(stderr,"Function mismatch 1: FUNCTION NAME: %s\n",$1);
 								#endif
@@ -1067,7 +1068,7 @@ void Compiler::block64_name_and_params_ident_lpar_source_expr(ReturnPacket** out
 							}
 							else if(tempB->getparam_type()[0]== type::FLOAT){
 								#ifdef DEBUG
-								fprintf(stderr,"Function mismatch 4: FUNCTION NAME: %s\n",$1);
+//								fprintf(stderr,"Function mismatch 4: FUNCTION NAME: %s\n",$1);
 								#endif
 								switch(inPacket->gettype()){
 									case type::INT:	warning("Parameter expression is different type than in declaration","");
@@ -1151,7 +1152,7 @@ void Compiler::block65_name_and_params_name_and_params_comma_expr(ReturnPacket**
 				else if( outPacket->params < tempB->getnum_param()){
 					if(inexprPacket->gettype() != tempB->getparam_type()[innameAndparamPacket->params]){
 						#ifdef DEBUG
-						fprintf(stderr,"Function mismatch before warning: FUNCTION NAME: %s\n", innameAndparamPacket->getname());
+//						fprintf(stderr,"Function mismatch before warning: FUNCTION NAME: %s\n", innameAndparamPacket->getname());
 						#endif
 
 						warning("Parameter type is different in declaration and in function call","");

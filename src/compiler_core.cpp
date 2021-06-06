@@ -1,3 +1,4 @@
+#include "debug.hpp"
 #include "compiler.hpp"
 namespace ucc{
 	Compiler::Compiler(): mysymtab{nullptr}, 
@@ -5,6 +6,7 @@ namespace ucc{
 								lexer{nullptr,*this},
 								parser{nullptr},
 								currentFunc{nullptr},
+								outfile{nullptr},
 								Line_Number{1},
 								globalcount{0},
 								offset_counter{5},
@@ -15,52 +17,43 @@ namespace ucc{
 	{
 		try{
 			mysymtab = new SymbolTable{ *this};
+			parser = new uccParser{*this};
+			parser->set_debug_stream(std::cerr);
+			parser->set_debug_level(1);
 		}
 		catch(std::bad_alloc& e){
-			std::cerr << e.what();
+			debugprint(e.what(),"");
+			exit(-1);
 		}
 		mainlabel = code_generator.getlabel();
-		/*
-		if(mysymtab == nullptr){
-			error("Unable to construct symbol table","");
-		}
-		*/
 	}
 
-	Compiler::Compiler(int argc, const char** argv) : 	mysymtab{new SymbolTable{ *this} }, 
-																		code_generator{},
-																		lexer{nullptr,*this},
-																		parser{nullptr},
-																		currentFunc{nullptr},
-																		Line_Number(1),
-																		globalcount(0),
-																		offset_counter(5),
-																		othercounter(1),
-																		param_offset(0),
-																		mainlocal(0),
-																		founderror{false}
+	Compiler::Compiler(int argc, const char** argv) : 	Compiler{}
 	{
-		mainlabel = code_generator.getlabel();
-
-		if(mysymtab == nullptr){
-			error("Unable to construct symbol table","");
-		}
-		checkargs(argc,argv);
+		openedInputFile(argc,argv);
 	}
 
 	Compiler::~Compiler(){
-		#ifdef DEBUG
-		std::cerr << "Closing file\n";
-		#endif
-
-		if(outfile->good()){
+		
+		if(outfile != nullptr){
+//			std::ofstream* temp{nullptr};
 			outfile->flush();
+//			temp->close();
+			debugprint("Closing file\n","");
+			delete outfile;
+			outfile = nullptr;
 		}
-
 		if(mysymtab != nullptr){
+			debugprint("deleteting symbol table\n","");
 			delete mysymtab;
 			mysymtab = nullptr;
 		}
+		if(parser != nullptr){
+			debugprint("deleteing parser\n","");
+			delete parser;
+			parser = nullptr;
+		}
+		currentFunc = nullptr;
 	}
 
 }
