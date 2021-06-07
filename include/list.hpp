@@ -25,8 +25,6 @@ class ListNode : public BasicListNode {
 		ListNode();
 		ListNode(std::string in);
 		virtual ~ListNode() = default;
-//		ListNode(const ListNode& in);
-//		virtual ListNode& operator=(const ListNode& in);
 		std::string getval() const;
 		void setval(std::string in);
 	private:
@@ -47,8 +45,6 @@ class PListNode : public ListNode {
 		PListNode();
 		PListNode(std::string, ucc::type);
 		virtual ~PListNode() = default;
-//		PListNode(const PListNode& in);
-//		virtual PListNode& operator=(const PListNode& in);
 		ucc::type gettype() const;
 		void settype(ucc::type type);
 	private:
@@ -70,7 +66,6 @@ class List{
 		List* appendList(std::string inVal);
 		List* appendList(std::string inVal, ucc::type inType);
 		List* appendList(ReturnPacket* expr);
-//		void printListP(ListP * inList);
 		int size() const;
 	private:
 		std::vector<BasicListNode*> list;

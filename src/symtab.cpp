@@ -70,10 +70,11 @@ TableEntry* Table::lookupB(const std::string name){
 		auto result{table.at(name)};
 		return result;
 	}
-	catch(std::exception& e){
+	catch(std::out_of_range& e){
 		// not in table
-		return nullptr;
+	    std::cerr << "caught out of range" << std::endl;
 	}
+    return nullptr;
 }
 
 bool Table::install(TableEntry* entry){
@@ -83,54 +84,61 @@ bool Table::install(TableEntry* entry){
 	bool answer;
 	try{
 		table.at(entry->getName());
-		fprintf(stderr,"symbol already declared in current scope");
+	    std::cerr << "symbol already declared in current scope" << std::endl;
 		answer = false;
 	}
 	catch(std::exception& e){
 		table[entry->getName()] = entry;
 		answer = true;
 	}
-	#ifdef DEBUG
-	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
+	debugprint("through install function of symbol table. Printing symbol table tree\n","");
 //	printTree(symtab);
-	#endif
 
 	return answer;
 }
 //SymbolTable::SymbolTable() : stack{}, compiler{}, actualStacksize(1),Stacksize(1),offset_counter{0} {}
 
-SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {}
+SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {
+	openscope();
+	
+}
 //SymbolTable::SymbolTable() : stack{}, compiler{nullptr}, actualStacksize(1), Stacksize(1) {}
-SymbolTable::~SymbolTable(){}
+SymbolTable::~SymbolTable(){
+	for(auto element : stack){
+		delete element;
+		element = nullptr;
+	}
+}
 
 void SymbolTable::openmainscope(){
-	if(actualStacksize == Stacksize)
+/*	if(actualStacksize == Stacksize)
 		compiler.error("Scope Stack already too full","");
-	else{
+	else{*/
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
 		#endif
+		stack.push_back(new Table{});
 		
 		offset_counter=5;
-	}
+/*	}*/
 	
 }
 void SymbolTable::openscope(){
-	if(actualStacksize == Stacksize)
+/*	if(actualStacksize == Stacksize)
 		compiler.error("Scope Stack already too full","");
-	else{
+	else{*/
 		#ifdef DEBUG
 		fprintf(stderr,"Opening new Scope\n");
 //		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
-
+		stack.push_back(new Table{});
 	 	actualStacksize += 1;
 
 		offset_counter=5;
 		#ifdef DEBUG
 //		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
-	}
+/*		}*/
 }
 
 void SymbolTable::closescope(){
@@ -202,17 +210,15 @@ ReturnPacket* SymbolTable::lookup(const std::string name){
 
 void SymbolTable::install(TableEntry* temp){
 	#ifdef DEBUG
-	fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",actualStacksize, actualStacksize-1,Stacksize);
+    std::cerr << "symtab->actualStacksize " << actualStacksize << "and symtab->actualStacksize - 1 : " <<  actualStacksize-1 << ", and symtab->Stacksize: " << Stacksize << std::endl;
 	#endif
 	Table* locatedTable{stack.back()};
 	if(!locatedTable->install(temp)){
 		compiler.error("symbol already declared in current scope","");
 	}
 
-	#ifdef DEBUG
-	fprintf(stderr,"through install function of symbol table. Printing symbol table tree\n");
+	debugprint("through install function of symbol table. Printing symbol table tree\n","");
 //	printTree(symtab);
-	#endif
 }
 /*
 bool Ecmp(const void *TableEntry1, const void *TableEntry2){
@@ -557,8 +563,8 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 	TableEntry * temp;
 		if(myList !=nullptr){
 //			tempN = (ListNode*)(myList->list);
-			for(auto element : *myList){
-				ListNode* n_element{dynamic_cast<ListNode*>(element)};
+			for(auto& element : *myList){
+				ListNode* n_element{static_cast<ListNode*>(element)};
 				temp= createVar(n_element->getval(), mytype, offset_counter);
 				offset_counter++;
 				if((actualStacksize-1) == 0){
@@ -568,7 +574,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 				temp = nullptr;
 //				tempN = (ListNode*)tempN->nextnode;
 			}
-			delete myList;
+//			delete myList;
 		}
 		else compiler.error("myList was nullptr","");
 }

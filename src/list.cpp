@@ -6,8 +6,6 @@
 #include "list.hpp"
 #include "type.hpp"
 
-//extern int warning(char*,char*);
-//extern int error(std::string,std::string);
 
 using namespace ucc;
 
@@ -97,27 +95,12 @@ void List::push_back(BasicListNode* in){
 
 List* List::mklist(std::string inVal){
 	return (new List{})->appendList(inVal);
-	/*
-	List* temp{new List{}};
-	temp->appendList(inVal);
-	return temp;
-	*/
 }
 List* List::mklist(std::string inVal, type inType){
 	return (new List{})->appendList(inVal,inType);
-	/*
-	List* temp{new List{}};
-	temp->appendList(inVal,inType);
-	return temp;
-	*/
 }
 List* List::mklist(ReturnPacket* inExpr){
 	return (new List{})->appendList(inExpr);
-	/*
-	List* temp{new List{}};
-	temp->appendList(inExpr);
-	return temp;
-	*/
 }
 
 List* List::appendList(std::string inVal){
@@ -139,23 +122,4 @@ std::vector<BasicListNode*> List::getlist(){
 	return list;
 }
 
-/*
-void printListP(ListP * inList){
-	#ifdef DEBUG
-    debugprintd("inList size: ",inList->listsize);
-	#endif
-    if(inList != NULL){
-        listnodeP* inNode = inList->list;
-        if(inNode !=NULL){
-            while(inNode != NULL){
-				#ifdef DEBUG
-                	debugprint("inNode value val: ",inNode->val);
-                	debugprintd("inNode ttype: ",inNode->ttype);
-                	inNode = (listnodeP*)inNode->nextnode;
-				#endif
-                
-            }
-        }
-    }
-}*/
 }

@@ -17,6 +17,7 @@ namespace ucc{
 	{
 		try{
 			mysymtab = new SymbolTable{ *this};
+		    install_functions_into_symbolTable();
 			parser = new uccParser{*this};
 			parser->set_debug_stream(std::cerr);
 			parser->set_debug_level(1);
@@ -27,6 +28,12 @@ namespace ucc{
 		}
 		mainlabel = code_generator.getlabel();
 	}
+    
+void Compiler::install_functions_into_symbolTable(){
+    List* params{List::mklist("",ucc::type::VOID)};
+    TableEntry* entry{mysymtab->createFunc("main", ucc::type::INT,params )};
+    mysymtab->install(entry);
+}
 
 	Compiler::Compiler(int argc, const char** argv) : 	Compiler{}
 	{
