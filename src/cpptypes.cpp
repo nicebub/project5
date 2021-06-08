@@ -56,14 +56,14 @@ namespace ucc{
 
 	IntConstant::IntConstant(const int invalue) : Constant{false,ucc::type::INT, true, 0}, value{invalue} {}
 		
-	IntConstant::IntConstant(const IntConstant& in) : Constant{in.lval,ucc::type::INT, true, 0}, value{in.value} {}
+	IntConstant::IntConstant(const IntConstant& in) : Constant{false,ucc::type::INT, true, 0}, value{in.value} {}
 		
 	IntConstant::~IntConstant(){}
 		
 	IntConstant& IntConstant::operator=(const IntConstant& in){
 		if(&in != this){
 			value = in.value;
-			lval = in.lval;
+			lval = false;
 //			setlval(in.getlval());
 			numeric = true;
 //			setnumeric(true);
@@ -84,14 +84,14 @@ namespace ucc{
 		
 	StrConstant::StrConstant(const std::string invalue) : Constant{false,ucc::type::STR, false, 0} , value{invalue} {}
 		
-	StrConstant::StrConstant(const StrConstant& in) : Constant{in.lval,ucc::type::STR, false, in.offset} , value{in.value} {}
+	StrConstant::StrConstant(const StrConstant& in) : Constant{false,ucc::type::STR, false, in.offset} , value{in.value} {}
 		
 	StrConstant::~StrConstant() {}
 		
 	StrConstant& StrConstant::operator=(const StrConstant& in) {
 		if(&in != this){
 			value = in.value;
-			lval = in.lval;
+			lval = false;
 			numeric = false;
 			ttype = ucc::type::STR;
 			offset = in.offset;
@@ -111,14 +111,14 @@ namespace ucc{
 	FloatConstant::FloatConstant(const float invalue ) : Constant{false,ucc::type::FLOAT, true, 0}, value{invalue } {}
 
 
-	FloatConstant::FloatConstant(const FloatConstant& in ) : Constant{in.lval,ucc::type::FLOAT, true, in.offset}, value{in.value } {}
+	FloatConstant::FloatConstant(const FloatConstant& in ) : Constant{false,ucc::type::FLOAT, true, in.offset}, value{in.value } {}
 
 	FloatConstant::~FloatConstant(){}
 
 	FloatConstant& FloatConstant::operator=(const FloatConstant& in){
 		if(&in != this){
 			value = in.value;
-			lval = in.lval;
+			lval = false;
 			numeric = true;
 			ttype = ucc::type::FLOAT;
 			offset = in.offset;

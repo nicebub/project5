@@ -313,22 +313,22 @@ constant:			StrConstant									{	$$ = new StrConstant{$1}; }
 		|				FloatConstant								{	$$ = new FloatConstant{$1}; }
 ;
 
-addop:				plus											{	$$ = $1;}
-		|				minus											{	$$ = $1;}
+addop:				plus											{	$$ = ucc::addtype::PLS;}
+		|				minus											{	$$ = ucc::addtype::MIN;}
 ;
 
-mulop:				star											{	$$ = $1;}
-		|				divide										{	$$ = $1;}
+mulop:				star											{	$$ = ucc::multype::MULT;}
+		|				divide										{	$$ = ucc::multype::DIV;}
 ;
 
-eqop:					equequ										{	$$ = $1;}
-		|				neq											{	$$ = $1;}
+eqop:					equequ										{	$$ = ucc::eqtype::EQEQ;}
+		|				neq											{	$$ = ucc::eqtype::NEQ;}
 ;
 
-relop:				lesst											{	$$ = $1;}
-		|				leq											{	$$ = $1;}
-		|				geq											{	$$ = $1;}
-		|				greatt										{	$$ = $1;}
+relop:				lesst											{	$$ = ucc::reltype::LES;}
+		|				leq											{	$$ = ucc::reltype::LEQ;}
+		|				geq											{	$$ = ucc::reltype::GEQ;}
+		|				greatt										{	$$ = ucc::reltype::GRE; }
 ;
 
 %%

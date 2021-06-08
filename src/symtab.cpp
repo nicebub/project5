@@ -72,7 +72,7 @@ TableEntry* Table::lookupB(const std::string name){
 	}
 	catch(std::out_of_range& e){
 		// not in table
-	    std::cerr << "caught out of range" << std::endl;
+		debugprint("caught out of range\n","");
 	}
     return nullptr;
 }
@@ -84,10 +84,11 @@ bool Table::install(TableEntry* entry){
 	bool answer;
 	try{
 		table.at(entry->getName());
-	    std::cerr << "symbol already declared in current scope" << std::endl;
+	    std::cerr << "error: symbol already declared in current scope" << std::endl;
 		answer = false;
 	}
-	catch(std::exception& e){
+	catch(std::out_of_range& e){
+		debugprint("caught out of range\n","");
 		table[entry->getName()] = entry;
 		answer = true;
 	}
@@ -114,9 +115,7 @@ void SymbolTable::openmainscope(){
 /*	if(actualStacksize == Stacksize)
 		compiler.error("Scope Stack already too full","");
 	else{*/
-		#ifdef DEBUG
-		fprintf(stderr,"Opening new Scope\n");
-		#endif
+		debugprint("Opening new Scope\n","");
 		stack.push_back(new Table{});
 		
 		compiler.offset_counter=5;
@@ -127,10 +126,8 @@ void SymbolTable::openscope(){
 /*	if(actualStacksize == Stacksize)
 		compiler.error("Scope Stack already too full","");
 	else{*/
-		#ifdef DEBUG
-		fprintf(stderr,"Opening new Scope\n");
+		debugprint("Opening new Scope\n","");
 //		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
-		#endif
 		stack.push_back(new Table{});
 	 	actualStacksize += 1;
 
@@ -145,9 +142,8 @@ void SymbolTable::closescope(){
 	if(actualStacksize == 1)
 		compiler.error("Cannot close Global scope","");
 	else{
-		#ifdef DEBUG
-		fprintf(stderr,"Closing Scope\n");
-		#endif
+		debugprint("Closing Scope\n","");
+
 		if(!stack.empty()) {
 			stack.pop_back();
 			/*
@@ -166,9 +162,7 @@ void SymbolTable::closemainscope(){
 	if(actualStacksize == 1)
 		compiler.error("Cannot close Global scope","");
 	else{
-		#ifdef DEBUG
-		fprintf(stderr,"Closing Scope\n");
-		#endif
+		debugprint("Closing Scope\n","");
 		if(!stack.empty()){
 			stack.pop_back();
 			/*
@@ -488,7 +482,7 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 				tBinding->getparam_type().push_back(n_element->gettype());
 
 				#ifdef DEBUG
-				fprintf(stderr,"in Function install type is %d\n",n_element->gettype());
+//				std::cerr << "in Function install type is " << n_element->gettype() << std::endl );
 				#endif
 
 				if( "..." == n_element->getval()){
@@ -531,7 +525,7 @@ TableEntry* SymbolTable::createVar(std::string name, type t_type, int offset){
 
 	//((Varb*)(temp->binding))->type = t_type;
 	#ifdef DEBUG
-	fprintf(stderr,"in Var install type is :%d\n",t_type);
+//	std::cerr << "in Var install type is : " << t_type << std::endl);
 	#endif
     //((Varb*)(temp->binding))->offset = offset;
 //    temp->binding = tBindingV;
@@ -550,7 +544,7 @@ TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
    tBindingP->setoffset(offset);
 //   temp->binding = tBindingP;
 	#ifdef DEBUG
-	fprintf(stderr,"in Param install type is :%d\n",t_type);
+//	std::cerr << "in Param install type is : " << t_type << std::endl);
 	#endif
 	//((Paramb*)(temp->binding))->offset = offset;
 	temp = new TableEntry{name,tBindingP,btype::PARAM};

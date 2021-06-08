@@ -105,7 +105,7 @@ namespace ucc{
 
 			void variableFetch(ReturnPacket* inPacket, bool conversionNeeded);
 			void variableFetchWithNumericCheck(ReturnPacket* inPacket, bool conversionNeeded);
-
+			void variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimplePacketptr,bool conversionNeeded);
 			ReturnPacket* block32_stmt_while_source();
 			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
 

@@ -458,7 +458,7 @@ ReturnPacket* Compiler::block43_equalexpr_relexpr_helper(ucc::eqtype ineqop, std
 									break;
 		default:					break;
 	}
-	return new ReturnPacket{true,ucc::type::INT,true,0};
+	return new ReturnPacket{false,ucc::type::INT,true,0};
 
 }
 ReturnPacket* Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ucc::eqtype ineqop, ReturnPacket** relexprPacketptr, ReturnPacket** otherrelexprPacketptr){
@@ -530,7 +530,7 @@ ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_helper(ucc::reltype inr
 									break;
 		default:					break;
 	}
-	return new ReturnPacket{true,ucc::type::INT,true,0};
+	return new ReturnPacket{false,ucc::type::INT,true,0};
 }
 ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(ReturnPacket** simpleexprPacketptr, ucc::reltype inrelop, ReturnPacket** othersimpleexprPacketptr){
 	ReturnPacket * outPacket{new ReturnPacket{}};
@@ -588,8 +588,14 @@ void Compiler::block47_relexpr_simpleexpr(){
 		$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric=$1.numeric;
 }
 */
+void Compiler::variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimplePacket, bool conversionNeeded){
+	if(insimplePacket->getlval()){
+		variableFetchWithNumericCheck(insimplePacket,conversionNeeded);
+	}
+}
+
  void Compiler::block48_simpleexpr_simpleexpr_addop_source(ReturnPacket** insimplePacketptr){
-	variableFetchWithNumericCheck(*insimplePacketptr,false);
+	variableFetchWithNumericCheckAndLvalCheck(*insimplePacketptr,false);
 }
 ReturnPacket* Compiler::block49_simpleexpr_addop_helper(ucc::addtype inaddop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
@@ -604,7 +610,7 @@ ReturnPacket* Compiler::block49_simpleexpr_addop_helper(ucc::addtype inaddop,std
 									break;
 		default:					break;
 	}
-	return new ReturnPacket{true,ucc::type::FLOAT,true,0};
+	return new ReturnPacket{false,ucc::type::FLOAT,true,0};
 }
 
 ReturnPacket* Compiler::block49_simpleexpr_simpleexpr_addop_source_term(ReturnPacket** simpleexprPacketptr, ucc::addtype inaddop, ReturnPacket** termPacketptr){
@@ -653,7 +659,7 @@ void Compiler::block50_simpleepr_term(){
 }
 */
  void Compiler::block51_term_term_mulop_source(ReturnPacket** inPacketptr){
-	variableFetchWithNumericCheck(*inPacketptr,false);
+	variableFetchWithNumericCheckAndLvalCheck(*inPacketptr,false);
 }
 
 ReturnPacket* Compiler::block52_term_mulop_helper(ucc::multype inmulop,std::string need_letter_b){
@@ -669,7 +675,7 @@ ReturnPacket* Compiler::block52_term_mulop_helper(ucc::multype inmulop,std::stri
 									break;
 		default:					break;
 	}
-	return new ReturnPacket{true,ucc::type::FLOAT,true,0};
+	return new ReturnPacket{false,ucc::type::FLOAT,true,0};
 }
 ReturnPacket* Compiler::block52_term_term_mulop_source_factor(ReturnPacket** intermPacketptr, ucc::multype inmulop,ReturnPacket** infactorPacketptr){
 	ReturnPacket* outtermPacket{new ReturnPacket{}};
@@ -745,10 +751,7 @@ ReturnPacket* Compiler::block54_factor_constant(Constant** inConstant){
 ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 	ReturnPacket* outPacket{nullptr};
 	TableEntry *resultLookup;
-//	TableEntry *tempE2; 
 	outPacket = new Identifier{inIdent};
-//	(*outPacket) = (*inIdent);
-//	$<value.svalue>$ = $1;
 		if(inIdent.getvalue() != "main"){
 				#ifdef DEBUG
 //				fprintf(stderr,"the name of the identifier here is:  %s\n", (char*)$<value.svalue>1);
@@ -779,7 +782,7 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 
 						case btype::PARAM:
 							#ifdef DEBUG
-						   fprintf(stderr,"type is: %d\n", (int)outPacket->gettype());
+						   std::cerr << "type is: " <<  (int)outPacket->gettype() << std::endl );
 							#endif
 
 							break;
@@ -793,7 +796,7 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 				outPacket->settype(type::VOID);
 				error("Variable is unknown or undelcared, couldn't be found in symbol table'","");
 			}
-			return outPacket;
+//			return outPacket;
 		}
 		else{
 			error("Main is not a variable name","");
