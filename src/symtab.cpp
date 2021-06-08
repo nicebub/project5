@@ -98,7 +98,7 @@ bool Table::install(TableEntry* entry){
 }
 //SymbolTable::SymbolTable() : stack{}, compiler{}, actualStacksize(1),Stacksize(1),offset_counter{0} {}
 
-SymbolTable::SymbolTable(Compiler& compiler) : compiler{compiler}, stack{}, actualStacksize(1), Stacksize(1), offset_counter{0} {
+SymbolTable::SymbolTable(Compiler& compiler) : compiler{compiler}, stack{}, actualStacksize(1), Stacksize(1) {
 	openscope();
 	
 }
@@ -119,7 +119,7 @@ void SymbolTable::openmainscope(){
 		#endif
 		stack.push_back(new Table{});
 		
-		offset_counter=5;
+		compiler.offset_counter=5;
 /*	}*/
 	
 }
@@ -134,7 +134,7 @@ void SymbolTable::openscope(){
 		stack.push_back(new Table{});
 	 	actualStacksize += 1;
 
-		offset_counter=5;
+		compiler.offset_counter=5;
 		#ifdef DEBUG
 //		fprintf(stderr, "symtab->actualStacksize %d and symtab->actualStacksize - 1 : %d, and symtab->Stacksize: %d\n",symtab->actualStacksize, symtab->actualStacksize-1, symtab->Stacksize);
 		#endif
@@ -565,10 +565,10 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 //			tempN = (ListNode*)(myList->list);
 			for(auto& element : *myList){
 				ListNode* n_element{static_cast<ListNode*>(element)};
-				temp= createVar(n_element->getval(), mytype, offset_counter);
+				temp= createVar(n_element->getval(), mytype, compiler.offset_counter);
 			    
-				offset_counter++;
-				if((stack.size()-1) == 1){
+				compiler.offset_counter++;
+				if( stack.size() == 1){
 					compiler.globalcount++;
 				}
 				install(temp);

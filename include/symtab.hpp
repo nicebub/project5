@@ -84,7 +84,7 @@ namespace ucc{
 			std::deque<Table*> stack; //Stack of Binary Search Trees
 			int actualStacksize; //used to keep size and top of stack
 			int Stacksize; //default of 100
-			int offset_counter;
+//			int offset_counter;
 		};
 		bool Ecmp(const void *TableEntry1, const void *TableEntry2);  //comparison function
 

@@ -216,7 +216,7 @@ variabledecl:		intt identlist semi						{
 																		}
 		|				floatt identlist semi					{
 																			if( $2 != nullptr){
-																				compiler.mysymtab->addtosymtab(type::INT, $2);
+																				compiler.mysymtab->addtosymtab(type::FLOAT, $2);
 																			}
 																		}
 		|				error semi									{	yyerrok; compiler.error("(unexpected token in variable decl)",""); }
