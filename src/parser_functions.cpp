@@ -176,6 +176,7 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 	auto temp{mainlocal};
 	if(currentFunc->getvalue() == "main"){
 		mainlocal = offset_counter-5;
+		temp = mainlocal;
 	}
 	else{
 		currentFunc->setlocalcount( offset_counter - 5 - currentFunc->getnum_param());

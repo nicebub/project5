@@ -8,10 +8,10 @@
 
 using namespace ucc;
 
-CodeGenerator::CodeGenerator() : labelcounter{1}, outfile{&std::cout}, canGenerate{true} {
+CodeGenerator::CodeGenerator() : labelcounter{1},  canGenerate{true},outfile{&std::cout} {
 }
 
-CodeGenerator::CodeGenerator(std::ostream& out) : labelcounter{1}, outfile{&out}, canGenerate{true} {}
+CodeGenerator::CodeGenerator(std::ostream& out) : labelcounter{1},  canGenerate{true}, outfile{&out} {}
 
 CodeGenerator::~CodeGenerator() {}
 
@@ -42,7 +42,7 @@ void CodeGenerator::nullout(std::string& name, int length){
 std::string CodeGenerator::genlabelw(std::string name, int labelnum){
 	std::string temp{"$"};
 	temp += name;
-	temp += labelnum;
+	temp += std::to_string(labelnum);
 	return temp;
 	/*
 	char* tempstr;

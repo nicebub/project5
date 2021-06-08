@@ -98,7 +98,7 @@ bool Table::install(TableEntry* entry){
 }
 //SymbolTable::SymbolTable() : stack{}, compiler{}, actualStacksize(1),Stacksize(1),offset_counter{0} {}
 
-SymbolTable::SymbolTable(Compiler& compiler) : stack{}, compiler{compiler}, actualStacksize(1), Stacksize(1), offset_counter{0} {
+SymbolTable::SymbolTable(Compiler& compiler) : compiler{compiler}, stack{}, actualStacksize(1), Stacksize(1), offset_counter{0} {
 	openscope();
 	
 }
@@ -568,7 +568,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 				temp= createVar(n_element->getval(), mytype, offset_counter);
 			    
 				offset_counter++;
-				if((actualStacksize-1) == 0){
+				if((stack.size()-1) == 1){
 					compiler.globalcount++;
 				}
 				install(temp);
