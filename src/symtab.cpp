@@ -459,10 +459,9 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 		//((Funcb*)(temp->binding)) = (Funcb*) malloc(sizeof(Funcb));
 		//((Funcb*)(temp->binding))->returntype = returntype;
 		tBinding = new Funcb{returntype};
-
+	    tBinding->setvalue(name);
 //        tBinding->param_type=nullptr;
 //        temp->binding = tBinding;
-			temp = new TableEntry{name,tBinding,btype::FUNC};
 
         if(paramlist!=nullptr ){
             #ifdef DEBUG
@@ -485,7 +484,7 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
 //			tempP = paramlist->list;
 			for(auto element : *paramlist){
 //			for(a=0;a<paramlist->size();a++){
-	PListNode * n_element{dynamic_cast<PListNode*>(element)};
+			    PListNode * n_element{dynamic_cast<PListNode*>(element)};
 				tBinding->getparam_type().push_back(n_element->gettype());
 
 				#ifdef DEBUG
@@ -512,6 +511,7 @@ TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* par
  */
 //		tBinding->bodydef = FALSE;
 //		tBinding->label=0;
+	    temp = new TableEntry{name,tBinding,btype::FUNC};
 		return temp;
 	}
 	else{
@@ -566,6 +566,7 @@ void SymbolTable::addtosymtab(type mytype, List * myList){
 			for(auto& element : *myList){
 				ListNode* n_element{static_cast<ListNode*>(element)};
 				temp= createVar(n_element->getval(), mytype, offset_counter);
+			    
 				offset_counter++;
 				if((actualStacksize-1) == 0){
 					compiler.globalcount++;

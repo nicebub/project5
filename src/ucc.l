@@ -285,7 +285,7 @@ char { /* keyword char*/
 
 (0|([1-9]{DIGIT}*))\.{DIGIT}{DIGIT}* {/*float*/
 //					yylval.ttype = type::FLOAT;
-					yylval->emplace<float>() = std::atof(yytext);
+					yylval->emplace<ucc::FloatConstant>() = std::atof(yytext);
 //					yylval.value.fvalue=(float)std::atof(yytext);
 //					return uccParser::make_FloatConstant((float)std::atof(yytext),*loc);
 					return(token::FloatConstant);
@@ -302,8 +302,8 @@ char { /* keyword char*/
 
 (0|([1-9]{DIGIT}*))		{/*integer constant*/
 //				yylval.ttype = type::INT;
-yylval = lval;
-				yylval->emplace<int>() = std::atoi(yytext);
+				yylval = lval;
+				yylval->emplace<ucc::IntConstant>() = std::atoi(yytext);
 //				yylval.value.ivalue =(int)std::atoi(yytext);
 //				return uccParser::make_IntConstant((int)std::atoi(yytext),*loc);
 				return(token::IntConstant);

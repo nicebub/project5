@@ -15,7 +15,7 @@ namespace ucc{
 			offset_counter++;
 		}
 	}
-	bool Compiler::is_function_decl_or_def_accurate(funcheadertype** inFuncHeaderptr, Funcb*& currentFunc, bool isdeclaration) {
+	bool Compiler::is_function_decl_or_def_accurate(funcheadertype** inFuncHeaderptr, bool isdeclaration) {
 		funcheadertype* inFuncHeader{*inFuncHeaderptr};
 //		Funcb* currentFunc{};
 

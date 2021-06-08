@@ -55,7 +55,7 @@ namespace ucc{
 
 			void block1_start_trans_unit();
 
-			bool is_function_decl_or_def_accurate(funcheadertype** inFunc, Funcb*& currentFunc, bool isdeclaration);
+			bool is_function_decl_or_def_accurate(funcheadertype** inFunc, bool isdeclaration);
 			void install_parameters_into_symbol_table_curren_scope(funcheadertype** inFuncHeaderptr);
 
 			void block2_func_funcheader_source(funcheadertype** funcheaderptr);

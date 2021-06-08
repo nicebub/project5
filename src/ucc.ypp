@@ -303,8 +303,8 @@ name_and_params:	Ident lpar									<ReturnPacket*>{	$$ = compiler.block63_name_
 ;
 
 
-identlist:			Ident											{	$$ = List::mklist(&$1); }
-		|				identlist comma Ident					{	$$ = $1->appendList(&$3); }
+identlist:			Ident											{	$$ = List::mklist($1.getvalue()); }
+		|				identlist comma Ident					{	$$ = $1->appendList($3.getvalue()); }
 		|				identlist comma error					{	yyerrok; compiler.error("(unexpected token after comma)",""); }
 ;
 

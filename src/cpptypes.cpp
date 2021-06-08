@@ -184,7 +184,9 @@ namespace ucc{
 						label{in.label},
 						localcount{in.localcount},
 						actual_num{in.actual_num}
-	{}
+	{
+	    setvalue(in.getvalue());
+	}
 		
 	Funcb& Funcb::operator=(const Funcb& in) {
 		if(&in != this){
@@ -195,11 +197,12 @@ namespace ucc{
 			localcount = in.localcount;
 			actual_num = in.actual_num;
 			param_type = in.param_type;
+		  setvalue(in.getvalue());
 		}
 		return *this;
 	}
 	Funcb::~Funcb() {}
-	std::vector<ucc::type> Funcb::getparam_type() {
+	std::vector<ucc::type>& Funcb::getparam_type() {
 		return param_type;
 	}
 	ucc::type Funcb::getreturntype() {
@@ -242,7 +245,7 @@ namespace ucc{
 		this->actual_num = actual_num;
 	}
 
-	Varb::Varb() : ReturnPacket{} {}
+	Varb::Varb() : Identifier{} {}
 	Varb::~Varb(){}
 
 	Paramb::Paramb() : ReturnPacket{} {}

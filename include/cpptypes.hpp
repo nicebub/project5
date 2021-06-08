@@ -90,7 +90,7 @@ class Identifier : public Constant {
 	private:
 			std::string value;
 };
-class Funcb : public ReturnPacket {
+class Funcb : public Identifier {
 	public:
 		Funcb();
 		Funcb(ucc::type returntype);
@@ -98,7 +98,7 @@ class Funcb : public ReturnPacket {
 		Funcb(const Funcb& in);
 		Funcb& operator=(const Funcb& in);
 		virtual ~Funcb();
-		std::vector<type> getparam_type();
+		std::vector<type>& getparam_type();
 		type getreturntype();
 		bool getbodydef();
 		int getnum_param();
@@ -123,7 +123,7 @@ class Funcb : public ReturnPacket {
 		int 	actual_num;
 };
 
-class Varb : public ReturnPacket {
+class Varb : public Identifier {
 	public:
 		Varb();
 		virtual ~Varb();

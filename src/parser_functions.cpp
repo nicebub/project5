@@ -18,7 +18,7 @@ void Compiler::block1_start_trans_unit(){
 }
 void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 	auto templabel{mainlabel};
-	if(is_function_decl_or_def_accurate(inFuncHeaderptr,currentFunc,false)){
+	if(is_function_decl_or_def_accurate(inFuncHeaderptr,false)){
 		mysymtab->openscope();
 		if((*inFuncHeaderptr)->name != "main"){
 			templabel = currentFunc->getlabel();
@@ -43,7 +43,7 @@ void Compiler::block4_func_funcheader_semi(funcheadertype* inFuncHeader){
 		mysymtab->install(tempEntry);
 		return;
 	}
-	is_function_decl_or_def_accurate(&inFuncHeader,currentFunc,true);
+	is_function_decl_or_def_accurate(&inFuncHeader,true);
 }
 
 void Compiler::block5_funcheader_error_semi(funcheadertype** inFuncHeaderptr){
@@ -174,7 +174,7 @@ List* Compiler::block24_paramdeflist_paramdeflist_comma_char_star_ident(List** i
 */
 void Compiler::block25_funcbody_lcbra_decls_source(){
 	auto temp{mainlocal};
-	if(currentFunc == nullptr){
+	if(currentFunc->getvalue() == "main"){
 		mainlocal = offset_counter-5;
 	}
 	else{
@@ -249,7 +249,7 @@ void Compiler::block30_stmt_return_semi(){
 }
  void Compiler::variableFetchWithNumericCheck(ReturnPacket* inPacket, bool conversionNeeded){
 	if(inPacket->getnumeric() ){
-		variableFetchWithNumericCheck(inPacket,conversionNeeded);
+		variableFetch(inPacket,conversionNeeded);
 	}
 }
 void Compiler::block31_stmt_return_expr_semi(ReturnPacket* inPacket){
