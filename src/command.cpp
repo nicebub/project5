@@ -7,7 +7,6 @@
 #include "debug.hpp"
 #include "compiler.hpp"
 #include "ucc.tab.hpp"
-
 namespace ucc{
 
 bool Compiler::endsWC(const std::string& in){

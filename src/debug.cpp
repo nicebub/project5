@@ -12,11 +12,10 @@ int Debug::yydebug = 0;
 
 #endif
 namespace ucc{
+
 Debug::Debug(){}
 
-Debug::~Debug(){
-		
-}
+Debug::~Debug(){}
 
 int Debug::get_yydebug() {
 	return yydebug;
@@ -24,6 +23,7 @@ int Debug::get_yydebug() {
 void Debug::set_yydebug(const int value){
 	yydebug = value;
 }
+
 #ifdef DEBUG
 void debugprint(std::string s1, std::string s2){
 	if(!s1.empty() && !s2.empty()){
@@ -33,18 +33,12 @@ void debugprint(std::string s1, std::string s2){
 			std::cerr << "Debug:::" << /*compiler.filename << ":" << yylineno << " yylineno-> " <<*/ s1 << "\n";
 	}
 }
-void debugprintd(std::string s1, int s2){
+void debugprint(std::string s1, int s2){
 	if(!s1.empty()){
 			std::cerr << "Debug:::" << /*compiler.filename << ":" << yylineno << " yylineno-> " <<*/ s1 << "\"" << s2 << "\"\n";
 	}
 }
-/*
-#ifndef DEBUG
-#define debugprint(x,y)
-
-#define debugprintd(x,y)
 
 #endif
-*/
+
 }
-#endif

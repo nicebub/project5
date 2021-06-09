@@ -1,5 +1,6 @@
 #include "debug.hpp"
 #include "compiler.hpp"
+
 namespace ucc{
 	Compiler::Compiler(): mysymtab{nullptr}, 
 								code_generator{},

@@ -4,6 +4,12 @@
 ## General
 A toy C compiler that produces assembly code for a virtual machine that may not exist anymore.  Because of this,
 I also wrote an intrepreter/vm but I haven't posted the code. 
+
+- The Machine the assembly language targets is stack based.
+- The size of of a address is a WORD, based on the size of the host machine
+	- There are only 2 basic types for now, int and float
+		- int - size of host machine C int, takes up 1 WORD
+		- float - size of host machine C float, takes up 1 WORD
 ## Background
 My orignal goal was to see what it would take for me to use an original C codebase and turn it into a C++
 one instead.  I had originally coded this with the C flex/bison(lex/yacc) lexer and parsers so I have tried

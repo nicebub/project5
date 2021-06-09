@@ -8,6 +8,11 @@
 #endif
 #endif
 
+#ifndef DEBUG
+#define debugprint(x,y)
+
+#endif
+
 #include <string>
 namespace ucc{
 
@@ -20,8 +25,10 @@ namespace ucc{
 		private:
 			static int yydebug;
 	};
+	#ifdef DEBUG
 	void debugprint(std::string,std::string);
-	void debugprintd(std::string,int);
+	void debugprint(std::string,int);
+	#endif
 }
 
 
