@@ -180,7 +180,14 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 		temp = mainlocal;
 	}
 	else{
-		currentFunc->setlocalcount( offset_counter - 5 - currentFunc->getnum_param());
+	    switch(currentFunc->getparam_type()[0]){
+		   case ucc::type::VOID:
+			  currentFunc->setlocalcount( offset_counter - 5);
+			  break;
+		   default:
+			  currentFunc->setlocalcount( offset_counter - 5 - currentFunc->getnum_param());
+			  break;
+	    }
 		temp = currentFunc->getlocalcount();
 	}
 	code_generator.gen_instr_I("alloc", temp);
@@ -788,7 +795,7 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 
 						case btype::PARAM:
 							#ifdef DEBUG
-						   std::cerr << "type is: " <<  (int)outPacket->gettype() << std::endl );
+						   std::cerr << "type is: " <<  (int)outPacket->gettype() << std::endl ;
 							#endif
 
 							break;
@@ -941,9 +948,14 @@ ReturnPacket* Compiler::block60_function_call_ident_lpar_rpar(ucc::Identifier in
 				else{
 					outPacket->setlval(false);
 				}
-				if(tempb->getnum_param() != 0){
-					error("Function call without correct number of parameters if any","");
+				if(tempb->getnum_param() > 1 ){
+				    error("Function takes no parameters, only void in the declaration and definition","");
 				}
+			    if(tempb->getnum_param() == 1){
+				   if(tempb->getparam_type()[0] != ucc::type::VOID){
+					  error("Function takes no parameters, only void in the declaration and definition","");
+				   }
+			    }
 				outPacket->settype( tempb->getreturntype());
 				if(outPacket->gettype() == type::INT || outPacket->gettype() == type::FLOAT){
 					outPacket->setnumeric(true);

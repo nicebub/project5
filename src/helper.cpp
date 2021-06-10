@@ -12,7 +12,9 @@ namespace ucc{
 			PListNode* nelement{dynamic_cast<PListNode*>(element)};
 			auto tempEntry = mysymtab->createParam(nelement->getval(), nelement->gettype(),(offset_counter));
 			mysymtab->install(tempEntry);
+		    if(nelement->gettype() != ucc::type::VOID){
 			offset_counter++;
+		    }
 		}
 	}
 	bool Compiler::is_function_decl_or_def_accurate(funcheadertype** inFuncHeaderptr, bool isdeclaration) {
@@ -44,7 +46,7 @@ namespace ucc{
 			if(currentFunc->getparam_type()[list_index] != nelement->gettype()){
 				std::cerr << "Error: Line: " << Line_Number << ": argument " << (list_index+1) << ": has different parameter type than in function declaration\n";
 				#ifdef DEBUG
-				std::cerr << "\nThey are " <<  currentFunc->getparam_type()[list_index] << " and " << nelement->gettype() << std::endl ;
+//				std::cerr << "\nThey are " <<  currentFunc->getparam_type()[list_index] << " and " << nelement->gettype() << std::endl ;
 				#endif
 				return false;
 			}

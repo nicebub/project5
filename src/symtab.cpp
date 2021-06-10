@@ -132,9 +132,9 @@ void SymbolTable::closescope(){
 
 ReturnPacket* SymbolTable::lookup(const std::string name){
 	if(!name.empty()){
-		for(auto &it : stack){
-//		for(auto it = stack.rbegin(); it != stack.rend(); it++){
-			auto *result = it->lookup(name);
+//		for(auto &it : stack){
+		for(auto it = stack.rbegin(); it != stack.rend(); it++){
+			auto *result = (*it)->lookup(name);
 			if(result != nullptr){
 				return result;
 			}
@@ -233,7 +233,9 @@ void SymbolTable::addtosymtab(type mytype, List* myList){
 				TableEntry* temp{nullptr};
 				ListNode* n_element{dynamic_cast<ListNode*>(element)};
 				temp= createVar(n_element->getval(), mytype, compiler.offset_counter);
+			    if(mytype != ucc::type::VOID){
 				compiler.offset_counter++;
+			    }
 				if( stack.size() == 1){
 					compiler.globalcount++;
 				}
@@ -250,9 +252,9 @@ TableEntry * SymbolTable::lookupB(const std::string name){
 		compiler.error("cannot lookup variable without a name","");
 	}
 	else{
-		for(auto *it : stack){
-//		for(auto it = stack.rbegin(); it != stack.rend(); it++){
-			auto result{ it->lookupB(name) };
+//		for(auto *it : stack){
+		for(auto it = stack.rbegin(); it != stack.rend(); it++){
+			auto result{ (*it)->lookupB(name) };
 			if(result != nullptr){
 				return dynamic_cast<TableEntry*>(result);
 			}
@@ -279,9 +281,9 @@ int SymbolTable::getleveldif(std::string name){
 	found = nullptr;
 	if(!name.empty()){
 		int i{0};
-		for(auto *it : stack){
-//			for(auto it = stack.rbegin(); it != stack.rend(); it++){
-			auto result = it->lookup(name);
+//		for(auto *it : stack){
+			for(auto it = stack.rbegin(); it != stack.rend(); it++){
+			auto result = (*it)->lookup(name);
 			if(result != nullptr){
 				return i;
 			}

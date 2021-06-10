@@ -36,6 +36,7 @@ class CodeGenerator{
 		int 				labelcounter;
 		bool				canGenerate;
 		std::ostream* 	outfile;
+		bool lastInstructionWasReturnf;
 };
 
 }
