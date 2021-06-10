@@ -103,10 +103,11 @@ SymbolTable::SymbolTable(Compiler& compiler) : compiler{compiler}, stack{}, actu
 	
 }
 SymbolTable::~SymbolTable(){
+	/*
 	for(auto element : stack){
 		delete element;
 		element = nullptr;
-	}
+		}*/
 }
 
 void SymbolTable::openscope(){
@@ -162,14 +163,14 @@ void SymbolTable::install(TableEntry* temp){
 void ucc::SymbolTable::printTree() const{
 }
 #endif
-
+/*
 SymbolTable* SymbolTable::createTree(Compiler& compiler,int Stacksize){
 	SymbolTable *temp{new SymbolTable{compiler}};
 	temp->actualStacksize=1;
 	temp->Stacksize = Stacksize;
 	return temp;
 }
-
+*/
 TableEntry* SymbolTable::createFunc(std::string name, type returntype, List* paramlist){
 	TableEntry* temp{nullptr};
 	bool elip{false};

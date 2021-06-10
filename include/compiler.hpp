@@ -103,21 +103,21 @@ namespace ucc{
 			void variableFetchWithNumericCheck(ReturnPacket* inPacket, bool conversionNeeded);
 			void variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimplePacketptr,bool conversionNeeded);
 			ReturnPacket* block32_stmt_while_source();
-			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
+			void block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket);
 
 			void block34_5_stmt_helper(int one, int two);
 
-			void while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr, int number, std::string while_or_if);
+			void while_and_if_reducer(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket, int number, std::string while_or_if);
 
-			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr);
-			void block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr);
+			void block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket);
+			void block35_stmt_ifexprstmt_else(ReturnPacket* insourcePacket);
 
-			void block36_7_stmt_helper(ReturnPacket** inPacketptr, int number);
+			void block36_7_stmt_helper(ReturnPacket* inPacket, int number);
 
-			void block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr);
-			void block37_stmt_ifexprstmt(ReturnPacket** inPacketptr);
+			void block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket* inPacket);
+			void block37_stmt_ifexprstmt(ReturnPacket* inPacket);
 
-			struct Pair block38_ifexprstmt_if_lpar_expr_source(ReturnPacket** inexprPacketptr);
+			struct Pair block38_ifexprstmt_if_lpar_expr_source(ReturnPacket* inexprPacket);
 			void block39_ifexprstmt_if_lpar_expr_source_rpar_stmt();
 
 			void normalStore(ucc::type intype);

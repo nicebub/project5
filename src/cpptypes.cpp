@@ -64,11 +64,8 @@ namespace ucc{
 		if(&in != this){
 			value = in.value;
 			lval = false;
-//			setlval(in.getlval());
 			numeric = true;
-//			setnumeric(true);
 			ttype = ucc::type::INT;
-//			settype(ucc::type::INT);
 		}
 		return *this;
 	}

@@ -25,7 +25,7 @@ using namespace ucc;
 int yyerror(std::string err,Compiler& compiler);
 %}
 %verbose
-%define parse.trace
+//%define parse.trace
 %require "3.7"
 %expect 1
 %skeleton "lalr1.cc"
@@ -231,14 +231,14 @@ stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 		|				returnt expr semi 						{	compiler.block31_stmt_return_expr_semi($2); }
 
 		|				whilet										<ReturnPacket*>{	$$ = compiler.block32_stmt_while_source(); }
-						lpar expr rpar								{	compiler.block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(&$2,&$4); }
-						stmt											{	compiler.block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(&$2,&$4); }
+						lpar expr rpar								{	compiler.block33_stmt_while_source_expr_semi_source_lpar_expr_rpar($2,$4); }
+						stmt											{	compiler.block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt($2,$4); }
 
 		|				ifexprstmt 
-						elset											{	compiler.block35_stmt_ifexprstmt_else(&$1); }
-						stmt											{	compiler.block36_stmt_ifexprstmt_else_source_stmt(&$1); }
+						elset											{	compiler.block35_stmt_ifexprstmt_else($1); }
+						stmt											{	compiler.block36_stmt_ifexprstmt_else_source_stmt($1); }
 
-		|				ifexprstmt									{	compiler.block37_stmt_ifexprstmt(&$1); }
+		|				ifexprstmt									{	compiler.block37_stmt_ifexprstmt($1); }
 
 		|				lcbra stmtlist rcbra 					{} //closescope(mysymtab);
 		|				returnt error								{	yyerrok; compiler.error("(unexpected token after return in return stmt)","");}
@@ -247,7 +247,7 @@ stmt: 				expr semi									{	compiler.block29_stmt_expr_semi(); }
 		|				lcbra stmtlist error rcbra				{	yyerrok; compiler.error("(unexpected token before rcbra in stmt)",""); }	//closescope(mysymtab);
 ;
 
-ifexprstmt:			ift lpar expr								<struct Pair	>{	$$ = compiler.block38_ifexprstmt_if_lpar_expr_source(&$3); }
+ifexprstmt:			ift lpar expr								<struct Pair	>{	$$ = compiler.block38_ifexprstmt_if_lpar_expr_source($3); }
 						rpar stmt									{	$$ = $3; $$->m_pair = $4; }
 ;
 
@@ -336,6 +336,7 @@ relop:				lesst											{	$$ = ucc::reltype::LES;}
 int yyerror(std::string s, Compiler& compiler)
 //int ucc::uccParser::error(std::string s, Compiler& compiler)
 {
-	std::cerr << "Error:::"<< compiler.filename << ":"<< compiler.Line_Number << "-> " << s << "\n";
-    return 0;
+	compiler.error(s,"");
+//	std::cerr << "Error:::"<< compiler.filename << ":"<< compiler.Line_Number << "-> " << s << "\n";
+	return 0;
 }

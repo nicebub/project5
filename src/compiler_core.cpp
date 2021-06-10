@@ -48,7 +48,7 @@ void Compiler::install_functions_into_symbolTable(){
 
 	Compiler::~Compiler(){
 		
-		closeOrRemoveOutputFile(true);
+		closeOrRemoveOutputFile(false);
 		if(mysymtab != nullptr){
 			debugprint("deleteting symbol table\n","");
 			delete mysymtab;

@@ -311,17 +311,17 @@ ReturnPacket* Compiler::block32_stmt_while_source(){
 		code_generator.gen_label(code_generator.genlabelw("",inPacket->m_pair.one));
 		return inPacket;
 }
- void Compiler::block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr){
-	variableFetchWithNumericCheck(*inexprPacketptr,true);
-	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",(*insourcePacketptr)->m_pair.two));
+ void Compiler::block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket){
+	variableFetchWithNumericCheck(inexprPacket,true);
+	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",insourcePacket->m_pair.two));
 }
 
  void Compiler::block34_5_stmt_helper(int one, int two){
 	code_generator.gen_instr_S("jump", code_generator.genlabelw("",one));
 	code_generator.gen_label(code_generator.genlabelw("",two));
 }
-void Compiler::while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr, int number, std::string while_or_if){
-	ReturnPacket* inPacket{*inexprPacketptr};
+void Compiler::while_and_if_reducer(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket, int number, std::string while_or_if){
+	ReturnPacket* inPacket{inexprPacket};
 	if(! inPacket->getnumeric()){
 		error("non numeric expression in " + while_or_if + " statement","");
 		return;
@@ -331,33 +331,33 @@ void Compiler::while_and_if_reducer(ReturnPacket** insourcePacketptr, ReturnPack
 		return;
 	}
 	if(while_or_if == "while"){
-		block34_5_stmt_helper((*insourcePacketptr)->m_pair.one,(*insourcePacketptr)->m_pair.two);
+		block34_5_stmt_helper(insourcePacket->m_pair.one,insourcePacket->m_pair.two);
 	}
 	else{
 		code_generator.gen_label(code_generator.genlabelw("",number));
 	}
 }
- void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket** insourcePacketptr, ReturnPacket** inexprPacketptr){
-	while_and_if_reducer(insourcePacketptr,inexprPacketptr,0,"while");
+ void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket){
+	while_and_if_reducer(insourcePacket,inexprPacket,0,"while");
 }
 
- void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket** insourcePacketptr){
-	block34_5_stmt_helper((*insourcePacketptr)->m_pair.two,(*insourcePacketptr)->m_pair.one);
+ void Compiler::block35_stmt_ifexprstmt_else(ReturnPacket* insourcePacket){
+	block34_5_stmt_helper(insourcePacket->m_pair.two,insourcePacket->m_pair.one);
 }
 
- void Compiler::block36_7_stmt_helper(ReturnPacket** insourcePacketptr, int number){
-	while_and_if_reducer(insourcePacketptr,NULL,number,"if"); //FIXME: need to acutally put in a value perhaps for inexprPacketptr
+ void Compiler::block36_7_stmt_helper(ReturnPacket* insourcePacket, int number){
+	while_and_if_reducer(nullptr,insourcePacket,number,"if"); //FIXME: need to acutally put in a value perhaps for inexprPacketptr
 }
 
- void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket** inPacketptr){
-	block36_7_stmt_helper(inPacketptr,(*inPacketptr)->m_pair.two);
+ void Compiler::block36_stmt_ifexprstmt_else_source_stmt(ReturnPacket* inPacket){
+	block36_7_stmt_helper(inPacket,inPacket->m_pair.two);
 }
 
- void Compiler::block37_stmt_ifexprstmt(ReturnPacket** inPacketptr){
-	block36_7_stmt_helper(inPacketptr,(*inPacketptr)->m_pair.one);
+ void Compiler::block37_stmt_ifexprstmt(ReturnPacket* inPacket){
+	block36_7_stmt_helper(inPacket,inPacket->m_pair.one);
 }
 
-struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket** inexprPacketptr){
+struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket* inexprPacket){
 //	ReturnPacket* inexprPacket{*inexprPacketptr};
 
 	struct Pair rvalue;
@@ -367,8 +367,8 @@ struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket** inex
 	rvalue.two= othercounter;
 	othercounter++;
 
-	variableFetchWithNumericCheck((*inexprPacketptr),true);
-	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",(*inexprPacketptr)->m_pair.one));
+	variableFetchWithNumericCheck(inexprPacket,true);
+	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",rvalue.one));
 	return rvalue;
 }
 /*
