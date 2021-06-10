@@ -1,5 +1,6 @@
 #ifndef _COMPILER_HPP
 #define _COMPILER_HPP
+#include <ostream>
 #include <string>
 /*
 #if !defined(yyFlexLexerOnce)
@@ -12,11 +13,6 @@
 #include "symtab.hpp"
 #include "ucc.tab.hpp"
 #include "lex.hpp"
-//extern FILE* 						yyin;
-//extern int error(std::string, std::string);
-
-
-
 namespace ucc{
 	class SymbolTable;
 	
@@ -45,7 +41,7 @@ namespace ucc{
 			Compiler(int argc, const char** argv);
 			~Compiler();
 
-			bool openOutputFile(int argc, const char** argv);
+			bool openedOutputFile(int argc, const char** argv);
 			bool openedInputFile(int argc, const char** argv);
 
 			 void install_functions_into_symbolTable();
@@ -187,7 +183,8 @@ namespace ucc{
 			
 
 		protected:
-			static bool endsWC(const std::string& in);
+			static bool filenameDoesEndsInDotC(const std::string& in)  noexcept;
+			void closeOrRemoveOutputFile(bool needtoremove);
 
 		private:
 			bool 			founderror;

@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include "debug.hpp"
 #include "compiler.hpp"
 #include "ucc.tab.hpp"
 
@@ -775,8 +776,13 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 //							if((*outPacket)->gettype() !=  nullptr) fprintf(stderr,"type is: %s\n", &temp_char);
 //							if(resultLookup->getBinding()->gettype() != nullptr) fprintf(stderr,"type is: %d\n", resultLookup->getBinding()->gettype());
 							#endif
-
-							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inIdent.getvalue()),resultLookup->getBinding()->getoffset());
+							int level_diff{mysymtab->getleveldif(inIdent.getvalue())};
+							if(level_diff != -1){
+								code_generator.gen_instr_tI("pushga",level_diff,resultLookup->getBinding()->getoffset());
+							}
+							else{
+								debugprint("error, somehow level difference was -1\n","");
+							}
 					    }
 							break;
 
@@ -864,7 +870,13 @@ ReturnPacket* Compiler::block58_factor_adof_ident(ucc::Identifier inPacket){
 							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
 						}
 						else{
-							code_generator.gen_instr_tI("pushga",mysymtab->getleveldif(inPacket.getvalue()),((Varb*)(tempE->getBinding()))->getoffset());
+							int level_diff{mysymtab->getleveldif(inPacket.getvalue())};
+							if(level_diff != -1){
+								code_generator.gen_instr_tI("pushga", level_diff,((Varb*)(tempE->getBinding()))->getoffset());
+							}
+							else{
+								debugprint("error level differince was -1\n","");
+							}
 							//do something else
 						}
 							break;

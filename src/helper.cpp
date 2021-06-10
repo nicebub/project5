@@ -42,8 +42,10 @@ namespace ucc{
 		for(auto element : * inFuncHeader->paramlist){
 			PListNode* nelement{dynamic_cast<PListNode*>(element)};
 			if(currentFunc->getparam_type()[list_index] != nelement->gettype()){
-				fprintf(stderr,"Error: Line: %d: argument %d: has different parameter type than in function declaration\n",Line_Number,(list_index+1));
-				fprintf(stderr, "\nThey are %d and %d\n", currentFunc->getparam_type()[list_index], nelement->gettype());
+				std::cerr << "Error: Line: " << Line_Number << ": argument " << (list_index+1) << ": has different parameter type than in function declaration\n";
+				#ifdef DEBUG
+				std::cerr << "\nThey are " <<  currentFunc->getparam_type()[list_index] << " and " << nelement->gettype() << std::endl ;
+				#endif
 				return false;
 			}
 			list_index++;

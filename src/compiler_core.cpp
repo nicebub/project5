@@ -1,3 +1,6 @@
+#include <cstdio>
+#include <fstream>
+#include <ostream>
 #include "debug.hpp"
 #include "compiler.hpp"
 
@@ -21,7 +24,9 @@ namespace ucc{
 		    install_functions_into_symbolTable();
 			parser = new uccParser{*this};
 			parser->set_debug_stream(std::cerr);
+			#ifdef DEBUG
 			parser->set_debug_level(1);
+			#endif
 		}
 		catch(std::bad_alloc& e){
 			debugprint(e.what(),"");
@@ -43,14 +48,7 @@ void Compiler::install_functions_into_symbolTable(){
 
 	Compiler::~Compiler(){
 		
-		if(outfile != nullptr){
-//			std::ofstream* temp{nullptr};
-			outfile->flush();
-//			temp->close();
-			debugprint("Closing file\n","");
-			delete outfile;
-			outfile = nullptr;
-		}
+		closeOrRemoveOutputFile(true);
 		if(mysymtab != nullptr){
 			debugprint("deleteting symbol table\n","");
 			delete mysymtab;
@@ -73,10 +71,30 @@ int Compiler::warning(const std::string s1, const std::string s2) noexcept
 	return 0;
 }
 
+void Compiler::closeOrRemoveOutputFile(bool needtoremove){
+	if(outfile != nullptr){
+		outfile->flush();
+		if(outfile != &std::cout){
+			auto file{dynamic_cast<std::ofstream*>(outfile)};
+			if(file->is_open()){
+				debugprint("Closing file\n","");
+				file->close();
+				if(needtoremove){
+					debugprint("Removing file\n","");
+					remove(this->filename.c_str());
+				}
+			}
+		}
+		delete outfile;
+		outfile = nullptr;
+	}	
+}
+
 int Compiler::error(const std::string s1, const std::string s2) noexcept {
 	std::cerr << "Error:::"<< filename << ":"<< Line_Number << "-> " << s1 << " " 
 				 << s2 << "\n";
 	founderror=true;
 	code_generator.stop();
-	 return 0;
+	closeOrRemoveOutputFile(true);
+	return 0;
 }

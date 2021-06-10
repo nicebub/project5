@@ -1,34 +1,31 @@
-#include <cstdio>
-#include <cstdlib>
+#include <iostream>
 #include <string>
 #include <iostream>
 #include <fstream>
 
 #include "debug.hpp"
 #include "compiler.hpp"
-#include "ucc.tab.hpp"
 namespace ucc{
 
-bool Compiler::endsWC(const std::string& in){
+bool Compiler::filenameDoesEndsInDotC(const std::string& inFilename)  noexcept{
 	std::string extra{""};
-	extra = in[(in.size()-1)];
-	extra += in[(in.size()-2)];
+	auto f_sz{ inFilename.size() };
+
+	extra = inFilename[(f_sz-1)];
+	extra += inFilename[(f_sz-2)];
 	return extra == "c.";
 }
 bool Compiler::openedInputFile(int argc, const char** argv){
 	if(argc >1){
-		if(endsWC(argv[1])){
+		if(filenameDoesEndsInDotC(argv[1])){
 			try{
-			std::ifstream* next{new std::ifstream{argv[1], std::ifstream::in}};
-//			next = new std::ifstream;
-//			next->open(argv[1], std::ifstream::in);
-			if(next->is_open()){
-				lexer.switch_streams(next); 
-				return true;
-			}
+				std::ifstream* next{new std::ifstream{argv[1], std::ifstream::in}};
+				if(next->is_open()){
+					lexer.switch_streams(next); 
+					return true;
+				}
 			}
 			catch(std::bad_alloc& e){
-//				std::cerr << argv[1] << ": cannot open input file\n";
 				debugprint(e.what(),"");
 			}
 			std::cerr << argv[1] << ": cannot open input file\n";
@@ -41,9 +38,9 @@ bool Compiler::openedInputFile(int argc, const char** argv){
 	return false;
 }
 
-bool Compiler::openOutputFile(int argc, const char** argv){
+bool Compiler::openedOutputFile(int argc, const char** argv){
 	std::string tempstr{argv[1]};
-	if(endsWC(tempstr)){
+	if(filenameDoesEndsInDotC(tempstr)){
 		const size_t a{tempstr.length()-2};
 
 		tempstr[a] = '.';
@@ -60,9 +57,8 @@ bool Compiler::openOutputFile(int argc, const char** argv){
 			}
 		}
 		catch(std::bad_alloc& e){
-			std::cerr << "cannot open file " << tempstr << " for writing\n";
+			std::cerr << "error: cannot open file " << tempstr << " for writing\n";
 			debugprint(e.what(),"");
-//			return false;
 		}
 	}
 		return false;
@@ -70,16 +66,15 @@ bool Compiler::openOutputFile(int argc, const char** argv){
 
 #ifndef MAIN
 #define MAIN
-//FILE* yyin;
+
 int main(int argc, const char** argv){
 	Compiler compiler{};
 
 	if(! compiler.openedInputFile(argc,argv) ){
 		compiler.filename = "main.c";
-		debugprint("No arguments given to compiler","");
 		return -1;
 	}
-	if(!compiler.openOutputFile(argc, argv)){
+	if(!compiler.openedOutputFile(argc, argv)){
 		return -1;
 	}
 	return 0;

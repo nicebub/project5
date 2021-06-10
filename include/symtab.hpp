@@ -48,6 +48,7 @@ namespace ucc{
 			ReturnPacket* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
 			bool install(TableEntry * temp);
+			bool empty() noexcept;
 		private:
 			std::map<std::string,TableEntry*> table;
 	};
@@ -61,17 +62,17 @@ namespace ucc{
 			SymbolTable(Compiler& compiler);
 			~SymbolTable();
 			void printTree() const;
-			void Swalk(const void *node, VISIT myorder, int level);
+//			void Swalk(const void *node, VISIT myorder, int level);
 			void install(TableEntry* entry);
 			ReturnPacket* lookup(const std::string name);
 			TableEntry* lookupB(const std::string name);
 			bool inCscope(const std::string name);
 			void openscope();
-			void openmainscope();
-			void closemainscope();
+//			void openmainscope();
+//			void closemainscope();
 			void closescope();
-			void deleteEntry(TableEntry * temp);
-			void deleteTree();
+//			void deleteEntry(TableEntry * temp);
+//			void deleteTree();
 			static SymbolTable* createTree(Compiler& compiler,int Stacksize);
 			void addtosymtab(type mytype, List* myList);
 			int getleveldif(std::string name);
@@ -86,7 +87,7 @@ namespace ucc{
 			int Stacksize; //default of 100
 //			int offset_counter;
 		};
-		bool Ecmp(const void *TableEntry1, const void *TableEntry2);  //comparison function
+//		bool Ecmp(const void *TableEntry1, const void *TableEntry2);  //comparison function
 
 }
 #endif
