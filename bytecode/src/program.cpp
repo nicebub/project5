@@ -1,8 +1,10 @@
-#include "program.hpp"
-#include "machine.hpp"
+// Copyright 2021 Scott Lorberbaum
+
 #include <string>
 #include <vector>
 #include <sstream>
+#include "program.hpp"
+#include "machine.hpp"
 namespace project5{
 		Program::Program() :
 		ip{0},
@@ -10,22 +12,21 @@ namespace project5{
 		bp{0},
 		acc{0},
 		program_mem{}
-		{
+		 {
 			current = program_mem.begin();
 			current++;
 		}
-		Program::~Program(){}
-		Program::Program(const Program& in) : 
+		Program::~Program() {}
+		Program::Program(const Program& in) :
 				ip{in.ip},
 				sp{in.sp},
 				bp{in.bp},
 				acc{in.acc},
 				program_mem{in.program_mem},
 				current{in.current}
-				{	}
-		Program& Program::operator=(const Program & in) 
-		{
-			if(this != &in){
+				 {	}
+		Program& Program::operator=(const Program & in) {
+			if (this != &in) {
 				ip = in.ip;
 				sp = in.sp;
 				bp = in.bp;
@@ -61,4 +62,4 @@ namespace project5{
 		}
 		*/
 
-	};
+	};  // namespace project5

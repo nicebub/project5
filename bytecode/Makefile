@@ -15,7 +15,7 @@ else
 #	GENERATE_RUNNER= tools/genrunners.sh
 endif
 
-.PHONY: all clean test run
+.PHONY: all clean test run lint
 
 SRCDIR = src
 OBJDIR = obj
@@ -35,6 +35,8 @@ DEBUG = -g
 G++ = `which g++`
 BINARY = bytecode
 EXEC = ${BUILDDIR}/${BINARY}
+LINT = cpplint
+LINTFLAGS = --verbose=2
 
 STD = -std=c++2a
 CPPFLAGS += -I${HDRDIR} ${STD}
@@ -65,6 +67,9 @@ ${FULLOBJDIR}/%.o: ${SRCDIR}/%.cpp
 ${EXEC}: ${FULLOBJS}
 	@echo ${FULLOBJS}
 	${G++} ${CPPFLAGS} ${DEBUG} $^ -o $@
+
+lint:
+	 ${LINT} ${LINTFLAGS} src/*.cpp include/*.hpp
 
 clean:
 	${CLEANUP} ${FULLOBJDIR}/*

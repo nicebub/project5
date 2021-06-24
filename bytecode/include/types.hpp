@@ -1,12 +1,13 @@
-#ifndef _TYPES_HPP
-#define _TYPES_HPP
+// Copyright 2021 Scott Lorberbaum
+
+#ifndef BYTECODE_INCLUDE_TYPES_HPP_
+#define BYTECODE_INCLUDE_TYPES_HPP_
 
 namespace project5 {
 
 #define as_int(x) static_cast<Program::register_t>((x))
 
-
-			enum class e_register {
+enum class e_register {
 				IP,
 				SP,
 				BP,
@@ -48,5 +49,5 @@ namespace project5 {
 				f = 0x80
 			};
 
-		}
-#endif
+		}  // namespace project5
+#endif  // BYTECODE_INCLUDE_TYPES_HPP_

@@ -1,15 +1,15 @@
-#ifndef _MACHINE_HPP
-#define _MACHINE_HPP
+// Copyright 2021 Scott Lorberbaum
+
+#ifndef BYTECODE_INCLUDE_MACHINE_HPP_
+#define BYTECODE_INCLUDE_MACHINE_HPP_
 
 #include <unistd.h>
 #include <array>
 #include "program.hpp"
 namespace project5 {
-	
 
-	class Machine {
-		public:
-
+class Machine {
+	public:
 #define as_int(x) static_cast<Program::register_t>((x))
 
 			enum class e_register {
@@ -24,7 +24,7 @@ namespace project5 {
 			};
 #define to_e_register(x) static_cast<Machine::e_register>((x))
 			enum class e_argument_type {
-				NONE,
+				INL,
 				REG,
 				MEM,
 				IND
@@ -39,7 +39,11 @@ namespace project5 {
 				MUL,
 				JMP,
 				JMPZ,
-				ZERO
+				ZERO,
+				CALL,
+				PUSH,
+				POP,
+				LEA
 			};
 #define to_e_instruction(x) static_cast<Machine::e_instruction>((x))
 
@@ -58,7 +62,7 @@ namespace project5 {
 			using program_t = Program;
 
 			Machine();
-			Machine(Machine::program_t* program);
+			explicit Machine(Machine::program_t* program);
 			virtual ~Machine();
 			Machine(const Machine&);
 			Machine& operator=(const Machine&);
@@ -67,32 +71,35 @@ namespace project5 {
 			void printProgram();
 
 			Program::register_t fetch();
-		     Program::register_t* fetch_addr();
-		     Program::register_t* fetch_addr_from(Program::memory_t m);
+			Program::register_t* fetch_addr();
+			Program::register_t* fetch_addr_from(Program::memory_t m);
 			Machine::e_instruction decode(Program::register_t in);
-			Program::register_t encode(Machine::e_instruction );
-			Program::register_t encode(Machine::e_instruction, Machine::e_argument_type, Machine::e_argument_type );
+			Program::register_t encode(Machine::e_instruction);
+			Program::register_t encode(Machine::e_instruction, Machine::e_argument_type,
+				 Machine::e_argument_type);
 			Program::memory_t* resolvetype(Machine::e_argument_type in);
 
-			void executeADD(Program::register_t& instr);
-			void executeMOV(Program::register_t& instr);
-		private:
+			void executeADD(const Program::register_t& instr);
+			void executeMOV(const Program::register_t& instr);
+
+	private:
 			Machine::program_t* program;
-			Program::register_t ip; // instruction pointer
-			Program::register_t sp; // stack pointer
-			Program::register_t bp; // base pointer
-			Program::register_t acc; // accumulator
-			Program::register_t al; // GPR
-			Program::register_t bl; //GPR
-			Program::register_t cl; //GPR
-			Program::register_t dl; //GPR
-			Program::register_t flags; // flags, carry from ALU, ZERO, INTERRUPT, OTHERS< ETC
+			Program::register_t ip;  // instruction pointer
+			Program::register_t sp;  // stack pointer
+			Program::register_t bp;  // base pointer
+			Program::register_t acc;  // accumulator
+			Program::register_t al;  // GPR
+			Program::register_t bl;  // GPR
+			Program::register_t cl;  // GPR
+			Program::register_t dl;  // GPR
+			Program::register_t flags;  // flags, carry from ALU, ZERO, INTERRUPT,
+													//  OTHERSS< ETC
 	};
 
 std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e);
 std::ostream& operator<<(std::ostream& o, const uint8_t& in);
 std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in);
 
-};
+};  // namespace project5
 
-#endif
+#endif  // BYTECODE_INCLUDE_MACHINE_HPP_
