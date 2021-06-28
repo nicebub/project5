@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E2AF733426855E32009DBC15 /* program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2AF733226855E32009DBC15 /* program.cpp */; };
+		E2AF733526855E32009DBC15 /* assembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2AF733326855E32009DBC15 /* assembler.cpp */; };
 		E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A252267AAF0A00225EF6 /* main.cpp */; };
 		E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A253267AAF0B00225EF6 /* machine.cpp */; };
-		E2F8A25C267C4BD300225EF6 /* program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A25A267C4BD300225EF6 /* program.cpp */; };
-		E2F8A25D267C4BD300225EF6 /* translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A25B267C4BD300225EF6 /* translator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,14 +26,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E2AF733026855E32009DBC15 /* assembler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = assembler.hpp; path = ../../include/assembler.hpp; sourceTree = "<group>"; };
+		E2AF733126855E32009DBC15 /* program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = program.hpp; path = ../../include/program.hpp; sourceTree = "<group>"; };
+		E2AF733226855E32009DBC15 /* program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = program.cpp; path = ../../src/program.cpp; sourceTree = "<group>"; };
+		E2AF733326855E32009DBC15 /* assembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = assembler.cpp; path = ../../src/assembler.cpp; sourceTree = "<group>"; };
 		E2F8A245267AAED500225EF6 /* bytecode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bytecode; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2F8A251267AAF0A00225EF6 /* machine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = machine.hpp; path = ../../include/machine.hpp; sourceTree = "<group>"; };
 		E2F8A252267AAF0A00225EF6 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
 		E2F8A253267AAF0B00225EF6 /* machine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = machine.cpp; path = ../../src/machine.cpp; sourceTree = "<group>"; };
-		E2F8A258267C4BD300225EF6 /* program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = program.hpp; sourceTree = "<group>"; };
-		E2F8A259267C4BD300225EF6 /* translator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = translator.hpp; sourceTree = "<group>"; };
-		E2F8A25A267C4BD300225EF6 /* program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = program.cpp; sourceTree = "<group>"; };
-		E2F8A25B267C4BD300225EF6 /* translator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = translator.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,13 +66,13 @@
 		E2F8A247267AAED500225EF6 /* bytecode */ = {
 			isa = PBXGroup;
 			children = (
+				E2AF733326855E32009DBC15 /* assembler.cpp */,
+				E2AF733026855E32009DBC15 /* assembler.hpp */,
+				E2AF733226855E32009DBC15 /* program.cpp */,
+				E2AF733126855E32009DBC15 /* program.hpp */,
 				E2F8A253267AAF0B00225EF6 /* machine.cpp */,
 				E2F8A251267AAF0A00225EF6 /* machine.hpp */,
 				E2F8A252267AAF0A00225EF6 /* main.cpp */,
-				E2F8A25A267C4BD300225EF6 /* program.cpp */,
-				E2F8A258267C4BD300225EF6 /* program.hpp */,
-				E2F8A25B267C4BD300225EF6 /* translator.cpp */,
-				E2F8A259267C4BD300225EF6 /* translator.hpp */,
 			);
 			path = bytecode;
 			sourceTree = "<group>";
@@ -133,9 +133,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2AF733526855E32009DBC15 /* assembler.cpp in Sources */,
 				E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */,
-				E2F8A25D267C4BD300225EF6 /* translator.cpp in Sources */,
-				E2F8A25C267C4BD300225EF6 /* program.cpp in Sources */,
+				E2AF733426855E32009DBC15 /* program.cpp in Sources */,
 				E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,11 +1,22 @@
 // Copyright 2021 Scott Lorberbaum
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include "machine.hpp"
 
 namespace project5 {
 
+	/*
+	Machine::Machine(Machine::program_t* program) :program{program} {
+		if(program != nullptr){
+			ip = program->ip;
+			sp = program->sp;
+			bp = program->bp;
+			acc = program->acc;
+		}
+	}
+	*/
 	Machine::Machine() :
 		program{},
 		ip{0},
@@ -46,6 +57,18 @@ namespace project5 {
 			flags = in.flags;
 		}
 		return *this;
+	}
+	void loadProgramFromFile(const std::string name){
+		std::ifstream file{name, std::ios::binary | std::ifstream::in };
+		if(file.is_open()){
+			file.seekg (0, file.end);
+			int length = file.tellg();
+			file.seekg (0, file.beg);
+//			Machine::program_t *prgm = new Machine::program_t[length]{};
+			for(int i{0};i<length;i++){
+//				file.read(&prgm[i],sizeof(Program::register_t));
+			}
+		}
 	}
 
 	void Machine::loadProgram(program_t* inProgram) {
@@ -109,7 +132,7 @@ namespace project5 {
 		}
 		return nullptr;
 	}
-	void Machine::executeMOV(Program::register_t& instr) {
+	void Machine::executeMOV(const Program::register_t& instr) {
 // 		Program::register_t* dest{};
 
 
@@ -125,7 +148,7 @@ namespace project5 {
 		*dest = *value;
 	}
 
-	void Machine::executeADD(Program::register_t& instr) {
+	void Machine::executeADD(const Program::register_t& instr) {
 	}
 	void Machine::run() {
 		while(true) {
@@ -193,16 +216,19 @@ namespace project5 {
 	}
 
 
-	std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e) {
+std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e) {
 		o << "0x" << static_cast<uint8_t>(e);
 		return o;
 	}
-	std::ostream& operator<<(std::ostream& o, const uint8_t& in) {
+	
+	/*
+std::ostream& operator<<(std::ostream& o, const uint8_t& in) {
 			o << std::setfill('0') << std::setw(2) << std::right <<std::hex;
 			o << unsigned(in);
 			o << std::dec;
 			return o;
 		}
+		*/
 std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in) {
 			Program::register_t counter{0};
 			o << std::hex;
