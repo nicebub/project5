@@ -5,12 +5,14 @@
 
 #include <unistd.h>
 #include <array>
+#include <string>
 #include "program.hpp"
 namespace project5 {
 
 class Machine {
 	public:
 #define as_int(x) static_cast<Program::register_t>((x))
+#define as_reg_t(x) static_cast<Program::register_t>((x))
 
 			enum class e_register {
 				IP,
@@ -62,7 +64,7 @@ class Machine {
 			using program_t = Program;
 
 			Machine();
-//			explicit Machine(Machine::program_t* program);
+// 			explicit Machine(Machine::program_t* program);
 			virtual ~Machine();
 			Machine(const Machine&);
 			Machine& operator=(const Machine&);
@@ -98,7 +100,7 @@ class Machine {
 	};
 
 std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e);
-//std::ostream& operator<<(std::ostream& o, const uint8_t& in);
+// std::ostream& operator<<(std::ostream& o, const uint8_t& in);
 std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in);
 
 };  // namespace project5

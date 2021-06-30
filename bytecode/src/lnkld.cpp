@@ -1,12 +1,14 @@
+// Copyright 2021 Scott Lorberbaum
+
 #include <fstream>
 #include <iostream>
 #include "assembler.hpp"
 #include "program.hpp"
 
-namespace project5{
+namespace project5 {
 void Assembler::outputToFileSectionNames(std::ofstream& file) {
-	file << std::hex << (Program::register_t)0x00; // NULL STRING 0
-	file << std::hex << (Program::register_t)0x2E; // string .shrtrtab
+	file << std::hex << (Program::register_t)0x00;  // NULL STRING 0
+	file << std::hex << (Program::register_t)0x2E;  // string .shrtrtab
 	file << std::hex << (Program::register_t)0x73;
 	file << std::hex << (Program::register_t)0x68;
 	file << std::hex << (Program::register_t)0x73;
@@ -15,17 +17,17 @@ void Assembler::outputToFileSectionNames(std::ofstream& file) {
 	file << std::hex << (Program::register_t)0x74;
 	file << std::hex << (Program::register_t)0x61;
 	file << std::hex << (Program::register_t)0x62;
-	file << std::hex << (Program::register_t)0x00; // END STRING 1
-	file << std::hex << (Program::register_t)0x2E; // string .text
+	file << std::hex << (Program::register_t)0x00;  // END STRING 1
+	file << std::hex << (Program::register_t)0x2E;  // string .text
 	file << std::hex << (Program::register_t)0x74;
 	file << std::hex << (Program::register_t)0x65;
 	file << std::hex << (Program::register_t)0x78;
 	file << std::hex << (Program::register_t)0x74;
-	file << std::hex << (Program::register_t)0x00; // END STRING 2
+	file << std::hex << (Program::register_t)0x00;  // END STRING 2
 }
-
-void Assembler::outputToFileHeader(const std::string& header, std::ofstream& file){
-	if(header == "ELF"){
+using string = std::string;
+void Assembler::outputToFileHeader(const string& header, std::ofstream& file) {
+	if(header == "ELF") {
 		file << std::hex << (Program::register_t)0x7F;  // ELF start header
 		file << std::hex << (Program::register_t)0x45;  // E
 		file << std::hex << (Program::register_t)0x4C;  // L
@@ -60,14 +62,14 @@ void Assembler::outputToFileHeader(const std::string& header, std::ofstream& fil
 		file << std::hex << (Program::register_t)0x00;  // e_phoff 4 BYTES
 		file << std::hex << (Program::register_t)0x00;  // for 32-bit, 8 BYTES for 64
 		file << std::hex << (Program::register_t)0x00;  // start of program header
-		file << std::hex << (Program::register_t)0x34;  // table, generally follows the
-		//file header for offset 0x34 for 32-bit and 0x40 for 64-bit
+		file << std::hex << (Program::register_t)0x34;  // table, generally follows
+		// the file header for offset 0x34 for 32-bit and 0x40 for 64-bit
 
 		file << std::hex << (Program::register_t)0x00;  // e_shoff 4 BYTES
 		file << std::hex << (Program::register_t)0x00;  // for 32-bit, 8 BYTES for 64
 		file << std::hex << (Program::register_t)0x00;  // start of section header
 		file << std::hex << (Program::register_t)0x8F;  // table
-		
+
 		file << std::hex << (Program::register_t)0x00;  // e_flags 4 BYTES
 		file << std::hex << (Program::register_t)0x00;
 		file << std::hex << (Program::register_t)0x00;
@@ -76,19 +78,19 @@ void Assembler::outputToFileHeader(const std::string& header, std::ofstream& fil
 		file << std::hex << (Program::register_t)0x00;  // size of this header, gener-
 		file << std::hex << (Program::register_t)0x34;  // ally 52Bytes for 32-bit
 																		// or 64Bytes for 64 bit
-																		
-		file << std::hex << (Program::register_t)0x00;  // e_phentsize size of 
+
+		file << std::hex << (Program::register_t)0x00;  // e_phentsize size of
 		file << std::hex << (Program::register_t)0x20;  // program header table
-		
+
 		file << std::hex << (Program::register_t)0x00;  // e_phnum number of entries
 		file << std::hex << (Program::register_t)0x02;  // in program header table
-		
-		file << std::hex << (Program::register_t)0x00;  // e_shentsize size of 
+
+		file << std::hex << (Program::register_t)0x00;  // e_shentsize size of
 		file << std::hex << (Program::register_t)0x28;  // section header table
 
 		file << std::hex << (Program::register_t)0x00;  // e_shnum number of entries
 		file << std::hex << (Program::register_t)0x03;  // in section header table
-		
+
 		file << std::hex << (Program::register_t)0x00;  // e_shstrndx contains index
 		file << std::hex << (Program::register_t)0x02;  // of section header table
 														// entry that contains the section names
@@ -121,7 +123,7 @@ void Assembler::outputToFileHeader(const std::string& header, std::ofstream& fil
 		file << std::hex << (Program::register_t)0x00;  // p_offset
 		file << std::hex << (Program::register_t)0x00;  // segment location offset
 		file << std::hex << (Program::register_t)0x20;
-		
+
 		file << std::hex << (Program::register_t)0x00;  // 4 BYTES
 		file << std::hex << (Program::register_t)0x00;  // p_vaddr
 		file << std::hex << (Program::register_t)0x00;  // virtual address in mem
@@ -163,7 +165,7 @@ void Assembler::outputToFileHeader(const std::string& header, std::ofstream& fil
 		file << std::hex << (Program::register_t)0x00;  // p_offset
 		file << std::hex << (Program::register_t)0x00;  // segment location offset
 		file << std::hex << (Program::register_t)0x00;
-		
+
 		file << std::hex << (Program::register_t)0x00;  // 4 BYTES
 		file << std::hex << (Program::register_t)0x00;  // p_vaddr
 		file << std::hex << (Program::register_t)0x00;  // virtual address in mem
@@ -193,13 +195,9 @@ void Assembler::outputToFileHeader(const std::string& header, std::ofstream& fil
 		file << std::hex << (Program::register_t)0x00;  // are no alignment, otherwi-
 		file << std::hex << (Program::register_t)0x00;  // se, positive power of 2
 		file << std::hex << (Program::register_t)0x00;  // pvaddr=poffset % p_align
-
-
 	}
-
 }
 void Assembler::outputToFileSegmentTable(std::ofstream& file) {
-
 																// start of a section header
 	file << std::hex << (Program::register_t)0x00;
 	file << std::hex << (Program::register_t)0x00;
@@ -260,7 +258,7 @@ void Assembler::outputToFileSegmentTable(std::ofstream& file) {
 																	// nul terminated strings
 
 	file << std::hex << (Program::register_t)0x00;  // sh_addr 4 BYTES
-	file << std::hex << (Program::register_t)0x00;  // virt address of 
+	file << std::hex << (Program::register_t)0x00;  // virt address of
 	file << std::hex << (Program::register_t)0x00;  // section in memory
 	file << std::hex << (Program::register_t)0x00;
 
@@ -290,8 +288,8 @@ void Assembler::outputToFileSegmentTable(std::ofstream& file) {
 	file << std::hex << (Program::register_t)0x00;
 
 	file << std::hex << (Program::register_t)0x00;  // sh_entsize 4 BYTES
-	file << std::hex << (Program::register_t)0x00; // size in bytes of each entry
-	file << std::hex << (Program::register_t)0x00; // if fixed size otherwise 0
+	file << std::hex << (Program::register_t)0x00;  // size in bytes of each entry
+	file << std::hex << (Program::register_t)0x00;  // if fixed size otherwise 0
 	file << std::hex << (Program::register_t)0x00;
 
 																	// next section in table
@@ -344,8 +342,5 @@ void Assembler::outputToFileSegmentTable(std::ofstream& file) {
 	file << std::hex << (Program::register_t)0x00;
 	file << std::hex << (Program::register_t)0x00;
 	file << std::hex << (Program::register_t)0x00;
-
-
 }
-
-}
+}  // namespace project5

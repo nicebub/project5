@@ -12,10 +12,10 @@ int main(const int argc, const char ** argv) {
 	using e_instruction = Machine::e_instruction;
 	using e_register = Machine::e_register;
 	using e_argument_type = Machine::e_argument_type;
-	
+
 	Machine m{};
 	Assembler as{&m};
-	if(argc > 1){
+	if(argc > 1) {
 		std::string name{argv[1]};
 		as.readFile(name);
 		as.outputToFile("example.o");
