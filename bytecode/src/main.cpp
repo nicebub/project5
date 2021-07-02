@@ -5,15 +5,14 @@
 
 int main(const int argc, const char ** argv) {
 	using Machine = project5::Machine;
-	using e_instruction = Machine::e_instruction;
-	using e_register = Machine::e_register;
-	using e_argument_type = Machine::e_argument_type;
+
+	std::cout <<"Printing Program before run\n";
 
 	Machine m{};
-
 	m.loadProgramFromFile("example.o");
-	std::cout <<"Printing Program before run\n";
 	m.printMachineState();
-	m.run();
-	return 0;
+	auto result = m.run();
+	std::cout << "Printing Program after run\n";
+	m.printMachineState();
+	return result;
 }

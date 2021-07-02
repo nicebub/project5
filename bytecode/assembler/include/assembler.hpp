@@ -1,13 +1,13 @@
 // Copyright 2021 Scott Lorberbaum
 
-#ifndef BYTECODE_INCLUDE_ASSEMBLER_HPP_
-#define BYTECODE_INCLUDE_ASSEMBLER_HPP_
+#ifndef BYTECODE_ASSEMBLER_INCLUDE_ASSEMBLER_HPP_
+#define BYTECODE_ASSEMBLER_INCLUDE_ASSEMBLER_HPP_
 #include <vector>
 #include <string>
 #include <array>
 #include <map>
 #include "types.hpp"
-#include "program.hpp"
+// #include "program.hpp"
 namespace project5 {
 
 using Elf32_Word = uint32_t;
@@ -84,4 +84,4 @@ class Assembler {
 
 
 
-#endif  // BYTECODE_INCLUDE_ASSEMBLER_HPP_
+#endif  // BYTECODE_ASSEMBLER_INCLUDE_ASSEMBLER_HPP_

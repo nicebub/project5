@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 #include "machine.hpp"
 
 namespace project5 {
@@ -63,14 +64,12 @@ namespace project5 {
 			file.seekg(0, file.end);
 			int length = file.tellg();
 			file.seekg(0, file.beg);
-			std::cerr << name <<":file length: " << length << "bytes\n";
-			/*
-			if(program == nullptr) {
-				program = Program::newProgram();
-				}*/
+
+// 			std::cerr << name <<":file length: " << length << "bytes\n";
+
 			for(int i{0}; i < length; i++) {
 				char temp;
-				file.read(&temp, sizeof(Program::register_t));
+				file.read(&temp, sizeof(register_t));
 				program.push_back(temp);
 			}
 			loadProgramIntoMemory();
@@ -99,22 +98,22 @@ namespace project5 {
 		acc = inProgram->getacc();
 	}
 
-	Program::memory_t* Machine::resolvetype(Machine::e_argument_type in) {
+	memory_t* Machine::resolvetype(e_argument_type in) {
 		switch(in) {
 			case e_argument_type::REG:
 			 {
-				Program::memory_t* dest{};
+				memory_t* dest{};
 				switch(to_e_register(fetch())) {
-					case Machine::e_register::AL:
+					case e_register::AL:
 						dest = &al;
 						break;
-					case Machine::e_register::BL:
+					case e_register::BL:
 						dest = &bl;
 						break;
-					case Machine::e_register::CL:
+					case e_register::CL:
 						dest = &cl;
 						break;
-					case Machine::e_register::DL:
+					case e_register::DL:
 						dest = &dl;
 						break;
 					default:
@@ -138,7 +137,7 @@ namespace project5 {
 
 			case e_argument_type::IND:
 			 {
-				Program::memory_t temp { fetch() };
+				memory_t temp { fetch() };
 				return fetch_addr_from(temp);
 			}
 				break;
@@ -149,35 +148,49 @@ namespace project5 {
 		}
 		return nullptr;
 	}
-	void Machine::executeMOV(const Program::register_t& instr) {
+	void Machine::executeMOV(const register_t& instr) {
 		static constexpr uint8_t arg1_mask{12};
 		static constexpr uint8_t arg2_mask{3};
 
-		Machine::e_argument_type arg1{ to_e_argument_type((instr & arg1_mask) >> 2) };
-		Machine::e_argument_type arg2{ to_e_argument_type(instr & arg2_mask) };
+		e_argument_type arg1{ to_e_argument_type((instr & arg1_mask) >> 2) };
+		e_argument_type arg2{ to_e_argument_type(instr & arg2_mask) };
 
-		Program::memory_t* dest = resolvetype(arg1);
-		Program::memory_t* value = resolvetype(arg2);
+		memory_t* dest = resolvetype(arg1);
+		memory_t* value = resolvetype(arg2);
 
 		*dest = *value;
 	}
 
-	void Machine::executeADD(const Program::register_t& instr) {
+	void Machine::executeADD(const register_t& instr) {
 	}
-	void Machine::run() {
+
+	/*
+	register_t Machine::encode(Machine::e_instruction e) {
+	return (to_register_t(e) << 4);
+	}
+
+	register_t Machine::encode(Machine::e_instruction e,
+									e_argument_type a, e_argument_type b) {
+		register_t temp{ to_register_t((static_cast<uint8_t>(e) << 2))};
+		temp += to_register_t(a);
+		temp <<= 2;
+		temp += to_register_t(b);
+		return temp;
+	}
+	*/
+	register_t Machine::run() {
+		if(!programLoaded)
+			return -EXIT_FAILURE;
 		while(true) {
-			Program::register_t instr = fetch();
-			Machine::e_instruction e_instr = decode(instr);
+			register_t instr = fetch();
+			e_instruction e_instr = decode(instr);
 			switch(e_instr) {
-				case Machine::e_instruction::HALT:
-				std::cout << "Printing Program after run\n";
-					printMachineState();
-// 					dl = fetch();
-					exit(dl);
-				case Machine::e_instruction::ADD:
+				case e_instruction::HALT:
+					return dl;
+				case e_instruction::ADD:
 					executeADD(instr);
 					break;
-				case Machine::e_instruction::MOV:
+				case e_instruction::MOV:
 					executeMOV(instr);
 					break;
 				default:
@@ -188,31 +201,18 @@ namespace project5 {
 		}
 	}
 
-	Program::register_t Machine::fetch() {
+	register_t Machine::fetch() {
 		return memory[ip++];
 	}
-	Program::register_t* Machine::fetch_addr() {
+	register_t* Machine::fetch_addr() {
 	return &memory[ip++];
 	}
 
-	Program::register_t* Machine::fetch_addr_from(Program::memory_t m) {
+	register_t* Machine::fetch_addr_from(memory_t m) {
 		return &memory[m];
 	}
 
-	Program::register_t Machine::encode(Machine::e_instruction e) {
-	return (to_register_t(e) << 4);
-	}
-
-	Program::register_t Machine::encode(Machine::e_instruction e,
-									Machine::e_argument_type a, Machine::e_argument_type b) {
-		Program::register_t temp{ to_register_t((static_cast<uint8_t>(e) << 2))};
-		temp += to_register_t(a);
-		temp <<= 2;
-		temp += to_register_t(b);
-		return temp;
-	}
-
-	Machine::e_instruction Machine::decode(Program::register_t in) {
+	e_instruction Machine::decode(register_t in) {
 		return to_e_instruction(in >> 4);
 	}
 
@@ -231,7 +231,7 @@ namespace project5 {
 	}
 
 
-std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e) {
+std::ostream& operator<<(std::ostream& o, const e_instruction& e) {
 		o << "0x" << static_cast<uint8_t>(e);
 		return o;
 	}
@@ -244,7 +244,7 @@ std::ostream& operator<<(std::ostream& o, const uint8_t& in) {
 			return o;
 		}
 
-std::ostream& operator<<(std::ostream& o, const Machine::main_memory_t& in) {
+std::ostream& operator<<(std::ostream& o, const main_memory_t& in) {
 	uint16_t counter{0};
 	o << std::hex;
 	for(auto& element : in) {
@@ -261,7 +261,7 @@ std::ostream& operator<<(std::ostream& o, const Machine::main_memory_t& in) {
 	return o;
 }
 
-std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in) {
+std::ostream& operator<<(std::ostream& o, const program_memory_t& in) {
 	uint16_t counter{0};
 	o << std::hex;
 	for(auto& element : in) {
