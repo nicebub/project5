@@ -7,19 +7,11 @@
 
 namespace project5 {
 
-	/*
-	Machine::Machine(Machine::program_t* program) :program{program} {
-		if(program != nullptr){
-			ip = program->ip;
-			sp = program->sp;
-			bp = program->bp;
-			acc = program->acc;
-		}
-	}
-	*/
 	Machine::Machine() :
+		programLoaded{false},
+		memory{},
 		program{},
-		ip{0},
+		ip{1},
 		sp{0},
 		bp{0},
 		acc{0},
@@ -32,6 +24,8 @@ namespace project5 {
 	Machine::~Machine() {
 	}
 	Machine::Machine(const Machine& in) :
+		programLoaded{false},
+		memory{in.memory},
 		program{in.program},
 		ip{in.ip},
 		sp{in.sp},
@@ -42,9 +36,13 @@ namespace project5 {
 		cl{in.cl},
 		dl{in.dl},
 		flags{in.flags}
-		 {	}
+		 {
+// 			loadProgramIntoMemory();
+		}
 	Machine& Machine::operator=(const Machine& in) {
 		if(this != &in) {
+			programLoaded = false;
+			memory = in.memory;
 			program = in.program;
 			ip = in.ip;
 			sp = in.sp;
@@ -55,24 +53,46 @@ namespace project5 {
 			cl = in.cl;
 			dl = in.dl;
 			flags = in.flags;
+			// loadprogramIntoMemory();
 		}
 		return *this;
 	}
-	void loadProgramFromFile(const std::string name) {
+	void Machine::loadProgramFromFile(const std::string name) {
 		std::ifstream file{name, std::ios::binary | std::ifstream::in };
-		if(file.is_open()) {
+		if(!file.fail() || file.is_open()) {
 			file.seekg(0, file.end);
 			int length = file.tellg();
 			file.seekg(0, file.beg);
-// 			Machine::program_t *prgm = new Machine::program_t[length]{};
+			std::cerr << name <<":file length: " << length << "bytes\n";
+			/*
+			if(program == nullptr) {
+				program = Program::newProgram();
+				}*/
 			for(int i{0}; i < length; i++) {
-// 				file.read(&prgm[i],sizeof(Program::register_t));
+				char temp;
+				file.read(&temp, sizeof(Program::register_t));
+				program.program_mem.push_back(temp);
 			}
+			loadProgramIntoMemory();
+			bp = sp = length;
 		}
+		file.close();
+	}
+	void Machine::loadProgramIntoMemory() {
+		size_t i{1};
+		for(auto& element : program.program_mem) {
+// 			if i >= MEMSIZE throw an exception program larger than memory??
+			memory[i] = element;
+			i++;
+		}
+		programLoaded = true;
+	}
+	const  bool Machine::isProgramLoaded() noexcept {
+		return programLoaded;
 	}
 
-	void Machine::loadProgram(program_t* inProgram) {
-		program = inProgram;
+	void Machine::loadProgram(Program* inProgram) {
+		program = *inProgram;
 		ip = inProgram->ip;
 		sp = inProgram->sp;
 		bp = inProgram->bp;
@@ -83,9 +103,8 @@ namespace project5 {
 		switch(in) {
 			case e_argument_type::REG:
 			 {
-				Machine::e_register temp{ to_e_register(fetch()) };
 				Program::memory_t* dest{};
-				switch(temp) {
+				switch(to_e_register(fetch())) {
 					case Machine::e_register::AL:
 						dest = &al;
 						break;
@@ -110,22 +129,20 @@ namespace project5 {
 				return fetch_addr();
 			}
 				break;
-				/*
+
 			case e_argument_type::INL:
-			{
+			 {
 				return fetch_addr();
 			}
 			break;
-			*/
 
 			case e_argument_type::IND:
 			 {
-				Program::memory_t temp{ fetch() };
+				Program::memory_t temp { fetch() };
 				return fetch_addr_from(temp);
 			}
 				break;
 
-// 			case e_argument_type::NONE:
 			default:
 				return nullptr;
 				break;
@@ -133,9 +150,6 @@ namespace project5 {
 		return nullptr;
 	}
 	void Machine::executeMOV(const Program::register_t& instr) {
-// 		Program::register_t* dest{};
-
-
 		static constexpr uint8_t arg1_mask{12};
 		static constexpr uint8_t arg2_mask{3};
 
@@ -175,14 +189,14 @@ namespace project5 {
 	}
 
 	Program::register_t Machine::fetch() {
-		return program->program_mem[ip++];
+		return memory[ip++];
 	}
 	Program::register_t* Machine::fetch_addr() {
-	return &program->program_mem[ip++];
+	return &memory[ip++];
 	}
 
 	Program::register_t* Machine::fetch_addr_from(Program::memory_t m) {
-		return &program->program_mem[m];
+		return &memory[m];
 	}
 
 	Program::register_t Machine::encode(Machine::e_instruction e) {
@@ -203,16 +217,17 @@ namespace project5 {
 	}
 
 	void Machine::printProgram() {
-		if(program) {
+// 		if(program) {
 			std::cout << "ip:	" << ip << "		sp:	" << sp << "		";
 			std::cout <<"bp:	" << bp << "		acc:	" << acc << "\n";
 			std::cout << "al:	" << al << "		cl:	" << cl << "		";
 			std::cout <<"bl:	" << bl << "		dl:	" << dl << "		";
 			std::cout << "flags:	" << flags << "\n";
 			std::cout <<"-----------------------\n";
-			std::cout << program->program_mem << "\n";
+			std::cout << memory << "\n";
+// 			std::cout << program.program_mem << "\n";
 			std::cout <<"-----------------------\n";
-		}
+//		}
 	}
 
 
@@ -221,27 +236,45 @@ std::ostream& operator<<(std::ostream& o, const Machine::e_instruction& e) {
 		return o;
 	}
 
-	/*
+
 std::ostream& operator<<(std::ostream& o, const uint8_t& in) {
 			o << std::setfill('0') << std::setw(2) << std::right <<std::hex;
 			o << unsigned(in);
 			o << std::dec;
 			return o;
 		}
-		*/
-std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in) {
-			Program::register_t counter{0};
-			o << std::hex;
-			for(auto& element : in) {
-				o << element << ' ';
-				counter = (counter + 1) % 8;
-				if ( !counter ) {
-					o << '\n';
-				}
-			}
-			o << std::dec;
-			return o;
+
+std::ostream& operator<<(std::ostream& o, const Machine::main_memory_t& in) {
+	uint16_t counter{0};
+	o << std::hex;
+	for(auto& element : in) {
+		if (!(counter % 8)) {
+			o << std::hex << std::setw(4) << counter << ": " << std::setw(2);
 		}
+		o << element << ' ';
+		counter++;
+		if ( !(counter%8) ) {
+			o << '\n';
+		}
+	}
+	o << std::dec;
+	return o;
+}
 
-
+std::ostream& operator<<(std::ostream& o, const Program::program_memory_t& in) {
+	uint16_t counter{0};
+	o << std::hex;
+	for(auto& element : in) {
+		if (!(counter % 8)) {
+			o << std::hex << std::setw(4) << counter << ": " << std::setw(2);
+		}
+		o << element << ' ';
+		counter++;
+		if ( !(counter%8) ) {
+			o << '\n';
+		}
+	}
+	o << std::dec;
+	return o;
+}
 }  // namespace project5

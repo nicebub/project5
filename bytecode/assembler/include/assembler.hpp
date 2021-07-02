@@ -33,42 +33,39 @@ typedef struct {
 	using e_register = Machine::e_register;
 	using e_argument_type = Machine::e_argument_type;
 	using e_instruction = Machine::e_instruction;
+	using register_map = std::map<const string, const e_register>;
+	using argument_map = std::map<const string, const e_argument_type>;
+	using instruction_map = std::map<const string, const e_instruction>;
+
 class Assembler {
 	public:
-		static  std::map<const string, const e_register> register_name;
-		static  std::map<const string, const e_argument_type> argument_name;
-		static  std::map<const string, const e_instruction> instruction_name;
+		static register_map register_name;
+		static argument_map argument_name;
+		static instruction_map instruction_name;
 
-	/*
-			static const size_t num_registers = 8;
-			static const std::array<std::string, num_registers> register_name;
-			static const size_t num_args = 4;
-			static const std::array<std::string, num_args> argumentType_name;
-			static const size_t num_instructions = 13;
-			static const std::array<std::string, num_instructions> instruction_name;
-			*/
-			Assembler();
-			explicit Assembler(Machine* mach);
-			virtual ~Assembler();
-			Assembler(const Assembler&);
-			Assembler& operator=(const Assembler&);
+		Assembler();
+		explicit Assembler(Machine* mach);
+		virtual ~Assembler();
+		Assembler(const Assembler&);
+		Assembler& operator=(const Assembler&);
 
-			lines_of_code convertCmd2ByteCode(const string& s);
+		void readFile(const string fileName);
+		void outputToFile(const string fileName);
 
-			lines_of_code translateHALT();
-			lines_of_code translateMOV(token_array*&);
-			void readFile(const string fileName);
-			void outputToFile(const string fileName);
-			void translatePUSH();
-			void translatePOP();
-			void translateCALL();
-			void translateADD();
-			void translateSUB();
-			void translateDIV();
-			void translateMULT();
-			void tranlsateJMP();
-			void translateJMPZ();
-			void translateZERO();
+		lines_of_code convertCmd2ByteCode(const string& s);
+		lines_of_code translateHALT();
+		lines_of_code translateMOV(token_array*&);
+
+		void translatePUSH();
+		void translatePOP();
+		void translateCALL();
+		void translateADD();
+		void translateSUB();
+		void translateDIV();
+		void translateMULT();
+		void tranlsateJMP();
+		void translateJMPZ();
+		void translateZERO();
 
 	protected:
 		void outputToFileHeader(const string& header, std::ofstream& file);

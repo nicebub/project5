@@ -7,7 +7,7 @@
 #include "machine.hpp"
 namespace project5{
 		Program::Program() :
-		ip{0},
+		ip{1},
 		sp{0},
 		bp{0},
 		acc{0},
@@ -36,6 +36,9 @@ namespace project5{
 			}
 			return *this;
 		}
+Program* Program::newProgram(const size_t len) {
+	return new Program{};
+}
 		/*
 		std::vector<std::string>* split(const std::string& s, char delimiter)
 		{

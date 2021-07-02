@@ -40,7 +40,7 @@ namespace project5 {
 		{ "MUL", e_instruction::MUL },
 		{ "JMP", e_instruction::JMP },
 		{ "JMPZ", e_instruction::JMPZ },
-		{ "ZERO", e_instruction::ZERO },
+//		{ "ZERO", e_instruction::ZERO },
 		{ "CALL", e_instruction::CALL },
 		{ "PUSH", e_instruction::PUSH },
 		{ "POP", e_instruction::POP },
