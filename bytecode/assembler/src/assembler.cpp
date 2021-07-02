@@ -6,10 +6,10 @@
 #include <fstream>
 #include <map>
 #include "assembler.hpp"
-#include "machine.hpp"
-#include "program.hpp"
+//#include "types.hpp"
+//#include "program.hpp"
 
-// using statements get rid of std:: on std::string, Machine:: on
+// using statements get rid of std:: on std::string, VM:: on
 // e_register, e_argument_type, e_instruction
 
 namespace project5 {
@@ -83,18 +83,27 @@ const instruction_array Assembler::instruction_name = {
 };
 */
 Assembler::~Assembler() {}
-Assembler::Assembler() : mach{nullptr}, convertedCode{} {}
-Assembler::Assembler(Machine* inMach) : mach{inMach}, convertedCode{} {}
+Assembler::Assembler() : convertedCode{} {}
 
-Assembler::Assembler(const Assembler& in) : mach{in.mach},
-													convertedCode{in.convertedCode} {}
+Assembler::Assembler(const Assembler& in) : convertedCode{in.convertedCode} {}
 
 Assembler& Assembler::operator=(const Assembler& in) {
 	if(this != &in) {
-		mach = in.mach;
 		convertedCode = in.convertedCode;
 	}
 	return *this;
+}
+register_t Assembler::encode(e_instruction e) {
+	return (to_register_t(e) << 4);
+}
+
+register_t Assembler::encode(e_instruction e,
+								e_argument_type a, e_argument_type b) {
+	register_t temp{ to_register_t((static_cast<uint8_t>(e) << 2))};
+	temp += to_register_t(a);
+	temp <<= 2;
+	temp += to_register_t(b);
+	return temp;
 }
 
 
@@ -142,8 +151,8 @@ lines_of_code Assembler::convertCmd2ByteCode(const std::string& s) {
 		std::string arg1{};
 		std::string arg2{};
 
-		Machine::e_argument_type arg1_type;
-		Machine::e_argument_type arg2_type;
+		e_argument_type arg1_type;
+		e_argument_type arg2_type;
 		token_array* tokens = split(s, ' ');
 		instruction = tokens->front();
 
@@ -158,28 +167,28 @@ lines_of_code Assembler::convertCmd2ByteCode(const std::string& s) {
 
 class argument {
 	public:
-			Machine::e_argument_type type;
+			e_argument_type type;
 			std::string value;
-			Program::register_t r_value;
+			register_t r_value;
 	};
 
 	project5::argument translateArg(std::string a) {
 		project5::argument result;
 		switch(a[0]) {
 			case '$':
-				result.type = Machine::e_argument_type::REG;
+				result.type = e_argument_type::REG;
 				result.value = a.erase(0, 1);
-				result.r_value = as_reg_t(Assembler::register_name[result.value]);
+				result.r_value = to_register_t(Assembler::register_name[result.value]);
 				break;
 			case 'm':
-				result.type = Machine::e_argument_type::MEM;
+				result.type = e_argument_type::MEM;
 				result.value = a.erase(0, 1);
-				result.r_value = as_reg_t(Assembler::register_name[result.value]);
+				result.r_value = to_register_t(Assembler::register_name[result.value]);
 				break;
 			default:
-				result.type = Machine::e_argument_type::INL;
+				result.type = e_argument_type::INL;
 				result.value = a;
-				result.r_value = as_reg_t(stoul(a));
+				result.r_value = to_register_t(stoul(a));
 				break;
 		}
 		return result;
@@ -191,7 +200,7 @@ lines_of_code Assembler::translateMOV(token_array*& tokens) {
 
 	lines_of_code result{};
 	result.push_back(
-		mach->encode(Machine::e_instruction::MOV, arg1.type, arg2.type)
+		encode(e_instruction::MOV, arg1.type, arg2.type)
 	);
 	result.push_back(arg1.r_value);
 	result.push_back(arg2.r_value);
@@ -203,7 +212,7 @@ lines_of_code Assembler::translateMOV(token_array*& tokens) {
 
 lines_of_code Assembler::translateHALT() {
 	lines_of_code result{};
-	result.push_back(mach->encode(Machine::e_instruction::HALT));
+	result.push_back(encode(e_instruction::HALT));
 	return result;
 }
 void Assembler::translatePUSH() {

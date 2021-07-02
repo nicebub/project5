@@ -71,7 +71,7 @@ namespace project5 {
 			for(int i{0}; i < length; i++) {
 				char temp;
 				file.read(&temp, sizeof(Program::register_t));
-				program.program_mem.push_back(temp);
+				program.push_back(temp);
 			}
 			loadProgramIntoMemory();
 			bp = sp = length;
@@ -80,7 +80,7 @@ namespace project5 {
 	}
 	void Machine::loadProgramIntoMemory() {
 		size_t i{1};
-		for(auto& element : program.program_mem) {
+		for(auto& element : program) {
 // 			if i >= MEMSIZE throw an exception program larger than memory??
 			memory[i] = element;
 			i++;
@@ -91,12 +91,12 @@ namespace project5 {
 		return programLoaded;
 	}
 
-	void Machine::loadProgram(Program* inProgram) {
+	void Machine::loadProgram(const Program* inProgram) {
 		program = *inProgram;
-		ip = inProgram->ip;
-		sp = inProgram->sp;
-		bp = inProgram->bp;
-		acc = inProgram->acc;
+		ip = inProgram->getip();
+		sp = inProgram->getsp();
+		bp = inProgram->getbp();
+		acc = inProgram->getacc();
 	}
 
 	Program::memory_t* Machine::resolvetype(Machine::e_argument_type in) {
@@ -171,7 +171,7 @@ namespace project5 {
 			switch(e_instr) {
 				case Machine::e_instruction::HALT:
 				std::cout << "Printing Program after run\n";
-					printProgram();
+					printMachineState();
 // 					dl = fetch();
 					exit(dl);
 				case Machine::e_instruction::ADD:
@@ -181,7 +181,7 @@ namespace project5 {
 					executeMOV(instr);
 					break;
 				default:
-					flags &= to_register_t(Machine::e_flag::M_IOP);
+					flags &= to_register_t(VM::e_flag::M_IOP);
 					std::cerr << "Illegal Operation < "<< to_register_t(e_instr) << " >\n";
 					break;
 			}
@@ -216,7 +216,7 @@ namespace project5 {
 		return to_e_instruction(in >> 4);
 	}
 
-	void Machine::printProgram() {
+	void Machine::printMachineState() {
 // 		if(program) {
 			std::cout << "ip:	" << ip << "		sp:	" << sp << "		";
 			std::cout <<"bp:	" << bp << "		acc:	" << acc << "\n";

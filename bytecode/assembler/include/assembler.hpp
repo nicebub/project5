@@ -6,11 +6,10 @@
 #include <string>
 #include <array>
 #include <map>
+#include "types.hpp"
 #include "program.hpp"
-#include "machine.hpp"
 namespace project5 {
 
-// class Machine;
 using Elf32_Word = uint32_t;
 using Elf32_Off = uint32_t;
 using Elf32_Addr = uint32_t;
@@ -26,13 +25,16 @@ typedef struct {
         Elf32_Word      p_align;
 } Elf32_Phdr;
 
-	using token_array = std::vector<std::string>;
-	using lines_of_code = std::vector<Program::register_t>;
-	using full_program = std::vector<lines_of_code>;
 	using string = std::string;
-	using e_register = Machine::e_register;
-	using e_argument_type = Machine::e_argument_type;
-	using e_instruction = Machine::e_instruction;
+
+	using token_array = std::vector<string>;
+	using lines_of_code = std::vector<VM::memory_t>;
+	using full_program = std::vector<lines_of_code>;
+
+	using e_register = VM::e_register;
+	using e_argument_type = VM::e_argument_type;
+	using e_instruction = VM::e_instruction;
+
 	using register_map = std::map<const string, const e_register>;
 	using argument_map = std::map<const string, const e_argument_type>;
 	using instruction_map = std::map<const string, const e_instruction>;
@@ -44,10 +46,12 @@ class Assembler {
 		static instruction_map instruction_name;
 
 		Assembler();
-		explicit Assembler(Machine* mach);
 		virtual ~Assembler();
 		Assembler(const Assembler&);
 		Assembler& operator=(const Assembler&);
+
+		register_t encode(e_instruction e);
+		register_t encode(e_instruction e, e_argument_type a, e_argument_type b);
 
 		void readFile(const string fileName);
 		void outputToFile(const string fileName);
@@ -73,7 +77,6 @@ class Assembler {
 		void outputToFileSectionNames(std::ofstream& file);
 
 	private:
-		Machine* mach;
 		full_program convertedCode;
 };
 

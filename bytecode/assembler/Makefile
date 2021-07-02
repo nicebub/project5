@@ -32,14 +32,14 @@ HDR_STRIP := $(subst ./,,$(wildcard ${HDRDIR}/*.hpp))
 OBJS := $(patsubst ${SRCDIR}/%,%,$(subst .cpp,.o, $(SRC)))
 FULLOBJS := $(patsubst %,${FULLOBJDIR}/%,${OBJS})
 DEBUG = -g
-G++ = `which g++-10`
-BINARY = bytecode
+G++ = `which g++`
+BINARY = scas
 EXEC = ${BUILDDIR}/${BINARY}
 LINT = cpplint
 LINTFLAGS = --verbose=2
 
 STD = -std=c++2a
-CPPFLAGS += -I${HDRDIR} ${STD}
+CPPFLAGS += -I${HDRDIR}  -I../${HDRDIR} ${STD}
 
 all: ${BUILDDIR} ${FULLOBJDIR} ${EXEC}
 #	@echo "---------------Source Files------------------"

@@ -36,9 +36,35 @@ namespace project5{
 			}
 			return *this;
 		}
+
+program_memory_t::iterator Program::begin() {
+	return program_mem.begin();
+}
+program_memory_t::iterator Program::end() {
+	return program_mem.end();
+}
+
+void Program::push_back(memory_t in) {
+	program_mem.push_back(in);
+}
+
+
 Program* Program::newProgram(const size_t len) {
 	return new Program{};
 }
+Program::register_t Program::getip() const noexcept {
+	return ip;
+}
+Program::register_t Program::getsp() const noexcept {
+	return sp;
+}
+Program::register_t Program::getbp() const noexcept {
+	return bp;
+}
+Program::register_t Program::getacc() const noexcept {
+	return acc;
+}
+
 		/*
 		std::vector<std::string>* split(const std::string& s, char delimiter)
 		{

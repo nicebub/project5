@@ -13,7 +13,7 @@ int main(const int argc, const char ** argv) {
 
 	m.loadProgramFromFile("example.o");
 	std::cout <<"Printing Program before run\n";
-	m.printProgram();
+	m.printMachineState();
 	m.run();
 	return 0;
 }
