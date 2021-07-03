@@ -1,8 +1,6 @@
 // Copyright 2021 Scott Lorberbaum
 
 #include <iostream>
-// #include "machine.hpp"
-
 #include "assembler.hpp"
 
 int main(const int argc, const char ** argv) {

@@ -6,8 +6,6 @@
 #include <fstream>
 #include <map>
 #include "assembler.hpp"
-// #include "types.hpp"
-// #include "program.hpp"
 
 // using statements get rid of std:: on std::string, VM:: on
 // e_register, e_argument_type, e_instruction
@@ -46,42 +44,6 @@ namespace project5 {
 		{ "POP", e_instruction::POP },
 		{ "LEA", e_instruction::LEA }
 	};
-	/*
-using reg_array = std::array<std::string, Assembler::num_registers>;
-const reg_array Assembler::register_name = {
-		"IP",
-		"SP",
-		"BP",
-		"ACPP",
-		"AL",
-		"BL",
-		"CL",
-		"DL"
-};
-using arg_array = std::array<std::string, Assembler::num_args>;
-const arg_array Assembler::argumentType_name = {
-		"INL",
-		"REG",
-		"MEM",
-		"IND"
-};
-using instruction_array = std::array<std::string, Assembler::num_instructions>;
-const instruction_array Assembler::instruction_name = {
-		"HALT",
-		"MOV",
-		"ADD",
-		"SUB",
-		"DIV",
-		"MUL",
-		"JMP",
-		"JMPZ",
-		"ZERO",
-		"CALL",
-		"PUSH",
-		"POP",
-		"LEA"
-};
-*/
 Assembler::~Assembler() {}
 Assembler::Assembler() : convertedCode{} {}
 
@@ -147,20 +109,36 @@ void Assembler::outputToFile(const std::string fileName) {
 }
 
 lines_of_code Assembler::convertCmd2ByteCode(const std::string& s) {
-		std::string instruction{};
-		std::string arg1{};
-		std::string arg2{};
-
-		e_argument_type arg1_type;
-		e_argument_type arg2_type;
-		token_array* tokens = split(s, ' ');
-		instruction = tokens->front();
+		token_array* tokens{split(s, ' ')};
+		std::string instruction{tokens->front()};
 
 		if(instruction == "halt") {
 			return translateHALT();
 		} else if (instruction == "mov") {
 			return translateMOV(tokens);
-		} else {
+		} else if (instruction == "add") {
+			return translateADD();
+		} else if (instruction == "sub") {
+			return translateSUB();
+		} else if (instruction == "mul") {
+			return translateMUL();
+		} else if (instruction == "div") {
+			return translateDIV();
+		} else if (instruction == "jmp") {
+			return translateJMP();
+		} else if (instruction == "jmpz") {
+			return translateJMPZ();
+		} else if (instruction == "push") {
+			return translatePUSH();
+		} else if (instruction == "pop") {
+			return translatePOP();
+		} else if (instruction == "call") {
+			return translateCALL();
+		} else if (instruction == "ret") {
+			return translateRET();
+		}
+		else {
+
 		}
 		return lines_of_code{};
 	}
@@ -170,29 +148,31 @@ class argument {
 			e_argument_type type;
 			std::string value;
 			register_t r_value;
+			register_t u_value;
 	};
 
-	project5::argument translateArg(std::string a) {
-		project5::argument result;
-		switch(a[0]) {
-			case '$':
-				result.type = e_argument_type::REG;
-				result.value = a.erase(0, 1);
-				result.r_value = to_register_t(Assembler::register_name[result.value]);
-				break;
-			case 'm':
-				result.type = e_argument_type::MEM;
-				result.value = a.erase(0, 1);
-				result.r_value = to_register_t(Assembler::register_name[result.value]);
-				break;
-			default:
-				result.type = e_argument_type::INL;
-				result.value = a;
-				result.r_value = to_register_t(stoul(a));
-				break;
-		}
-		return result;
+project5::argument translateArg(std::string a) {
+	project5::argument result;
+	switch(a[0]) {
+		case 'm':
+			result.type = e_argument_type::MEM;
+			result.value = a.erase(0, 1);
+			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
+			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
+			break;
+		case '$':
+			result.type = e_argument_type::REG;
+			result.value = a.erase(0, 1);
+			result.r_value = to_register_t(Assembler::register_name[result.value]);
+			break;
+		default:
+			result.type = e_argument_type::INL;
+			result.value = a;
+			result.r_value = to_register_t(stoul(a));
+			break;
 	}
+	return result;
+}
 
 lines_of_code Assembler::translateMOV(token_array*& tokens) {
 	project5::argument arg1{ translateArg( (*tokens)[1] ) };
@@ -203,11 +183,13 @@ lines_of_code Assembler::translateMOV(token_array*& tokens) {
 		encode(e_instruction::MOV, arg1.type, arg2.type)
 	);
 	result.push_back(arg1.r_value);
+	if(arg1.type == e_argument_type::MEM)
+		result.push_back(arg1.u_value);
 	result.push_back(arg2.r_value);
+	if(arg2.type == e_argument_type::MEM)
+		result.push_back(arg2.u_value);
 	return result;
 	}
-
-// Program::register_t
 
 
 lines_of_code Assembler::translateHALT() {
@@ -215,23 +197,26 @@ lines_of_code Assembler::translateHALT() {
 	result.push_back(encode(e_instruction::HALT));
 	return result;
 }
-void Assembler::translatePUSH() {
+lines_of_code Assembler::translatePUSH() {
 	}
-void Assembler::translatePOP() {
+lines_of_code Assembler::translatePOP() {
 	}
-void Assembler::translateCALL() {
+lines_of_code Assembler::translateCALL() {
 	}
-void Assembler::translateADD() {
+lines_of_code Assembler::translateRET() {
 	}
-void Assembler::translateSUB() {
+
+lines_of_code Assembler::translateADD() {
 	}
-void Assembler::translateDIV() {
+lines_of_code Assembler::translateSUB() {
 	}
-void Assembler::translateMULT() {
+lines_of_code Assembler::translateDIV() {
 	}
-void Assembler::tranlsateJMP() {
+lines_of_code Assembler::translateMUL() {
 	}
-void Assembler::translateJMPZ() {
+lines_of_code Assembler::translateJMP() {
+	}
+lines_of_code Assembler::translateJMPZ() {
 	}
 void Assembler::translateZERO() {
 	}

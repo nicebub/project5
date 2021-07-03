@@ -155,10 +155,32 @@ namespace project5 {
 		e_argument_type arg1{ to_e_argument_type((instr & arg1_mask) >> 2) };
 		e_argument_type arg2{ to_e_argument_type(instr & arg2_mask) };
 
-		memory_t* dest = resolvetype(arg1);
-		memory_t* value = resolvetype(arg2);
+			memory_t* dest = resolvetype(arg1);
+			memory_t extra_dest{};
+			if(arg1 != e_argument_type::REG)
+				extra_dest = fetch();
 
-		*dest = *value;
+			memory_t* value = resolvetype(arg2);
+			memory_t extra_value{};
+			if(arg2 != e_argument_type::REG)
+				extra_value = fetch();
+
+			if(arg1 != e_argument_type::REG || arg2 != e_argument_type::REG) {
+				uint16_t m{*dest}, v{*value};
+				if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND) {
+					m <<= 8;
+					m += extra_dest;
+				}
+				if(arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND) {
+					v <<= 8;
+					v += extra_value;
+				}
+				
+			}
+			else {
+				*dest = *value;
+			}
+			
 	}
 
 	void Machine::executeADD(const register_t& instr) {

@@ -39,7 +39,7 @@ LINT = cpplint
 LINTFLAGS = --verbose=2
 
 STD = -std=c++2a
-CPPFLAGS += -I${HDRDIR}  -I../${HDRDIR} ${STD}
+CPPFLAGS += -I${HDRDIR}  -I../${HDRDIR} ${STD} -Wall
 
 all: ${BUILDDIR} ${FULLOBJDIR} ${EXEC}
 #	@echo "---------------Source Files------------------"

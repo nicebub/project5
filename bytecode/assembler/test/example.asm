@@ -1,6 +1,9 @@
 mov $AL 42
 mov $DL 66
-mov $BL $AL
 
 mov $CL 255
+
+mov $BL m0x210f
+
+mov m0xfffe $AL
 halt

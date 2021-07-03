@@ -7,7 +7,6 @@
 #include <array>
 #include <map>
 #include "types.hpp"
-// #include "program.hpp"
 namespace project5 {
 
 using Elf32_Word = uint32_t;
@@ -60,15 +59,16 @@ class Assembler {
 		lines_of_code translateHALT();
 		lines_of_code translateMOV(token_array*&);
 
-		void translatePUSH();
-		void translatePOP();
-		void translateCALL();
-		void translateADD();
-		void translateSUB();
-		void translateDIV();
-		void translateMULT();
-		void tranlsateJMP();
-		void translateJMPZ();
+		lines_of_code translatePUSH();
+		lines_of_code translatePOP();
+		lines_of_code translateCALL();
+		lines_of_code translateADD();
+		lines_of_code translateSUB();
+		lines_of_code translateDIV();
+		lines_of_code translateMUL();
+		lines_of_code translateJMP();
+		lines_of_code translateJMPZ();
+		lines_of_code translateRET();
 		void translateZERO();
 
 	protected:
