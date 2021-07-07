@@ -4,13 +4,11 @@
 #include "assembler.hpp"
 
 int main(const int argc, const char ** argv) {
-	using Assembler = project5::Assembler;
-
-	Assembler as{};
 	if(argc > 1) {
 		std::string name{argv[1]};
+		project5::Assembler as{};
 		as.readFile(name);
-		as.outputToFile("example.o");
+		as.outputToFile(name+".o");
 	}
 	return 0;
 }

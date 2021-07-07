@@ -53,10 +53,12 @@ class VM {
 			XY,  // 16 bit combo of X and Y
 		};
 		enum class e_argument_type {
-			INL,  // Inline -- included as part of instruction
-			REG,  // Register
+			INL8,  // Inline 1byte-- included as part of instruction
+			INL16,  // Inline 2 byte -- included as part of instruction
+			REG8,  // Register 8bit
+			REG16,  // Register 16bit
 			MEM,  // Memory -- can be found in memory
-			IND  // Memory -- but indirect addressing
+			IND,  // Memory -- but indirect addressing
 		};
 		enum class e_instruction{
 			HALT = 0x1,  // Stop Machine
@@ -75,10 +77,10 @@ class VM {
 			XOR,  // logical exclusive or
 			OR,  // logical or
 			AND,  // logical and
-//			SHL,  // shift bits left by argument 1, ending 0s added
+			SHL,  // shift bits left by argument 1, ending 0s added
 			SHR,  // shift bits right by argument 1, leading 0s added for extension
-//			INC,  // increment accumulator by 1
-//			DEC,  // decrement accumulator by 1
+			INC,  // increment accumulator by 1
+			DEC,  // decrement accumulator by 1
 		};
 		enum class e_flag {
 			M_IOP = 0x01,  // Invalid Operation - no such instruction

@@ -3,20 +3,14 @@
 #include <string>
 #include <vector>
 #include <sstream>
-//#include "types.hpp"
 #include "program.hpp"
-// #include "machine.hpp"
 namespace project5{
 
-//	using register_t = u_int8_t;
-//	using memory_t = u_int8_t;
-//	using program_memory_t = std::vector<memory_t>;
 using program_memory_t = VM::program_memory_t;
 	Program::Program() :
 		ip{1},
 		sp{0},
 		bp{0},
-//		acc{0},
 		program_mem{}
 		 {
 			current = program_mem.begin();
@@ -27,7 +21,6 @@ using program_memory_t = VM::program_memory_t;
 		ip{in.ip},
 		sp{in.sp},
 		bp{in.bp},
-//		acc{in.acc},
 		program_mem{in.program_mem},
 		current{in.current}
 		 {	}
@@ -36,7 +29,6 @@ using program_memory_t = VM::program_memory_t;
 				ip = in.ip;
 				sp = in.sp;
 				bp = in.bp;
-//				acc = in.acc;
 				program_mem = in.program_mem;
 				current = in.current;
 		}

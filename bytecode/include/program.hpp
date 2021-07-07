@@ -28,7 +28,7 @@ class Program {
 		register16_t getip() const noexcept;
 		register16_t getsp() const noexcept;
 		register16_t getbp() const noexcept;
-//		register16_t getacc() const noexcept;
+// 		register16_t getacc() const noexcept;
 
 		program_memory_t::iterator begin();
 		program_memory_t::iterator end();
@@ -39,7 +39,7 @@ class Program {
 		register16_t ip;  // instruction pointer start vallue for this program
 		register16_t sp;  // stack pointer start vallue for this program
 		register16_t bp;  // base pointer start vallue for this program
-//		register_t acc;  // accumulator start vallue for this program
+// 		register_t acc;  // accumulator start vallue for this program
 };
 
 }  // namespace project5

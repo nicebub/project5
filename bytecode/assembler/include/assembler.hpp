@@ -26,6 +26,8 @@ typedef struct {
 
 	using string = std::string;
 
+	using register_t = VM::register_t;
+	using register16_t = VM::register16_t;
 	using token_array = std::vector<string>;
 	using lines_of_code = std::vector<VM::memory_t>;
 	using full_program = std::vector<lines_of_code>;
@@ -50,7 +52,7 @@ class Assembler {
 		Assembler& operator=(const Assembler&);
 
 		register_t encode(e_instruction e);
-		register_t encode(e_instruction e, e_argument_type a, e_argument_type b);
+		register16_t encode(e_instruction e, e_argument_type a, e_argument_type b);
 
 		void readFile(const string fileName);
 		void outputToFile(const string fileName);
