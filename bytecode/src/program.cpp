@@ -3,20 +3,20 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "types.hpp"
+//#include "types.hpp"
 #include "program.hpp"
 // #include "machine.hpp"
 namespace project5{
 
-	using register_t = u_int8_t;
-	using memory_t = u_int8_t;
-	using program_memory_t = std::vector<memory_t>;
-
+//	using register_t = u_int8_t;
+//	using memory_t = u_int8_t;
+//	using program_memory_t = std::vector<memory_t>;
+using program_memory_t = VM::program_memory_t;
 	Program::Program() :
 		ip{1},
 		sp{0},
 		bp{0},
-		acc{0},
+//		acc{0},
 		program_mem{}
 		 {
 			current = program_mem.begin();
@@ -27,7 +27,7 @@ namespace project5{
 		ip{in.ip},
 		sp{in.sp},
 		bp{in.bp},
-		acc{in.acc},
+//		acc{in.acc},
 		program_mem{in.program_mem},
 		current{in.current}
 		 {	}
@@ -36,7 +36,7 @@ namespace project5{
 				ip = in.ip;
 				sp = in.sp;
 				bp = in.bp;
-				acc = in.acc;
+//				acc = in.acc;
 				program_mem = in.program_mem;
 				current = in.current;
 		}
@@ -58,18 +58,20 @@ void Program::push_back(memory_t in) {
 Program* Program::newProgram(const size_t len) {
 	return new Program{};
 }
-Program::register_t Program::getip() const noexcept {
+Program::register16_t Program::getip() const noexcept {
 	return ip;
 }
-Program::register_t Program::getsp() const noexcept {
+Program::register16_t Program::getsp() const noexcept {
 	return sp;
 }
-Program::register_t Program::getbp() const noexcept {
+Program::register16_t Program::getbp() const noexcept {
 	return bp;
 }
+/*
 Program::register_t Program::getacc() const noexcept {
 	return acc;
 }
+*/
 
 		/*
 		std::vector<std::string>* split(const std::string& s, char delimiter)

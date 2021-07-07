@@ -12,9 +12,9 @@ namespace ucc{
 			PListNode* nelement{dynamic_cast<PListNode*>(element)};
 			auto tempEntry = mysymtab->createParam(nelement->getval(), nelement->gettype(),(offset_counter));
 			mysymtab->install(tempEntry);
-		    if(nelement->gettype() != ucc::type::VOID){
-			offset_counter++;
-		    }
+			if(nelement->gettype() != ucc::type::VOID) {
+				offset_counter++;
+			}
 		}
 	}
 	bool Compiler::is_function_decl_or_def_accurate(funcheadertype** inFuncHeaderptr, bool isdeclaration) {

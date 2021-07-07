@@ -15,7 +15,7 @@ namespace project5 {
 		ip{1},
 		sp{0},
 		bp{0},
-		acc{0},
+//		acc{0},
 		al{0},
 		bl{0},
 		cl{0},
@@ -31,7 +31,7 @@ namespace project5 {
 		ip{in.ip},
 		sp{in.sp},
 		bp{in.bp},
-		acc{in.acc},
+//		acc{in.acc},
 		al{in.al},
 		bl{in.bl},
 		cl{in.cl},
@@ -48,7 +48,7 @@ namespace project5 {
 			ip = in.ip;
 			sp = in.sp;
 			bp = in.bp;
-			acc = in.acc;
+//			acc = in.acc;
 			al = in.al;
 			bl = in.bl;
 			cl = in.cl;
@@ -73,7 +73,7 @@ namespace project5 {
 				program.push_back(temp);
 			}
 			loadProgramIntoMemory();
-			bp = sp = length;
+			bp.value = sp.value = length;
 		}
 		file.close();
 	}
@@ -95,7 +95,7 @@ namespace project5 {
 		ip = inProgram->getip();
 		sp = inProgram->getsp();
 		bp = inProgram->getbp();
-		acc = inProgram->getacc();
+//		acc = inProgram->getacc();
 	}
 
 	memory_t* Machine::resolvetype(e_argument_type in) {
@@ -105,16 +105,20 @@ namespace project5 {
 				memory_t* dest{};
 				switch(to_e_register(fetch())) {
 					case e_register::AL:
-						dest = &al;
+						dest = &AB.single[1];
+//						dest = ((register16_t)(&AB) & 0xFF00);
 						break;
 					case e_register::BL:
-						dest = &bl;
+						dest = &AB.single[0];
+//						dest = &bl;
 						break;
 					case e_register::CL:
-						dest = &cl;
+						dest = &CD.single[1];
+//						dest = &cl;
 						break;
 					case e_register::DL:
-						dest = &dl;
+						dest = &CD.single[0];
+//						dest = &dl;
 						break;
 					default:
 						dest = nullptr;
@@ -157,29 +161,33 @@ namespace project5 {
 
 			memory_t* dest = resolvetype(arg1);
 			memory_t extra_dest{};
-			if(arg1 != e_argument_type::REG)
+
+			if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND)
 				extra_dest = fetch();
 
 			memory_t* value = resolvetype(arg2);
 			memory_t extra_value{};
-			if(arg2 != e_argument_type::REG)
+			if(arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND)
 				extra_value = fetch();
 
-			if(arg1 != e_argument_type::REG || arg2 != e_argument_type::REG) {
-				uint16_t m{*dest}, v{*value};
+			if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND
+				|| arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND) {
+				register16_t m, v;
+			    m.value = *dest;
+			    v.value = *value;
 				if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND) {
-					m <<= 8;
-					m += extra_dest;
+					m.value <<= 8;
+					m.value += extra_dest;
+				    dest = &memory[m.value];
 				}
 				if(arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND) {
-					v <<= 8;
-					v += extra_value;
+					v.value <<= 8;
+					v.value += extra_value;
+				    *dest = v.value;
+				    return;
 				}
-				
 			}
-			else {
 				*dest = *value;
-			}
 			
 	}
 
@@ -224,10 +232,10 @@ namespace project5 {
 	}
 
 	register_t Machine::fetch() {
-		return memory[ip++];
+		return memory[ip.value++];
 	}
 	register_t* Machine::fetch_addr() {
-	return &memory[ip++];
+	return &memory[ip.value++];
 	}
 
 	register_t* Machine::fetch_addr_from(memory_t m) {
@@ -240,15 +248,17 @@ namespace project5 {
 
 	void Machine::printMachineState() {
 // 		if(program) {
+//	    std::cout << std::hex;
 			std::cout << "ip:	" << ip << "		sp:	" << sp << "		";
-			std::cout <<"bp:	" << bp << "		acc:	" << acc << "\n";
-			std::cout << "al:	" << al << "		cl:	" << cl << "		";
-			std::cout <<"bl:	" << bl << "		dl:	" << dl << "		";
+			std::cout <<"bp:	" << bp <</* "		acc:	" << acc << */"\n";
+			std::cout << "AB:	" << AB << "		CD:	" << CD << "		";
+//			std::cout <<"bl:	" << AB.single[0] << "		dl:	" << CD.single[0] << "		";
 			std::cout << "flags:	" << flags << "\n";
 			std::cout <<"-----------------------\n";
 			std::cout << memory << "\n";
 // 			std::cout << program.program_mem << "\n";
 			std::cout <<"-----------------------\n";
+//		  std::cout << std::dec;
 //		}
 	}
 
@@ -259,12 +269,19 @@ std::ostream& operator<<(std::ostream& o, const e_instruction& e) {
 	}
 
 
-std::ostream& operator<<(std::ostream& o, const uint8_t& in) {
-			o << std::setfill('0') << std::setw(2) << std::right <<std::hex;
-			o << unsigned(in);
-			o << std::dec;
-			return o;
-		}
+std::ostream& operator<<(std::ostream& o, const register_t& in) {
+	o << std::setfill('0') << std::setw(2) << std::right <<std::hex;
+	o << unsigned(in);
+	o << std::dec;
+	return o;
+}
+
+std::ostream& operator<<(std::ostream& o, const register16_t& in) {
+	o << std::setfill('0') << std::setw(4) << std::right <<std::hex;
+	o << unsigned(in.value);
+	o << std::dec;
+	return o;
+}
 
 std::ostream& operator<<(std::ostream& o, const main_memory_t& in) {
 	uint16_t counter{0};

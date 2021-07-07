@@ -7,13 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E2AF733426855E32009DBC15 /* program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2AF733226855E32009DBC15 /* program.cpp */; };
-		E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A252267AAF0A00225EF6 /* main.cpp */; };
-		E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A253267AAF0B00225EF6 /* machine.cpp */; };
+		E2DB4830269563A5005A4009 /* assembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DB482F269563A5005A4009 /* assembler.cpp */; };
+		E2DB4834269563B8005A4009 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2DB4833269563B8005A4009 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		E2F8A243267AAED400225EF6 /* CopyFiles */ = {
+		E210D105269562A100C1303A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -25,17 +24,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E210D0FA26955FF000C1303A /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = types.hpp; path = ../../include/types.hpp; sourceTree = "<group>"; };
-		E2AF733126855E32009DBC15 /* program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = program.hpp; path = ../../include/program.hpp; sourceTree = "<group>"; };
-		E2AF733226855E32009DBC15 /* program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = program.cpp; path = ../../src/program.cpp; sourceTree = "<group>"; };
-		E2F8A245267AAED500225EF6 /* bytecode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bytecode; sourceTree = BUILT_PRODUCTS_DIR; };
-		E2F8A251267AAF0A00225EF6 /* machine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = machine.hpp; path = ../../include/machine.hpp; sourceTree = "<group>"; };
-		E2F8A252267AAF0A00225EF6 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
-		E2F8A253267AAF0B00225EF6 /* machine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = machine.cpp; path = ../../src/machine.cpp; sourceTree = "<group>"; };
+		E210D107269562A100C1303A /* assembler-scas */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "assembler-scas"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2DB482F269563A5005A4009 /* assembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = assembler.cpp; path = ../../src/assembler.cpp; sourceTree = "<group>"; };
+		E2DB4832269563B0005A4009 /* assembler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = assembler.hpp; path = ../../include/assembler.hpp; sourceTree = "<group>"; };
+		E2DB4833269563B8005A4009 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
+		E2DB4836269563E3005A4009 /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = types.hpp; path = ../../../include/types.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		E2F8A242267AAED400225EF6 /* Frameworks */ = {
+		E210D104269562A100C1303A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -45,69 +42,67 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E2F8A23C267AAED400225EF6 = {
+		E210D0FE269562A000C1303A = {
 			isa = PBXGroup;
 			children = (
-				E2F8A247267AAED500225EF6 /* bytecode */,
-				E2F8A246267AAED500225EF6 /* Products */,
+				E210D109269562A100C1303A /* assembler-scas */,
+				E210D108269562A100C1303A /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		E2F8A246267AAED500225EF6 /* Products */ = {
+		E210D108269562A100C1303A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E2F8A245267AAED500225EF6 /* bytecode */,
+				E210D107269562A100C1303A /* assembler-scas */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E2F8A247267AAED500225EF6 /* bytecode */ = {
+		E210D109269562A100C1303A /* assembler-scas */ = {
 			isa = PBXGroup;
 			children = (
-				E210D0FA26955FF000C1303A /* types.hpp */,
-				E2AF733226855E32009DBC15 /* program.cpp */,
-				E2AF733126855E32009DBC15 /* program.hpp */,
-				E2F8A253267AAF0B00225EF6 /* machine.cpp */,
-				E2F8A251267AAF0A00225EF6 /* machine.hpp */,
-				E2F8A252267AAF0A00225EF6 /* main.cpp */,
+				E2DB4836269563E3005A4009 /* types.hpp */,
+				E2DB4833269563B8005A4009 /* main.cpp */,
+				E2DB4832269563B0005A4009 /* assembler.hpp */,
+				E2DB482F269563A5005A4009 /* assembler.cpp */,
 			);
-			path = bytecode;
+			path = "assembler-scas";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E2F8A244267AAED400225EF6 /* bytecode */ = {
+		E210D106269562A100C1303A /* assembler-scas */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E2F8A24C267AAED500225EF6 /* Build configuration list for PBXNativeTarget "bytecode" */;
+			buildConfigurationList = E210D10E269562A100C1303A /* Build configuration list for PBXNativeTarget "assembler-scas" */;
 			buildPhases = (
-				E2F8A241267AAED400225EF6 /* Sources */,
-				E2F8A242267AAED400225EF6 /* Frameworks */,
-				E2F8A243267AAED400225EF6 /* CopyFiles */,
+				E210D103269562A100C1303A /* Sources */,
+				E210D104269562A100C1303A /* Frameworks */,
+				E210D105269562A100C1303A /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = bytecode;
-			productName = bytecode;
-			productReference = E2F8A245267AAED500225EF6 /* bytecode */;
+			name = "assembler-scas";
+			productName = "assembler-scas";
+			productReference = E210D107269562A100C1303A /* assembler-scas */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		E2F8A23D267AAED400225EF6 /* Project object */ = {
+		E210D0FF269562A000C1303A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1220;
 				TargetAttributes = {
-					E2F8A244267AAED400225EF6 = {
+					E210D106269562A100C1303A = {
 						CreatedOnToolsVersion = 12.2;
 					};
 				};
 			};
-			buildConfigurationList = E2F8A240267AAED400225EF6 /* Build configuration list for PBXProject "bytecode" */;
+			buildConfigurationList = E210D102269562A000C1303A /* Build configuration list for PBXProject "assembler-scas" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -115,31 +110,30 @@
 				en,
 				Base,
 			);
-			mainGroup = E2F8A23C267AAED400225EF6;
-			productRefGroup = E2F8A246267AAED500225EF6 /* Products */;
+			mainGroup = E210D0FE269562A000C1303A;
+			productRefGroup = E210D108269562A100C1303A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E2F8A244267AAED400225EF6 /* bytecode */,
+				E210D106269562A100C1303A /* assembler-scas */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E2F8A241267AAED400225EF6 /* Sources */ = {
+		E210D103269562A100C1303A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */,
-				E2AF733426855E32009DBC15 /* program.cpp in Sources */,
-				E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */,
+				E2DB4834269563B8005A4009 /* main.cpp in Sources */,
+				E2DB4830269563A5005A4009 /* assembler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		E2F8A24A267AAED500225EF6 /* Debug */ = {
+		E210D10C269562A100C1303A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -198,7 +192,7 @@
 			};
 			name = Debug;
 		};
-		E2F8A24B267AAED500225EF6 /* Release */ = {
+		E210D10D269562A100C1303A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -250,7 +244,7 @@
 			};
 			name = Release;
 		};
-		E2F8A24D267AAED500225EF6 /* Debug */ = {
+		E210D10F269562A100C1303A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -260,7 +254,7 @@
 			};
 			name = Debug;
 		};
-		E2F8A24E267AAED500225EF6 /* Release */ = {
+		E210D110269562A100C1303A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -273,25 +267,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E2F8A240267AAED400225EF6 /* Build configuration list for PBXProject "bytecode" */ = {
+		E210D102269562A000C1303A /* Build configuration list for PBXProject "assembler-scas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E2F8A24A267AAED500225EF6 /* Debug */,
-				E2F8A24B267AAED500225EF6 /* Release */,
+				E210D10C269562A100C1303A /* Debug */,
+				E210D10D269562A100C1303A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E2F8A24C267AAED500225EF6 /* Build configuration list for PBXNativeTarget "bytecode" */ = {
+		E210D10E269562A100C1303A /* Build configuration list for PBXNativeTarget "assembler-scas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E2F8A24D267AAED500225EF6 /* Debug */,
-				E2F8A24E267AAED500225EF6 /* Release */,
+				E210D10F269562A100C1303A /* Debug */,
+				E210D110269562A100C1303A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = E2F8A23D267AAED400225EF6 /* Project object */;
+	rootObject = E210D0FF269562A000C1303A /* Project object */;
 }

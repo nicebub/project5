@@ -29,15 +29,14 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 	}
 }
  void Compiler::block3_func_funcheader_source_funcbody(){
-				code_generator.gen_instr("returnf");
-				mysymtab->closescope();
+	 code_generator.gen_instr("returnf");
+	 mysymtab->closescope();
 }
 
 void Compiler::block4_func_funcheader_semi(funcheadertype* inFuncHeader){
-//   TableEntry* tempEntry{nullptr}; 
 	auto found = mysymtab->lookupB(inFuncHeader->name);
 	if(  found  == nullptr ){
-	   auto tempEntry =  mysymtab->createFunc(	inFuncHeader->name, 
+		auto tempEntry =  mysymtab->createFunc(	inFuncHeader->name, 
 												inFuncHeader->returntype,
 												inFuncHeader->paramlist 
 											 );
@@ -69,110 +68,6 @@ funcheadertype*  Compiler::funcheader_returntype_ident_lpar_paramdef_rpar_helper
 	}	
 	*/
 }
-/*
-funcheadertype* Compiler::block6_funcheader_void_ident_lpar_paramdef_rpar(ucc::Identifier inIdent, List* inParamdeflist){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, inParamdeflist,  ucc::type::VOID);
-}
-funcheadertype* Compiler::block7_funcheader_int_ident_lpar_paramdef_rpar(ucc::Identifier inIdent, List* inParamdeflist){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, inParamdeflist,  ucc::type::INT);
-}
-funcheadertype* Compiler::block8_funcheader_float_ident_lpar_paramdef_rpar(ucc::Identifier inIdent, List* inParamdeflist){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, inParamdeflist,  ucc::type::FLOAT);
-}
-funcheadertype* Compiler::block9_funcheader_void_error_rpar(){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(ucc::Identifier{""}, List::mklist(std::string{"error"}, type::VOID),  ucc::type::VOID);
-}
-
-funcheadertype* Compiler::block10_funcheader_int_error_rpar(){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(ucc::Identifier{""}, List::mklist(std::string{"error"}, type::VOID),  ucc::type::INT);
-}
-funcheadertype* Compiler::block11_funcheader_float_error_rpar(){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(ucc::Identifier{""}, List::mklist(std::string{"error"}, type::VOID),  ucc::type::FLOAT);
-}
-
-funcheadertype* Compiler::block12_funcheader_void_ident_lpar_error_rpar(ucc::Identifier inIdent){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, List::mklist(std::string{"error"}, type::VOID),  ucc::type::VOID);
-}
-funcheadertype* Compiler::block13_funcheader_float_ident_lpar_error_rpar(ucc::Identifier inIdent){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, List::mklist(std::string{"error"}, type::VOID),  ucc::type::FLOAT);
-}
-funcheadertype* Compiler::block14_funcheader_int_ident_lpar_error_rpar(ucc::Identifier inIdent){
-	return funcheader_returntype_ident_lpar_paramdef_rpar_helper(inIdent, List::mklist(std::string{"error"}, type::VOID),  ucc::type::INT);
-}
-*/
-/*
-void Compiler::block15_paramdef_paramdeflist(List** outParamdefptr, List** inParamdeflistptr){
-	*outParamdefptr = *inParamdeflistptr;
-//	$<value.lstpvalue>$= $1;
-}
-*/
-/*
-List* Compiler::block15_paramdef_paramdeflist_comma_elip(List** inParamdeflistptr){
-
-		return (*inParamdeflistptr)->appendList("...", type::VOID);
-
-		#ifdef DEBUG
-//		printListP(*outParamdefptr);
-		#endif
-}
-List* Compiler::block16_paramdef_void(){
-	return List::mklist("", ucc::type::VOID);
-//	(*outParamdefptr) = nullptr;
-//	(*outParamdefptr)->ttype = type::VOID; //FIXME need to add this back in somehow or see how it fits in
-}
-*/
-/*
- void Compiler::block17_paramdef_paramdeflist_error_rpar(List** inParamdeflistptr){
-	delete (*inParamdeflistptr);
-	(*inParamdeflistptr) = nullptr;
-}
- void Compiler::block18_paramdef_paramdeflist_comma_error_rpar(List** inParamdeflistptr){
-	delete (*inParamdeflistptr);
-	(*inParamdeflistptr) = nullptr;
-}
-*/
-/*
-List* Compiler::paramdeflist_type_ident_helper(ucc::Identifier inIdent, ucc::type intype){
-	return List::mklist(inIdent.getvalue(), intype);
-
-	#ifdef DEBUG
-//	printListP((*outParamdeflistptr));
-	#endif
-	
-}
-*/
-/*
- List* Compiler::block19_paramdeflist_int_ident(ucc::Identifier inIdent){
-	return paramdeflist_type_ident_helper(inIdent,ucc::type::INT);
-}
- List* Compiler::block20_paramdeflist_float_ident(ucc::Identifier inIdent){
-	return paramdeflist_type_ident_helper(inIdent,ucc::type::FLOAT);
-}
- List* Compiler::block21_paramdeflist_char_star_ident(ucc::Identifier inIdent){
-	return paramdeflist_type_ident_helper(inIdent,ucc::type::STR);
-}
-*/
-/*
-List* Compiler::paramdeflist_paramdeflist_comma_type_ident_helper(List** inParamdeflistptr, ucc::Identifier inIdent, ucc::type intype){
-	return (*inParamdeflistptr)->appendList(inIdent.getvalue(),intype);
-
-	#ifdef DEBUG
-//	printListP((*outParamdeflistptr));
-	#endif
-	
-}
-*/
-/*
-List* Compiler::block22_paramdeflist_paramdeflist_comma_int_ident(List** inParamdeflistptr, ucc::Identifier inIdent){
-	return paramdeflist_paramdeflist_comma_type_ident_helper(inParamdeflistptr,inIdent,ucc::type::INT);
-}
-List* Compiler::block23_paramdeflist_paramdeflist_comma_float_ident(List** inParamdeflistptr, ucc::Identifier inIdent){
-	return paramdeflist_paramdeflist_comma_type_ident_helper(inParamdeflistptr,inIdent,ucc::type::FLOAT);
-}
-List* Compiler::block24_paramdeflist_paramdeflist_comma_char_star_ident(List** inParamdeflistptr, ucc::Identifier inIdent){
-	return paramdeflist_paramdeflist_comma_type_ident_helper(inParamdeflistptr,inIdent,ucc::type::STR);
-}
-*/
 void Compiler::block25_funcbody_lcbra_decls_source(){
 	auto temp{mainlocal};
 	if(currentFunc->getvalue() == "main"){
@@ -192,35 +87,6 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 	}
 	code_generator.gen_instr_I("alloc", temp);
 }
-
-/*
- void Compiler::block26_funcbody_lcbra_decls_source_stmtlist_rcbra(){
-	#ifdef DEBUG
-//	printTree(mysymtab);
-	#endif
-}
-*/
-/*
-void Compiler::block27_variabledecl_int_identlist_semi(List** inIdentlist){
-	if( (*inIdentlist) != nullptr){
-		mysymtab->addtosymtab(type::INT, (*inIdentlist));
-	}
-
-	#ifdef DEBUG
-//	fprintf(stderr,"Found a single Integer declaration or a list of integers being declared\n");
-//	printTree(mysymtab);
-	#endif
-}
-void Compiler::block28_variabledecl_float_identlist_semi(List** inIdentlist){
-		if( (*inIdentlist) != nullptr){
-			mysymtab->addtosymtab(type::FLOAT, (*inIdentlist) );
-		}
-
-		#ifdef DEBUG
-//		printTree(mysymtab);
-		#endif
-}
-*/
  void Compiler::block29_stmt_expr_semi(){
 		code_generator.gen_instr_I("popI",4);
 }
@@ -365,7 +231,6 @@ void Compiler::while_and_if_reducer(ReturnPacket* insourcePacket, ReturnPacket* 
 }
 
 struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket* inexprPacket){
-//	ReturnPacket* inexprPacket{*inexprPacketptr};
 
 	struct Pair rvalue;
 	
@@ -378,11 +243,6 @@ struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket* inexp
 	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",rvalue.one));
 	return rvalue;
 }
-/*
-void Compiler::block39_ifexprstmt_if_lpar_expr_source_rpar_stmt(){
-	$$.lval=$3->lval; $$.numeric=$3->numeric; $$.ttype = $3->type; $$.one = $4.one; $$.two=$4.two;
-}
-*/
 void Compiler::normalStore(ucc::type intype){
 	switch(intype){
 		case(ucc::type::INT):	code_generator.gen_instr("storeI");
@@ -444,13 +304,6 @@ ReturnPacket* Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** in
 	}
 	return outPacket;
 }
-/*
-void Compiler::block41_expr_equalexpr(){
-	$$ = (exprtype*) malloc(sizeof(exprtype));
-	$$->lval = $1.lval; $$->numeric = $1.numeric; $$->type =$1.ttype;
-}
-*/
-
  void Compiler::block42_equalexpr_relexpr_eqop_source(ReturnPacket** relexprPacketptr){
 	variableFetchWithNumericCheck(*relexprPacketptr,false);
 }
@@ -511,18 +364,11 @@ ReturnPacket* Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ucc::eqtyp
 	}
 	return outPacket;
 }
-/*
-void Compiler::block44_equalexpr_relexpr(){
-$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric= $1.numeric;
-}
-*/
  void Compiler::block45_relexpr_simpleexpr_relop_source(ReturnPacket** insimplePacketptr){
 	variableFetchWithNumericCheck(*insimplePacketptr,false);
 }
 ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_helper(ucc::reltype inrelop, std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
-//	ReturnPacket * outPacket{new ReturnPacket{}};
-//	outPacket->settype( ucc::type::INT);
 	switch(inrelop){
 		case reltype::LES:	code_generator.gen_instr("flt" + need_letter_b);
 									code_generator.gen_instr("ltR");
@@ -591,11 +437,6 @@ ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(Retur
 	}
 	return outPacket;
 }
-/*
-void Compiler::block47_relexpr_simpleexpr(){
-		$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric=$1.numeric;
-}
-*/
 void Compiler::variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimplePacket, bool conversionNeeded){
 	if(insimplePacket->getlval()){
 		variableFetchWithNumericCheck(insimplePacket,conversionNeeded);
@@ -607,8 +448,6 @@ void Compiler::variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimpleP
 }
 ReturnPacket* Compiler::block49_simpleexpr_addop_helper(ucc::addtype inaddop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
-//	ReturnPacket* outPacket{new ReturnPacket{}};
-//	outPacket->settype( ucc::type::FLOAT);
 	switch(inaddop){
 		case addtype::PLS:	code_generator.gen_instr("flt" + need_letter_b);
 									code_generator.gen_instr("addR");
@@ -661,19 +500,12 @@ ReturnPacket* Compiler::block49_simpleexpr_simpleexpr_addop_source_term(ReturnPa
 	}
 	return outPacket;
 }
-/*
-void Compiler::block50_simpleepr_term(){
-	$$.lval = $1.lval; $$.ttype = $1.ttype; $$.numeric = $1.numeric; 
-}
-*/
  void Compiler::block51_term_term_mulop_source(ReturnPacket** inPacketptr){
 	variableFetchWithNumericCheckAndLvalCheck(*inPacketptr,false);
 }
 
 ReturnPacket* Compiler::block52_term_mulop_helper(ucc::multype inmulop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
-//	ReturnPacket *outPacket{new ReturnPacket{}};
-//	outPacket->settype(type::FLOAT);
 	switch(inmulop){
 		case multype::DIV:	code_generator.gen_instr("flt" + need_letter_b);
 									code_generator.gen_instr("divR");
@@ -729,16 +561,7 @@ ReturnPacket* Compiler::block52_term_term_mulop_source_factor(ReturnPacket** int
 	}
 	return outtermPacket;
 }
-/*
-void Compiler::block53_term_factor(){
-	$$.lval = $1.lval; $$.ttype = $1.ttype; $$ = $1; $$.numeric=$1.numeric;
-}
-*/
 ReturnPacket* Compiler::block54_factor_constant(Constant** inConstant){
-//	ReturnPacket* outPacket{new ReturnPacket{}};
-//	outPacket = (*inConstant);
-//	(*outPacket)->setlval(false); 
-
 	switch((*inConstant)->gettype()){
 		case type::INT:
 			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant)->getvalue());
@@ -816,11 +639,6 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 		}
 		return outPacket;
 }
-/*
-void Compiler::block56_factor_lpar_expr_rpar(ReturnPacket** outPacket, ReturnPacket** inPacket){
-	(*outPacket) = (*inPacket);
-}
-*/
 ReturnPacket* Compiler::block57_factor_addop_factor_uminus(ucc::addtype inop, ReturnPacket** inPacketptr){
 	ReturnPacket* outPacket{new ReturnPacket{}};
 	ReturnPacket* inPacket{*inPacketptr};
@@ -923,11 +741,6 @@ ReturnPacket* Compiler::block58_factor_adof_ident(ucc::Identifier inPacket){
 	}
 	return outPacket;
 }
-/*
-void Compiler::block59_factor_function_call(){
-	(*outPacket)->ttype = $1.ttype; (*outPacket)->lval = false; (*outPacket)->numeric=$1.numeric; 
-}
-*/
 ReturnPacket* Compiler::block60_function_call_ident_lpar_rpar(ucc::Identifier inIdent){
 	ReturnPacket* outPacket{new ReturnPacket{}};
 	outPacket->setlval(false);
@@ -979,11 +792,6 @@ ReturnPacket* Compiler::block60_function_call_ident_lpar_rpar(ucc::Identifier in
 	}
 	return outPacket;
 }
-/*
-void Compiler::block61_function_call_func_call_with_params(){
-	(*outPacket)->ttype =$1.ttype; (*outPacket)->numeric = $1.numeric; (*outPacket)->lval = $1.lval;
-}
-*/
 ReturnPacket* Compiler::block62_func_call_with_params_name_and_params_rpar(ReturnPacket** nameAndparamptr){
 	ReturnPacket* funcCallWparam{new ReturnPacket{}};
 	funcCallWparam->setnumeric((* nameAndparamptr)->getnumeric());
@@ -1018,11 +826,6 @@ ReturnPacket* Compiler::block62_func_call_with_params_name_and_params_rpar(Retur
 
 ReturnPacket* Compiler::block63_name_and_params_ident_lpar_source(ucc::Identifier inPacket){
 	ReturnPacket* inEntry{new ReturnPacket{}};
-	/*
-    if( *inEntryptr == nullptr){
-	   error("name and params is null","");
-	   return;
-    }*/
 	inEntry->funcent = nullptr;
 	inEntry->funcent =  mysymtab->lookupB(inPacket.getvalue());
 	#ifdef DEBUG
@@ -1094,16 +897,6 @@ ReturnPacket* Compiler::block64_name_and_params_ident_lpar_source_expr(ucc::Iden
 				}
 				else{
 					variableFetchWithNumericCheck(inPacket,false);
-					/*
-					if(inPacket->getlval()  && inPacket->getnumeric()){
-						switch(inPacket->gettype()){
-							case type::INT:	code_generator.gen_instr("fetchI");
-													break;
-							case type::FLOAT:	code_generator.gen_instr("fetchR");
-													break;
-							default:				break;
-						}
-						}*/
 					if( ! tempB->getparam_type().empty()){
 						if(inPacket->gettype() != tempB->getparam_type()[0]){
 							#ifdef DEBUG
@@ -1181,7 +974,6 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 	else {
 		outPacket->funcent = innameAndparamPacket->funcent;
 		tempE2 = new TableEntry{innameAndparamPacket->funcent->getName()};
-		//	tempE2->name = innameAndparamPacket->funcent->name;
 		tempB= (Funcb*) mysymtab->lookup( innameAndparamPacket->funcent->getName());
 		if( (tempE=  mysymtab->lookupB(innameAndparamPacket->funcent->getName()))!=nullptr){
 			if(tempE->getself() != btype::FUNC){
@@ -1204,17 +996,6 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 					if(outPacket->funcent->getName() != "scanf"){
 						variableFetchWithNumericCheck(inexprPacket,false);
 					}
-					/*
-					if(inexprPacket->getlval() && inexprPacket->getnumeric() && "scanf" != outPacket->funcent->getName()){
-						switch(inexprPacket->gettype()){
-							case type::INT:		code_generator.gen_instr("fetchI");
-														break;
-							case type::FLOAT:		code_generator.gen_instr("fetchR");
-														break;
-							default:					break;
-						}
-					}
-					*/
 				}
 				else if( outPacket->params < tempB->getnum_param()){
 					if(inexprPacket->gettype() != tempB->getparam_type()[innameAndparamPacket->params]){
@@ -1224,15 +1005,6 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 
 						warning("Parameter type is different in declaration and in function call","");
 						variableFetch(inexprPacket,false);
-						/*
-						if(inexprPacket->getlval()){
-							switch(inexprPacket->gettype()){
-								case type::INT:	code_generator.gen_instr("fetchI"); break;
-								case type::FLOAT:	code_generator.gen_instr("fetchR"); break;
-								default:    break;
-							}
-						}
-						*/
 						if(tempB->getparam_type()[innameAndparamPacket->params]== type::FLOAT){
 							code_generator.gen_instr("flt");
 						}
@@ -1242,16 +1014,6 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 				}
 				else{
 					variableFetch(inexprPacket,false);
-					/*
-						if(inexprPacket->getlval()){
-							switch(inexprPacket->gettype()){
-								case type::INT:	code_generator.gen_instr("fetchI"); break;
-								case type::FLOAT:	code_generator.gen_instr("fetchR"); break;
-								default:    break;
-							}
-						}
-						*/
-
 				}
 				outPacket->settype( tempB->getparam_type()[innameAndparamPacket->params] );
 				if(outPacket->gettype() == type::INT || outPacket->gettype() == type::FLOAT)
@@ -1273,30 +1035,7 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 	tempE2=nullptr;
 }
 return outPacket;
-}/*
-void Compiler::block66_constant_strconstant(ucc::Constant* mcon, std::string instrconstant){
- 			*mcon = instrconstant;
-			(*mcon).ttype = type::STR;
-			(*mcon).lval = false;
-			(*mcon).numeric=false;
-}
-
-void Compiler::block67_constant_intconstant(ucc::Constant* mcon, int intconstant){
-	 	(*mcon) = intconstant;
-		(*mcon).ttype = type::INT;
-		(*mcon).lval = false;
-		(*mcon).numeric= true;
-}
-
-void Compiler::block68_constant_floatconstant(ucc::Constant* mcon, float floatconstant){
-	(*mcon) = new Constant{};
-		(*mcon) = floatconstant;
-		(*mcon).ttype = type::FLOAT;
-		(*mcon).lval = false;
-		(*mcon).numeric= true;
-}
-*/
-List* Compiler::block69_identlist_ident(ucc::Identifier inIdent){
+}List* Compiler::block69_identlist_ident(ucc::Identifier inIdent){
 	return List::mklist(&inIdent);
 }
 

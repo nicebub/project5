@@ -13,9 +13,14 @@ class VM {
 		#define to_e_argument_type(x) static_cast<VM::e_argument_type>((x))
 		#define to_e_instruction(x) static_cast<VM::e_instruction>((x))
 		#define to_register_t(x) static_cast<VM::register_t>((x))
+		#define to_register16_t(x) static_cast<VM::register16_t>((x))
 
 		static constexpr size_t MEMSIZE = 65536;
-
+		union reg16 {
+			uint16_t value;
+			uint8_t single[2];
+		};
+		using register16_t = reg16;
 		using register_t = u_int8_t;
 		using memory_t = u_int8_t;
 		using program_memory_t = std::vector<memory_t>;
@@ -34,11 +39,18 @@ class VM {
 			IP,  // Instruction Pointer
 			SP,  // Stack Pointer
 			BP,  // Base Pointer
-			ACPP,  // Accumulator Pointer
-			AL,  // General Purpose #1 Pointer
+			AL,  // Accumulator / General Purpose #1 Pointer
 			BL,  // General Purpose #2 Pointer
 			CL,  // General Purpose #3 Pointer
-			DL  // General Purpose #4 Pointer
+			DL,  // General Purpose #4 Pointer
+			IX,  // index register 8 bit
+			IY,  // index register 8 bit
+			H,  // 8 bit higher
+			L,  // 8 bit lower
+			HL,  // 16 bit combo of H and L
+			AB,  // 16 bit combo of A and B
+			CD,  // 16 bit combo of C and D
+			XY,  // 16 bit combo of X and Y
 		};
 		enum class e_argument_type {
 			INL,  // Inline -- included as part of instruction
@@ -63,8 +75,10 @@ class VM {
 			XOR,  // logical exclusive or
 			OR,  // logical or
 			AND,  // logical and
-			SHL,  // shift bits left by argument 1, ending 0s added
+//			SHL,  // shift bits left by argument 1, ending 0s added
 			SHR,  // shift bits right by argument 1, leading 0s added for extension
+//			INC,  // increment accumulator by 1
+//			DEC,  // decrement accumulator by 1
 		};
 		enum class e_flag {
 			M_IOP = 0x01,  // Invalid Operation - no such instruction
@@ -72,7 +86,7 @@ class VM {
 			M_CARRY = 0x04,  // last ALU operation had a carry over bit in MSb
 			M_OVER = 0x08,  // overflow
 			M_UNDER = 0x10,  // underflow
-			z = 0x20,
+			M_PARITY = 0x20,  // logical parity of bits in accumulator
 			r = 0x40,
 			f = 0x80
 		};

@@ -34,11 +34,12 @@ namespace ucc{
 		}
 		mainlabel = code_generator.getlabel();
 	}
-    
+
 void Compiler::install_functions_into_symbolTable(){
-    List* params{List::mklist("",ucc::type::VOID)};
-    TableEntry* entry{mysymtab->createFunc("main", ucc::type::INT,params )};
-    mysymtab->install(entry);
+	TableEntry* entry{
+		mysymtab->createFunc("main", ucc::type::INT, List::mklist("",ucc::type::VOID) )
+	};
+	mysymtab->install(entry);
 }
 
 	Compiler::Compiler(int argc, const char** argv) : 	Compiler{}

@@ -11,6 +11,7 @@
 
 namespace project5 {
 
+	using register16_t = VM::register16_t;
 	using register_t = VM::register_t;
 	using memory_t = VM::memory_t;
 	using program_memory_t = VM::program_memory_t;
@@ -51,9 +52,9 @@ class Machine {
 		bool programLoaded;
 		main_memory_t memory;  // actual machine memory for now
 		Program program;  // when loading a program
-		register_t ip;  // instruction pointer
-		register_t sp;  // stack pointer
-		register_t bp;  // base pointer
+		register16_t ip;  // instruction pointer
+		register16_t sp;  // stack pointer
+		register16_t bp;  // base pointer
 		register_t acc;  // accumulator
 		register_t al;  // GPR
 		register_t bl;  // GPR
@@ -61,12 +62,17 @@ class Machine {
 		register_t dl;  // GPR
 		register_t flags;  // flags, carry from ALU, ZERO, INTERRUPT,
 								//  OTHERSS< ETC
+		register16_t AB;
+		register16_t CD;
+		register16_t HL;
+		register16_t XY;
 	};
 
-	using program_memory_t = Program::program_memory_t;
+	using program_memory_t = VM::program_memory_t;
 
 std::ostream& operator<<(std::ostream& o, const e_instruction& e);
-std::ostream& operator<<(std::ostream& o, const uint8_t& in);
+std::ostream& operator<<(std::ostream& o, const register_t& in);
+std::ostream& operator<<(std::ostream& o, const register16_t& in);
 std::ostream& operator<<(std::ostream& o, const program_memory_t& in);
 std::ostream& operator<<(std::ostream& o, const main_memory_t& in);
 

@@ -16,10 +16,18 @@ namespace project5 {
 		{"BL", e_register::BL },
 		{"CL", e_register::CL },
 		{"DL", e_register::DL },
+		{ "H", e_register::H },
+		{ "L", e_register::L },
+		{ "IX", e_register::IX },
+		{ "IY", e_register::IY },
 		{ "IP", e_register::IP },
 		{ "SP", e_register::SP },
 		{ "BP", e_register::BP },
-		{ "ACPP", e_register::ACPP }
+		{ "AB", e_register::AB },
+		{ "CD", e_register::CD },
+		{ "HL", e_register::HL },
+		{ "XY", e_register::XY },
+//		{ "ACPP", e_register::ACPP }
 	};
 
 	std::map<const string, const e_argument_type> Assembler::argument_name = {
@@ -42,7 +50,14 @@ namespace project5 {
 		{ "CALL", e_instruction::CALL },
 		{ "PUSH", e_instruction::PUSH },
 		{ "POP", e_instruction::POP },
-		{ "LEA", e_instruction::LEA }
+		{ "LEA", e_instruction::LEA },
+		{ "XOR", e_instruction::XOR },
+		{ "OR", e_instruction::OR },
+		{ "AND", e_instruction::AND },
+//		{ "SHL", e_instruction::SHL },
+		{ "SHR", e_instruction::SHR },
+//		{ "INC", e_instruction::INC },
+//		{ "DEC", e_instruction::DEC },
 	};
 Assembler::~Assembler() {}
 Assembler::Assembler() : convertedCode{} {}
@@ -154,21 +169,23 @@ class argument {
 project5::argument translateArg(std::string a) {
 	project5::argument result;
 	switch(a[0]) {
+		case '$':
+			result.type = e_argument_type::REG;
+			result.value = a.erase(0, 1);
+			result.r_value = to_register_t(Assembler::register_name[result.value]);
+			break;
 		case 'm':
 			result.type = e_argument_type::MEM;
 			result.value = a.erase(0, 1);
 			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
 			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
 			break;
-		case '$':
-			result.type = e_argument_type::REG;
-			result.value = a.erase(0, 1);
-			result.r_value = to_register_t(Assembler::register_name[result.value]);
-			break;
 		default:
 			result.type = e_argument_type::INL;
 			result.value = a;
-			result.r_value = to_register_t(stoul(a));
+		   result.r_value = stoul(result.value);
+//			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
+//			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
 			break;
 	}
 	return result;
@@ -183,10 +200,10 @@ lines_of_code Assembler::translateMOV(token_array*& tokens) {
 		encode(e_instruction::MOV, arg1.type, arg2.type)
 	);
 	result.push_back(arg1.r_value);
-	if(arg1.type == e_argument_type::MEM)
+	if(arg1.type == e_argument_type::MEM || arg1.type == e_argument_type::IND)
 		result.push_back(arg1.u_value);
 	result.push_back(arg2.r_value);
-	if(arg2.type == e_argument_type::MEM)
+	if(arg2.type == e_argument_type::MEM || arg2.type == e_argument_type::IND)
 		result.push_back(arg2.u_value);
 	return result;
 	}
@@ -198,25 +215,37 @@ lines_of_code Assembler::translateHALT() {
 	return result;
 }
 lines_of_code Assembler::translatePUSH() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translatePOP() {
-	}
+    return lines_of_code{};
+    
+}
 lines_of_code Assembler::translateCALL() {
-	}
+    return lines_of_code{};
+    
+}
 lines_of_code Assembler::translateRET() {
+    return lines_of_code{};
 	}
 
 lines_of_code Assembler::translateADD() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translateSUB() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translateDIV() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translateMUL() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translateJMP() {
+    return lines_of_code{};
 	}
 lines_of_code Assembler::translateJMPZ() {
+    return lines_of_code{};
 	}
 void Assembler::translateZERO() {
 	}

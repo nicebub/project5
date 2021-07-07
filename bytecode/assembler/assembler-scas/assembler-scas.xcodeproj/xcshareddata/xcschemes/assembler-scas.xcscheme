@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E2F8A244267AAED400225EF6"
-               BuildableName = "bytecode"
-               BlueprintName = "bytecode"
-               ReferencedContainer = "container:bytecode.xcodeproj">
+               BlueprintIdentifier = "E210D106269562A100C1303A"
+               BuildableName = "assembler-scas"
+               BlueprintName = "assembler-scas"
+               ReferencedContainer = "container:assembler-scas.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,15 +44,15 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E2F8A244267AAED400225EF6"
-            BuildableName = "bytecode"
-            BlueprintName = "bytecode"
-            ReferencedContainer = "container:bytecode.xcodeproj">
+            BlueprintIdentifier = "E210D106269562A100C1303A"
+            BuildableName = "assembler-scas"
+            BlueprintName = "assembler-scas"
+            ReferencedContainer = "container:assembler-scas.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/scotty/Programming/project5/bytecode/example.o"
+            argument = "/Users/scotty/Programming/project5/bytecode/assembler/test/example.asm"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -67,10 +67,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E2F8A244267AAED400225EF6"
-            BuildableName = "bytecode"
-            BlueprintName = "bytecode"
-            ReferencedContainer = "container:bytecode.xcodeproj">
+            BlueprintIdentifier = "E210D106269562A100C1303A"
+            BuildableName = "assembler-scas"
+            BlueprintName = "assembler-scas"
+            ReferencedContainer = "container:assembler-scas.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -9,7 +9,7 @@ int main(const int argc, const char ** argv) {
 	std::cout <<"Printing Program before run\n";
 
 	Machine m{};
-	m.loadProgramFromFile("example.o");
+	   m.loadProgramFromFile(argv[1]);
 	m.printMachineState();
 	auto result = m.run();
 	std::cout << "Printing Program after run\n";
