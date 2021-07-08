@@ -12,14 +12,14 @@
 
 namespace project5 {
 	std::map<const string, const e_register> Assembler::register_name = {
-		{"AL", e_register::AL },
-		{"BL", e_register::BL },
-		{"CL", e_register::CL },
-		{"DL", e_register::DL },
+		{"A", e_register::A },
+		{"B", e_register::B },
+		{"C", e_register::C },
+		{"D", e_register::D },
 		{ "H", e_register::H },
 		{ "L", e_register::L },
-		{ "IX", e_register::IX },
-		{ "IY", e_register::IY },
+		{ "X", e_register::X },
+		{ "Y", e_register::Y },
 		{ "IP", e_register::IP },
 		{ "SP", e_register::SP },
 		{ "BP", e_register::BP },
@@ -171,8 +171,8 @@ project5::argument translateArg(std::string a) {
 	project5::argument result;
 	switch(a[0]) {
 		case '$':
-			result.type = e_argument_type::REG8;
 			result.value = a.erase(0, 1);
+		  result.type = (result.value.length() == 1) ? e_argument_type::REG8 : e_argument_type::REG16;
 			result.r_value = to_register_t(Assembler::register_name[result.value]);
 			break;
 		case 'm':

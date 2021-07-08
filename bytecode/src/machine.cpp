@@ -93,12 +93,12 @@ namespace project5 {
 		bp = inProgram->getbp();
 	}
 
-register16_t* Machine::resolvetype16(e_argument_type in) {
+register16_t* Machine::resolvetype16(e_argument_type in,e_register reg) {
     switch(in) {
 	    case e_argument_type::REG16:
 		{
 		    register16_t* dest{};
-		    switch(to_e_register(fetch())) {
+		    switch(reg) {
 			    case e_register::AB:
 				    dest = &AB;
 				    break;
@@ -131,32 +131,32 @@ register16_t* Machine::resolvetype16(e_argument_type in) {
 			 {
 				memory_t* dest{};
 				switch(to_e_register(fetch())) {
-					case e_register::AB:
-					case e_register::AL:
+					case e_register::A:
 						dest = &AB.single[1];
 						break;
-					case e_register::BL:
+				    case e_register::AB:
+					case e_register::B:
 						dest = &AB.single[0];
 						break;
-					case e_register::CD:
-					case e_register::CL:
+					case e_register::C:
 						dest = &CD.single[1];
 						break;
-					case e_register::DL:
+				    case e_register::CD:
+					case e_register::D:
 						dest = &CD.single[0];
 						break;
-					case e_register::HL:
 					case e_register::H:
 						dest = &HL.single[1];
 						break;
+				    case e_register::HL:
 					case e_register::L:
 						dest = &HL.single[0];
 						break;
-					case e_register::XY:
-					case e_register::IX:
+					case e_register::X:
 						dest = &XY.single[1];
 						break;
-					case e_register::IY:
+				    case e_register::XY:
+					case e_register::Y:
 						dest = &XY.single[0];
 						break;
 					default:
@@ -229,13 +229,21 @@ register16_t* Machine::resolvetype16(e_argument_type in) {
 					   break;
 				case e_argument_type::REG16:
 				{
-				    register16_t* new_dest = resolvetype16(arg1);
-				    if (is16bit(arg2)) {
+				    register16_t* new_dest;
+				    new_dest = (register16_t*)(dest);
+//				    register16_t* new_dest = resolvetype16(arg1,to_e_register(m.value));
+				    if (is16bit(arg2) ) {
 					    v.value <<= 8;
 					    v.value += extra_value;
 					    new_dest->value = v.value;
 					    return;
 					}
+				    else if(arg2 == e_argument_type::REG16){
+					   register16_t* new_value;
+					   new_value = (register16_t*)(value);
+					   new_dest->value = new_value->value;
+					   return;
+				    }
 				    else {
 					   new_dest->value = *value;
 					   return;

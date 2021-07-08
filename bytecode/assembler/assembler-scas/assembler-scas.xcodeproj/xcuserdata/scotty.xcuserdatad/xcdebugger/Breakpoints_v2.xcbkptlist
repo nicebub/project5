@@ -50,6 +50,38 @@
             endingLineNumber = "12"
             landmarkName = "main(argc, argv)"
             landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "94B59A7B-862A-488D-A429-3BF8676B5CFF - 782a672b12add18d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "main"
+                  moduleName = "assembler-scas"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/scotty/Programming/project5/bytecode/assembler/src/main.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "12"
+                  endingLineNumber = "12"
+                  offsetFromSymbolStart = "172">
+               </Location>
+               <Location
+                  uuid = "94B59A7B-862A-488D-A429-3BF8676B5CFF - 782a672b12add18d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "main"
+                  moduleName = "assembler-scas"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/scotty/Programming/project5/bytecode/assembler/src/main.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "12"
+                  endingLineNumber = "12"
+                  offsetFromSymbolStart = "190">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -80,6 +112,22 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "186"
             endingLineNumber = "186"
+            landmarkName = "translateArg(a)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E9E23F48-7741-442E-8E9B-35A114ADFEB1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/assembler.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
             landmarkName = "translateArg(a)"
             landmarkType = "9">
          </BreakpointContent>

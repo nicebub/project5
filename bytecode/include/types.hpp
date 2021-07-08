@@ -36,15 +36,15 @@ class VM {
 		using main_memory_t = std::array<memory_t, VM::MEMSIZE>;
 
 		enum class e_register {
-			IP,  // Instruction Pointer
+			IP = 0x0,  // Instruction Pointer
 			SP,  // Stack Pointer
 			BP,  // Base Pointer
-			AL,  // Accumulator / General Purpose #1 Pointer
-			BL,  // General Purpose #2 Pointer
-			CL,  // General Purpose #3 Pointer
-			DL,  // General Purpose #4 Pointer
-			IX,  // index register 8 bit
-			IY,  // index register 8 bit
+			A,  // Accumulator / General Purpose #1 Pointer
+			B,  // General Purpose #2 Pointer
+			C,  // General Purpose #3 Pointer
+			D,  // General Purpose #4 Pointer
+			X,  // index register 8 bit
+			Y,  // index register 8 bit
 			H,  // 8 bit higher
 			L,  // 8 bit lower
 			HL,  // 16 bit combo of H and L

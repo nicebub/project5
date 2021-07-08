@@ -39,7 +39,7 @@ class Machine {
 // 		register_t encode(e_instruction, e_argument_type, e_argument_type);
 
 		memory_t* resolvetype(e_argument_type in);
-	   register16_t* resolvetype16(e_argument_type in);
+		register16_t* resolvetype16(e_argument_type in, e_register reg);
 
 		e_instruction decode(register_t in);
 		const bool isProgramLoaded() noexcept;
