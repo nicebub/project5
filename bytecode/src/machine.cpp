@@ -15,10 +15,10 @@ namespace project5 {
 		ip{1},
 		sp{0},
 		bp{0},
-		al{0},
-		bl{0},
-		cl{0},
-		dl{0},
+		AB{0},
+		CD{0},
+		XY{0},
+		HL{0},
 		flags{0}
 		 {	}
 	Machine::~Machine() {
@@ -30,10 +30,10 @@ namespace project5 {
 		ip{in.ip},
 		sp{in.sp},
 		bp{in.bp},
-		al{in.al},
-		bl{in.bl},
-		cl{in.cl},
-		dl{in.dl},
+		AB{in.AB},
+		CD{in.CD},
+		XY{in.XY},
+		HL{in.HL},
 		flags{in.flags}
 		 {
 // 			loadProgramIntoMemory();
@@ -46,10 +46,10 @@ namespace project5 {
 			ip = in.ip;
 			sp = in.sp;
 			bp = in.bp;
-			al = in.al;
-			bl = in.bl;
-			cl = in.cl;
-			dl = in.dl;
+			AB = in.AB;
+			CD = in.CD;
+			XY = in.XY;
+			HL = in.HL;
 			flags = in.flags;
 			// loadprogramIntoMemory();
 		}
@@ -64,11 +64,12 @@ namespace project5 {
 // 			std::cerr << name <<":file length: " << length << "bytes\n";
 			for(int i{0}; i < length; i++) {
 				char temp;
-				file.read(&temp, sizeof(register_t));
+				file.read(&temp, sizeof temp);
 				program.push_back(temp);
 			}
 			loadProgramIntoMemory();
-			bp.value = sp.value = length;
+			bp.value = sp.value = length + 1;  // stack starts after code for now
+			// also add 1 because we leave byte 0 empty so sizeof program + 1
 		}
 		file.close();
 	}
@@ -92,23 +93,71 @@ namespace project5 {
 		bp = inProgram->getbp();
 	}
 
+register16_t* Machine::resolvetype16(e_argument_type in) {
+    switch(in) {
+	    case e_argument_type::REG16:
+		{
+		    register16_t* dest{};
+		    switch(to_e_register(fetch())) {
+			    case e_register::AB:
+				    dest = &AB;
+				    break;
+			    case e_register::CD:
+				    dest = &CD;
+				    break;
+			    case e_register::HL:
+				    dest = &HL;
+				    break;
+			    case e_register::XY:
+				    dest = &XY;
+				    break;
+			    default:
+				    dest = nullptr;
+				    break;
+		    }
+		    return dest;
+	    }
+		    break;
+	    default:
+		    return nullptr;
+		    break;
+    }
+    return nullptr;
+}
 	memory_t* Machine::resolvetype(e_argument_type in) {
 		switch(in) {
+			case e_argument_type::REG16:
 			case e_argument_type::REG8:
 			 {
 				memory_t* dest{};
 				switch(to_e_register(fetch())) {
+					case e_register::AB:
 					case e_register::AL:
 						dest = &AB.single[1];
 						break;
 					case e_register::BL:
 						dest = &AB.single[0];
 						break;
+					case e_register::CD:
 					case e_register::CL:
 						dest = &CD.single[1];
 						break;
 					case e_register::DL:
 						dest = &CD.single[0];
+						break;
+					case e_register::HL:
+					case e_register::H:
+						dest = &HL.single[1];
+						break;
+					case e_register::L:
+						dest = &HL.single[0];
+						break;
+					case e_register::XY:
+					case e_register::IX:
+						dest = &XY.single[1];
+						break;
+					case e_register::IY:
+						dest = &XY.single[0];
 						break;
 					default:
 						dest = nullptr;
@@ -123,6 +172,7 @@ namespace project5 {
 			}
 				break;
 
+			case e_argument_type::INL16:
 			case e_argument_type::INL8:
 			 {
 				return fetch_addr();
@@ -142,41 +192,72 @@ namespace project5 {
 		}
 		return nullptr;
 	}
+	
+	bool Machine::is16bit(e_argument_type arg){
+		return (arg == e_argument_type::MEM || arg == e_argument_type::IND
+				|| arg == e_argument_type::INL16 );
+	}
 	void Machine::executeMOV(const register_t& instr) {
-		static constexpr uint8_t arg1_mask{12};
-		static constexpr uint8_t arg2_mask{3};
+		static constexpr register_t arg1_mask{240};
+		static constexpr register_t arg2_mask{15};
+		
+		register_t args{fetch()};
+		e_argument_type arg1{ to_e_argument_type((args & arg1_mask) >> 4) };
+		e_argument_type arg2{ to_e_argument_type((args & arg2_mask)) };
 
-		e_argument_type arg1{ to_e_argument_type((instr & arg1_mask) >> 2) };
-		e_argument_type arg2{ to_e_argument_type(instr & arg2_mask) };
+		memory_t* dest{};
+		memory_t* value{};
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		   || is16bit(arg2) || arg2 == e_argument_type::REG16){
+		    memory_t extra_dest{}, extra_value{};
+			dest = resolvetype(arg1);
+		    if(is16bit(arg1))
+			   extra_dest =fetch();
 
-			memory_t* dest = resolvetype(arg1);
-			memory_t extra_dest{};
+			value = resolvetype(arg2);
+		    if(is16bit(arg2))
+			   extra_value = fetch();
 
-			if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND)
-				extra_dest = fetch();
-
-			memory_t* value = resolvetype(arg2);
-			memory_t extra_value{};
-			if(arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND)
-				extra_value = fetch();
-
-			if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND
-				|| arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND) {
-				register16_t m, v;
-			    m.value = *dest;
-			    v.value = *value;
-				if(arg1 == e_argument_type::MEM || arg1 == e_argument_type::IND) {
-					m.value <<= 8;
-					m.value += extra_dest;
-				    dest = &memory[m.value];
+			register16_t m, v;
+			m.value = *dest;
+			v.value = *value;
+			 switch(arg1){
+				case e_argument_type::MEM:
+					   m.value <<= 8;
+					   m.value += extra_dest;
+					   dest = &memory[m.value];
+					   break;
+				case e_argument_type::REG16:
+				{
+				    register16_t* new_dest = resolvetype16(arg1);
+				    if (is16bit(arg2)) {
+					    v.value <<= 8;
+					    v.value += extra_value;
+					    new_dest->value = v.value;
+					    return;
+					}
+				    else {
+					   new_dest->value = *value;
+					   return;
+				    }
 				}
-				if(arg2 == e_argument_type::MEM || arg2 == e_argument_type::IND) {
-					v.value <<= 8;
-					v.value += extra_value;
-				    *dest = v.value;
-				    return;
-				}
+				    break;
+				default:
+				    break;
 			}
+			if (is16bit(arg2)) {
+				v.value <<= 8;
+				v.value += extra_value;
+				*dest = v.value;
+				return;
+			 }
+		}
+		else{
+			dest = resolvetype(arg1);
+			value = resolvetype(arg2);
+		}
+
+
 				*dest = *value;
 	}
 
@@ -191,7 +272,7 @@ namespace project5 {
 			e_instruction e_instr = decode(instr);
 			switch(e_instr) {
 				case e_instruction::HALT:
-					return dl;
+					return CD.single[0];
 				case e_instruction::ADD:
 					executeADD(instr);
 					break;

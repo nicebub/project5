@@ -14,7 +14,7 @@ int main(const int argc, const char ** argv) {
 		m.printMachineState();
 		return result;
 	}
-	std::cout << "Usage: [exec] filename.asm -- where filename.asm is an assembly";
-	std::cout << " file\n";
+	std::cout << "Usage:\n"<< argv[0] << " [filename.o] -- where filename.o is a";
+	std::cout << " bytecode object file\n";
 	return 0;
 }

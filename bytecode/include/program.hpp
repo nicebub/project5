@@ -39,7 +39,10 @@ class Program {
 		register16_t ip;  // instruction pointer start vallue for this program
 		register16_t sp;  // stack pointer start vallue for this program
 		register16_t bp;  // base pointer start vallue for this program
-// 		register_t acc;  // accumulator start vallue for this program
+		register16_t AB;  // 16 bit or 2 8 bit registers
+		register16_t CD;  // 16 bit or 2 8 bit registers
+		register16_t HL;  // 16 bit or 2 8 bit registers
+		register16_t XY;  // 16 bit or 2 8 bit registers
 };
 
 }  // namespace project5

@@ -39,6 +39,7 @@ class Machine {
 // 		register_t encode(e_instruction, e_argument_type, e_argument_type);
 
 		memory_t* resolvetype(e_argument_type in);
+	   register16_t* resolvetype16(e_argument_type in);
 
 		e_instruction decode(register_t in);
 		const bool isProgramLoaded() noexcept;
@@ -46,6 +47,7 @@ class Machine {
 		void executeMOV(const register_t& instr);
 
 	protected:
+	bool is16bit(e_argument_type arg);
 		void loadProgramIntoMemory();
 
 	private:
@@ -55,17 +57,12 @@ class Machine {
 		register16_t ip;  // instruction pointer
 		register16_t sp;  // stack pointer
 		register16_t bp;  // base pointer
-		register_t acc;  // accumulator
-		register_t al;  // GPR
-		register_t bl;  // GPR
-		register_t cl;  // GPR
-		register_t dl;  // GPR
+		register16_t AB;  // 16 bit or 2 8 bit registers
+		register16_t CD;  // 16 bit or 2 8 bit registers
+		register16_t HL;  // 16 bit or 2 8 bit registers
+		register16_t XY;  // 16 bit or 2 8 bit registers
 		register_t flags;  // flags, carry from ALU, ZERO, INTERRUPT,
 								//  OTHERSS< ETC
-		register16_t AB;
-		register16_t CD;
-		register16_t HL;
-		register16_t XY;
 	};
 
 	using program_memory_t = VM::program_memory_t;

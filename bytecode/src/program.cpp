@@ -11,6 +11,10 @@ using program_memory_t = VM::program_memory_t;
 		ip{1},
 		sp{0},
 		bp{0},
+		AB{0},
+		CD{0},
+		XY{0},
+		HL{0},
 		program_mem{}
 		 {
 			current = program_mem.begin();
@@ -21,6 +25,10 @@ using program_memory_t = VM::program_memory_t;
 		ip{in.ip},
 		sp{in.sp},
 		bp{in.bp},
+		AB{in.AB},
+		CD{in.CD},
+		XY{in.XY},
+		HL{in.HL},
 		program_mem{in.program_mem},
 		current{in.current}
 		 {	}
@@ -29,6 +37,10 @@ using program_memory_t = VM::program_memory_t;
 				ip = in.ip;
 				sp = in.sp;
 				bp = in.bp;
+				AB = in.AB;
+				CD = in.CD;
+				XY = in.XY;
+				HL = in.HL;
 				program_mem = in.program_mem;
 				current = in.current;
 		}

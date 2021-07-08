@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E210868E2696671100C476F6 /* output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E210868D2696671100C476F6 /* output.cpp */; };
 		E2AF733426855E32009DBC15 /* program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2AF733226855E32009DBC15 /* program.cpp */; };
 		E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A252267AAF0A00225EF6 /* main.cpp */; };
 		E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E2F8A253267AAF0B00225EF6 /* machine.cpp */; };
@@ -25,6 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E210868D2696671100C476F6 /* output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = output.cpp; path = ../../src/output.cpp; sourceTree = "<group>"; };
 		E210D0FA26955FF000C1303A /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = types.hpp; path = ../../include/types.hpp; sourceTree = "<group>"; };
 		E2AF733126855E32009DBC15 /* program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = program.hpp; path = ../../include/program.hpp; sourceTree = "<group>"; };
 		E2AF733226855E32009DBC15 /* program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = program.cpp; path = ../../src/program.cpp; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 		E2F8A247267AAED500225EF6 /* bytecode */ = {
 			isa = PBXGroup;
 			children = (
+				E210868D2696671100C476F6 /* output.cpp */,
 				E210D0FA26955FF000C1303A /* types.hpp */,
 				E2AF733226855E32009DBC15 /* program.cpp */,
 				E2AF733126855E32009DBC15 /* program.hpp */,
@@ -130,6 +133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E210868E2696671100C476F6 /* output.cpp in Sources */,
 				E2F8A254267AAF0B00225EF6 /* main.cpp in Sources */,
 				E2AF733426855E32009DBC15 /* program.cpp in Sources */,
 				E2F8A255267AAF0B00225EF6 /* machine.cpp in Sources */,
