@@ -14,5 +14,12 @@ mov $HL 23
 
 mov $XY $HL
 
-mov $CD $AB
+add $H 5
+
+sub $Y 6
+
+mul $B 4
+
+div $A 3
+
 halt

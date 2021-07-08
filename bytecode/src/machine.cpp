@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+//  #include <assert.h>
 #include "machine.hpp"
 
 namespace project5 {
@@ -93,77 +94,75 @@ namespace project5 {
 		bp = inProgram->getbp();
 	}
 
-register16_t* Machine::resolvetype16(e_argument_type in,e_register reg) {
-    switch(in) {
-	    case e_argument_type::REG16:
-		{
-		    register16_t* dest{};
-		    switch(reg) {
-			    case e_register::AB:
-				    dest = &AB;
-				    break;
-			    case e_register::CD:
-				    dest = &CD;
-				    break;
-			    case e_register::HL:
-				    dest = &HL;
-				    break;
-			    case e_register::XY:
-				    dest = &XY;
-				    break;
-			    default:
-				    dest = nullptr;
-				    break;
-		    }
-		    return dest;
-	    }
-		    break;
-	    default:
-		    return nullptr;
-		    break;
-    }
-    return nullptr;
+register16_t* Machine::resolvetype16(e_argument_type in, e_register reg) {
+	switch(in) {
+		case e_argument_type::REG16:
+		 {
+				switch(reg) {
+					case e_register::AB:
+					temp = &AB;
+					break;
+					case e_register::CD:
+					temp = &CD;
+					break;
+					case e_register::HL:
+					temp = &HL;
+					break;
+					case e_register::XY:
+					temp = &XY;
+					break;
+					default:
+					temp = nullptr;
+					break;
+				}
+				return temp;
+			}
+			break;
+			default:
+			return nullptr;
+			break;
+		}
+	return nullptr;
 }
 	memory_t* Machine::resolvetype(e_argument_type in) {
 		switch(in) {
 			case e_argument_type::REG16:
 			case e_argument_type::REG8:
 			 {
-				memory_t* dest{};
 				switch(to_e_register(fetch())) {
 					case e_register::A:
-						dest = &AB.single[1];
+						return &AB.single[1];
 						break;
-				    case e_register::AB:
+					case e_register::AB:
 					case e_register::B:
-						dest = &AB.single[0];
+						return &AB.single[0];
 						break;
 					case e_register::C:
-						dest = &CD.single[1];
+						return &CD.single[1];
 						break;
-				    case e_register::CD:
+					case e_register::CD:
 					case e_register::D:
-						dest = &CD.single[0];
+						return &CD.single[0];
 						break;
 					case e_register::H:
-						dest = &HL.single[1];
+						return &HL.single[1];
 						break;
-				    case e_register::HL:
+					case e_register::HL:
 					case e_register::L:
-						dest = &HL.single[0];
+						return &HL.single[0];
 						break;
 					case e_register::X:
-						dest = &XY.single[1];
+						return &XY.single[1];
 						break;
-				    case e_register::XY:
+					case e_register::XY:
 					case e_register::Y:
-						dest = &XY.single[0];
+						return &XY.single[0];
 						break;
 					default:
-						dest = nullptr;
+						return nullptr;
 						break;
 				}
-				return dest;
+				return nullptr;
 			}
 				break;
 			case e_argument_type::MEM:
@@ -181,8 +180,7 @@ register16_t* Machine::resolvetype16(e_argument_type in,e_register reg) {
 
 			case e_argument_type::IND:
 			 {
-				memory_t temp { fetch() };
-				return fetch_addr_from(temp);
+				return fetch_addr_from(fetch());
 			}
 				break;
 
@@ -192,66 +190,55 @@ register16_t* Machine::resolvetype16(e_argument_type in,e_register reg) {
 		}
 		return nullptr;
 	}
-	
-	bool Machine::is16bit(e_argument_type arg){
+
+	bool Machine::is16bit(e_argument_type arg) {
 		return (arg == e_argument_type::MEM || arg == e_argument_type::IND
-				|| arg == e_argument_type::INL16 );
+				|| arg == e_argument_type::INL16);
 	}
-	void Machine::executeMOV(const register_t& instr) {
-		static constexpr register_t arg1_mask{240};
-		static constexpr register_t arg2_mask{15};
-		
-		register_t args{fetch()};
-		e_argument_type arg1{ to_e_argument_type((args & arg1_mask) >> 4) };
-		e_argument_type arg2{ to_e_argument_type((args & arg2_mask)) };
 
-		memory_t* dest{};
-		memory_t* value{};
-		if(is16bit(arg1) || arg1 == e_argument_type::REG16
-		   || is16bit(arg2) || arg2 == e_argument_type::REG16){
-		    memory_t extra_dest{}, extra_value{};
-			dest = resolvetype(arg1);
-		    if(is16bit(arg1))
-			   extra_dest =fetch();
+	void Machine::executeMOV16(e_argument_type arg1, e_argument_type arg2) {
+			memory_t extra_dest{}, extra_value{};
 
-			value = resolvetype(arg2);
-		    if(is16bit(arg2))
-			   extra_value = fetch();
+			memory_t* dest{resolvetype(arg1)};
+			if(is16bit(arg1))
+				extra_dest = fetch();
+
+			memory_t* value{resolvetype(arg2)};
+			if(is16bit(arg2))
+				extra_value = fetch();
 
 			register16_t m, v;
 			m.value = *dest;
 			v.value = *value;
-			 switch(arg1){
-				case e_argument_type::MEM:
-					   m.value <<= 8;
-					   m.value += extra_dest;
-					   dest = &memory[m.value];
-					   break;
+			switch(arg1) {
 				case e_argument_type::REG16:
-				{
-				    register16_t* new_dest;
-				    new_dest = (register16_t*)(dest);
-//				    register16_t* new_dest = resolvetype16(arg1,to_e_register(m.value));
-				    if (is16bit(arg2) ) {
-					    v.value <<= 8;
-					    v.value += extra_value;
-					    new_dest->value = v.value;
-					    return;
+				 {
+					register16_t* new_dest;
+					new_dest = reinterpret_cast<register16_t*>(dest);
+// 				register16_t* new_dest = resolvetype16(arg1,to_e_register(m.value));
+					if (is16bit(arg2)) {
+						v.value <<= 8;
+						v.value += extra_value;
+						new_dest->value = v.value;
+						return;
+					} else if (arg2 == e_argument_type::REG16) {
+						temp = reinterpret_cast<register16_t*>(value);
+																// temp is an internal register in the
+																//   machine
+						new_dest->value = temp->value;
+						return;
+					} else {
+						new_dest->value = *value;
+						return;
 					}
-				    else if(arg2 == e_argument_type::REG16){
-					   register16_t* new_value;
-					   new_value = (register16_t*)(value);
-					   new_dest->value = new_value->value;
-					   return;
-				    }
-				    else {
-					   new_dest->value = *value;
-					   return;
-				    }
 				}
-				    break;
+					break;
+				case e_argument_type::MEM:
+					m.value <<= 8;
+					m.value += extra_dest;
+					dest = &memory[m.value];
 				default:
-				    break;
+					break;
 			}
 			if (is16bit(arg2)) {
 				v.value <<= 8;
@@ -259,33 +246,154 @@ register16_t* Machine::resolvetype16(e_argument_type in,e_register reg) {
 				*dest = v.value;
 				return;
 			 }
-		}
-		else{
-			dest = resolvetype(arg1);
-			value = resolvetype(arg2);
-		}
-
-
-				*dest = *value;
+			 *dest = *value;
 	}
 
-	void Machine::executeADD(const register_t& instr) {
+	void Machine::executeInstr(const register_t& instr,
+			void(Machine::*func)(e_argument_type, e_argument_type)) {
+		static constexpr register_t arg1_mask{240};
+		static constexpr register_t arg2_mask{15};
+
+		register_t args{fetch()};
+		e_argument_type arg1{ to_e_argument_type((args & arg1_mask) >> 4) };
+		e_argument_type arg2{ to_e_argument_type((args & arg2_mask)) };
+		(this->*func)(arg1, arg2);
+	}
+
+	void Machine::executeMOV(e_argument_type arg1, e_argument_type arg2) {
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		|| is16bit(arg2) || arg2 == e_argument_type::REG16) {
+			executeMOV16(arg1, arg2);
+		} else {
+			memory_t* dest{resolvetype(arg1)};
+			*dest = *resolvetype(arg2);
+		}
+	}
+	void Machine::executeSUB16(e_argument_type arg1, e_argument_type arg2) {
+	}
+	void Machine::executeMUL16(e_argument_type arg1, e_argument_type arg2) {
+	}
+	void Machine::executeDIV16(e_argument_type arg1, e_argument_type arg2) {
+	}
+
+	void Machine::executeADD16(e_argument_type arg1, e_argument_type arg2) {
+			memory_t extra_dest{}, extra_value{};
+
+			memory_t* dest{resolvetype(arg1)};
+			if(is16bit(arg1))
+				extra_dest = fetch();
+
+			memory_t* value{resolvetype(arg2)};
+			if(is16bit(arg2))
+				extra_value = fetch();
+
+			register16_t m, v;
+			m.value = *dest;
+			v.value = *value;
+			switch(arg1) {
+				case e_argument_type::REG16:
+				 {
+					register16_t* new_dest;
+					new_dest = reinterpret_cast<register16_t*>(dest);
+// 				register16_t* new_dest = resolvetype16(arg1,to_e_register(m.value));
+					if (is16bit(arg2)) {
+						v.value <<= 8;
+						v.value += extra_value;
+						new_dest->value += v.value;
+						return;
+					} else if (arg2 == e_argument_type::REG16) {
+						temp = reinterpret_cast<register16_t*>(value);
+																// temp is an internal register in the
+																//  machine
+						new_dest->value += temp->value;
+						return;
+					} else {
+						new_dest->value += *value;
+						return;
+					}
+				}
+					break;
+				case e_argument_type::MEM:
+					m.value <<= 8;
+					m.value += extra_dest;
+					dest = &memory[m.value];
+				default:
+					break;
+			}
+			if (is16bit(arg2)) {
+				v.value <<= 8;
+				v.value += extra_value;
+				*dest = v.value;
+				return;
+			 }
+			 *dest += *value;
+	}
+
+	void Machine::executeADD(e_argument_type arg1, e_argument_type arg2) {
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		|| is16bit(arg2) || arg2 == e_argument_type::REG16) {
+			executeADD16(arg1, arg2);
+		} else {
+			memory_t* dest{resolvetype(arg1)};
+			*dest += *resolvetype(arg2);
+		}
+	}
+	void Machine::executeSUB(e_argument_type arg1, e_argument_type arg2) {
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		|| is16bit(arg2) || arg2 == e_argument_type::REG16) {
+			executeSUB16(arg1, arg2);
+		} else {
+			memory_t* dest{resolvetype(arg1)};
+			*dest -= *resolvetype(arg2);
+		}
+	}
+	void Machine::executeMUL(e_argument_type arg1, e_argument_type arg2) {
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		|| is16bit(arg2) || arg2 == e_argument_type::REG16) {
+			executeMUL16(arg1, arg2);
+		} else {
+			memory_t* dest{resolvetype(arg1)};
+			*dest *= *resolvetype(arg2);
+		}
+	}
+	void Machine::executeDIV(e_argument_type arg1, e_argument_type arg2) {
+		if(is16bit(arg1) || arg1 == e_argument_type::REG16
+		|| is16bit(arg2) || arg2 == e_argument_type::REG16) {
+			executeDIV16(arg1, arg2);
+		} else {
+			memory_t* dest{resolvetype(arg1)};
+			try {
+			*dest /= *resolvetype(arg2);
+			}
+			catch(std::exception& e) {
+				std::cerr << e.what();
+			}
+		}
 	}
 
 	register_t Machine::run() {
 		if(!programLoaded)
-			return -EXIT_FAILURE;
+			return EXIT_FAILURE;
 		while(true) {
 			register_t instr = fetch();
 			e_instruction e_instr = decode(instr);
 			switch(e_instr) {
+				case e_instruction::MOV:
+					executeInstr(instr, &Machine::executeMOV);
+					break;
 				case e_instruction::HALT:
 					return CD.single[0];
 				case e_instruction::ADD:
-					executeADD(instr);
+					executeInstr(instr, &Machine::executeADD);
 					break;
-				case e_instruction::MOV:
-					executeMOV(instr);
+				case e_instruction::SUB:
+					executeInstr(instr, &Machine::executeSUB);
+					break;
+				case e_instruction::MUL:
+					executeInstr(instr, &Machine::executeMUL);
+					break;
+				case e_instruction::DIV:
+					executeInstr(instr, &Machine::executeDIV);
 					break;
 				default:
 					flags &= to_register_t(VM::e_flag::M_IOP);

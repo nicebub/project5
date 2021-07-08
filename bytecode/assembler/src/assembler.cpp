@@ -131,30 +131,28 @@ lines_of_code Assembler::convertCmd2ByteCode(const std::string& s) {
 		if(instruction == "halt") {
 			return translateHALT();
 		} else if (instruction == "mov") {
-			return translateMOV(tokens);
+			return translateInstruction(tokens, e_instruction::MOV);
 		} else if (instruction == "add") {
-			return translateADD();
+			return translateInstruction(tokens, e_instruction::ADD);
 		} else if (instruction == "sub") {
-			return translateSUB();
+			return translateInstruction(tokens, e_instruction::SUB);
 		} else if (instruction == "mul") {
-			return translateMUL();
+			return translateInstruction(tokens, e_instruction::MUL);
 		} else if (instruction == "div") {
-			return translateDIV();
+			return translateInstruction(tokens, e_instruction::DIV);
 		} else if (instruction == "jmp") {
-			return translateJMP();
+			return translateJMP(tokens);
 		} else if (instruction == "jmpz") {
-			return translateJMPZ();
+			return translateJMPZ(tokens);
 		} else if (instruction == "push") {
-			return translatePUSH();
+			return translatePUSH(tokens);
 		} else if (instruction == "pop") {
-			return translatePOP();
+			return translatePOP(tokens);
 		} else if (instruction == "call") {
-			return translateCALL();
+			return translateCALL(tokens);
 		} else if (instruction == "ret") {
-			return translateRET();
-		}
-		else {
-
+			return translateRET(tokens);
+		} else {
 		}
 		return lines_of_code{};
 	}
@@ -172,26 +170,50 @@ project5::argument translateArg(std::string a) {
 	switch(a[0]) {
 		case '$':
 			result.value = a.erase(0, 1);
-		  result.type = (result.value.length() == 1) ? e_argument_type::REG8 : e_argument_type::REG16;
+			result.type = (result.value.length() == 1) ?
+				e_argument_type::REG8 : e_argument_type::REG16;
 			result.r_value = to_register_t(Assembler::register_name[result.value]);
 			break;
 		case 'm':
 			result.type = e_argument_type::MEM;
 			result.value = a.erase(0, 1);
-			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
-			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
+			result.r_value = to_register_t(stoul(result.value, nullptr, 16) >> 8);
+			result.u_value = to_register_t(stoul(result.value, nullptr, 16) & 0x00FF);
 			break;
 		default:
 			result.type = e_argument_type::INL8;
 			result.value = a;
 		   result.r_value = stoul(result.value);
-//			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
-//			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
+// 			result.r_value = to_register_t(stoul(result.value,nullptr,16) >> 8) ;
+// 			result.u_value = to_register_t(stoul(result.value,nullptr,16) & 0x00FF);
 			break;
 	}
 	return result;
 }
+lines_of_code Assembler::translateInstruction(token_array const* const & tokens,
+		const e_instruction& instr) {
+	project5::argument arg1{ translateArg( (*tokens)[1] ) };
+	project5::argument arg2{ translateArg( (*tokens)[2] ) };
 
+	lines_of_code result{};
+		register16_t temp;
+		temp = encode(instr, arg1.type, arg2.type);
+	result.push_back(
+		temp.single[1]
+// 		encode(e_instruction::MOV, arg1.type, arg2.type)
+	);
+	result.push_back(
+		temp.single[0]
+	);
+	result.push_back(arg1.r_value);
+	if(arg1.type == e_argument_type::MEM || arg1.type == e_argument_type::IND)
+		result.push_back(arg1.u_value);
+	result.push_back(arg2.r_value);
+	if(arg2.type == e_argument_type::MEM || arg2.type == e_argument_type::IND)
+		result.push_back(arg2.u_value);
+	return result;
+}
+/*
 lines_of_code Assembler::translateMOV(token_array*& tokens) {
 	project5::argument arg1{ translateArg( (*tokens)[1] ) };
 	project5::argument arg2{ translateArg( (*tokens)[2] ) };
@@ -213,46 +235,68 @@ lines_of_code Assembler::translateMOV(token_array*& tokens) {
 	if(arg2.type == e_argument_type::MEM || arg2.type == e_argument_type::IND)
 		result.push_back(arg2.u_value);
 	return result;
-	}
-
+}
+*/
 
 lines_of_code Assembler::translateHALT() {
 	lines_of_code result{};
 	result.push_back(encode(e_instruction::HALT));
 	return result;
 }
-lines_of_code Assembler::translatePUSH() {
+lines_of_code Assembler::translatePUSH(token_array const* const & tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translatePOP() {
+lines_of_code Assembler::translatePOP(token_array const* const & tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateCALL() {
+lines_of_code Assembler::translateCALL(token_array const* const & tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateRET() {
+lines_of_code Assembler::translateRET(token_array const* const & tokens) {
 	return lines_of_code{};
 }
+/*
+lines_of_code Assembler::translateADD(token_array*& tokens) {
+	project5::argument arg1{ translateArg( (*tokens)[1] ) };
+	project5::argument arg2{ translateArg( (*tokens)[2] ) };
 
-lines_of_code Assembler::translateADD() {
+	lines_of_code result{};
+		register16_t temp;
+		temp = encode(e_instruction::ADD, arg1.type, arg2.type);
+	result.push_back(
+		temp.single[1]
+//		encode(e_instruction::MOV, arg1.type, arg2.type)
+	);
+	result.push_back(
+		temp.single[0]
+	);
+	result.push_back(arg1.r_value);
+	if(arg1.type == e_argument_type::MEM || arg1.type == e_argument_type::IND)
+		result.push_back(arg1.u_value);
+	result.push_back(arg2.r_value);
+	if(arg2.type == e_argument_type::MEM || arg2.type == e_argument_type::IND)
+		result.push_back(arg2.u_value);
+	return result;
+}
+*/
+/*
+lines_of_code Assembler::translateSUB(token_array*& tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateSUB() {
+lines_of_code Assembler::translateDIV(token_array*& tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateDIV() {
+lines_of_code Assembler::translateMUL(token_array*& tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateMUL() {
+*/
+lines_of_code Assembler::translateJMP(token_array const* const & tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateJMP() {
+lines_of_code Assembler::translateJMPZ(token_array const* const & tokens) {
 	return lines_of_code{};
 }
-lines_of_code Assembler::translateJMPZ() {
-	return lines_of_code{};
-}
-void Assembler::translateZERO() {
+void Assembler::translateZERO(token_array const* const & tokens) {
 	}
 
 }  // namespace project5

@@ -35,20 +35,29 @@ class Machine {
 		register_t fetch();
 		register_t* fetch_addr();
 		register_t* fetch_addr_from(memory_t m);
-// 		register_t encode(e_instruction);
-// 		register_t encode(e_instruction, e_argument_type, e_argument_type);
 
 		memory_t* resolvetype(e_argument_type in);
 		register16_t* resolvetype16(e_argument_type in, e_register reg);
 
 		e_instruction decode(register_t in);
 		const bool isProgramLoaded() noexcept;
-		void executeADD(const register_t& instr);
-		void executeMOV(const register_t& instr);
+		void executeADD(e_argument_type arg1, e_argument_type arg2);
+		void executeSUB(e_argument_type arg1, e_argument_type arg2);
+		void executeMUL(e_argument_type arg1, e_argument_type arg2);
+		void executeDIV(e_argument_type arg1, e_argument_type arg2);
+		void executeMOV(e_argument_type arg1, e_argument_type arg2);
 
 	protected:
 	bool is16bit(e_argument_type arg);
 		void loadProgramIntoMemory();
+		void executeInstr(const register_t& instr,
+			void(Machine::*func)(e_argument_type, e_argument_type));
+		void executeMOV16(e_argument_type arg1, e_argument_type arg2);
+		void executeADD16(e_argument_type arg1, e_argument_type arg2);
+		void executeSUB16(e_argument_type arg1, e_argument_type arg2);
+		void executeMUL16(e_argument_type arg1, e_argument_type arg2);
+		void executeDIV16(e_argument_type arg1, e_argument_type arg2);
+		register16_t* temp;
 
 	private:
 		bool programLoaded;
@@ -64,8 +73,7 @@ class Machine {
 		register_t flags;  // flags, carry from ALU, ZERO, INTERRUPT,
 								//  OTHERSS< ETC
 	};
-
-	using program_memory_t = VM::program_memory_t;
+// 	using program_memory_t = VM::program_memory_t;
 
 std::ostream& operator<<(std::ostream& o, const e_instruction& e);
 std::ostream& operator<<(std::ostream& o, const register_t& in);

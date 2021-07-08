@@ -59,19 +59,21 @@ class Assembler {
 
 		lines_of_code convertCmd2ByteCode(const string& s);
 		lines_of_code translateHALT();
-		lines_of_code translateMOV(token_array*&);
+		lines_of_code translateInstruction(token_array const* const &,
+			const e_instruction&);
+// 		lines_of_code translateMOV(token_array*&);
+// 		lines_of_code translateADD(token_array*& tokens);
+// 		lines_of_code translateSUB(token_array*& tokens);
+// 		lines_of_code translateDIV(token_array*& tokens);
+// 		lines_of_code translateMUL(token_array*& tokens);
 
-		lines_of_code translatePUSH();
-		lines_of_code translatePOP();
-		lines_of_code translateCALL();
-		lines_of_code translateADD();
-		lines_of_code translateSUB();
-		lines_of_code translateDIV();
-		lines_of_code translateMUL();
-		lines_of_code translateJMP();
-		lines_of_code translateJMPZ();
-		lines_of_code translateRET();
-		void translateZERO();
+		lines_of_code translatePUSH(token_array const* const &);
+		lines_of_code translatePOP(token_array const* const &);
+		lines_of_code translateCALL(token_array const* const &);
+		lines_of_code translateJMP(token_array const* const &);
+		lines_of_code translateJMPZ(token_array const* const &);
+		lines_of_code translateRET(token_array const* const &);
+		void translateZERO(token_array const* const &);
 
 	protected:
 		void outputToFileHeader(const string& header, std::ofstream& file);

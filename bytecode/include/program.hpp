@@ -28,7 +28,11 @@ class Program {
 		register16_t getip() const noexcept;
 		register16_t getsp() const noexcept;
 		register16_t getbp() const noexcept;
-// 		register16_t getacc() const noexcept;
+		register16_t getAB() const noexcept;
+		register16_t getCD() const noexcept;
+		register16_t getHL() const noexcept;
+		register16_t getXY() const noexcept;
+		register_t getflags() const noexcept;
 
 		program_memory_t::iterator begin();
 		program_memory_t::iterator end();
@@ -43,6 +47,7 @@ class Program {
 		register16_t CD;  // 16 bit or 2 8 bit registers
 		register16_t HL;  // 16 bit or 2 8 bit registers
 		register16_t XY;  // 16 bit or 2 8 bit registers
+		register_t flags;  // flags register
 };
 
 }  // namespace project5

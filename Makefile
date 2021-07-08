@@ -15,7 +15,7 @@ else
 #	GENERATE_RUNNER= tools/genrunners.sh
 endif
 
-.PHONY: all clean test run #regen
+.PHONY: all clean test run lint #regen
 
 vpath %.cpp src
 vpath %.s src
@@ -213,3 +213,9 @@ $(PATHO):
 
 $(PATHR):
 	$(MKDIR) $(PATHR)
+
+LINT = cpplint
+LINTFLAGS = --verbose=2
+
+lint:
+	 ${LINT} ${LINTFLAGS} src/*.cpp include/*.hpp

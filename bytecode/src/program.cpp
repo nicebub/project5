@@ -15,6 +15,7 @@ using program_memory_t = VM::program_memory_t;
 		CD{0},
 		XY{0},
 		HL{0},
+		flags{0},
 		program_mem{}
 		 {
 			current = program_mem.begin();
@@ -29,6 +30,7 @@ using program_memory_t = VM::program_memory_t;
 		CD{in.CD},
 		XY{in.XY},
 		HL{in.HL},
+		flags{in.flags},
 		program_mem{in.program_mem},
 		current{in.current}
 		 {	}
@@ -41,6 +43,7 @@ using program_memory_t = VM::program_memory_t;
 				CD = in.CD;
 				XY = in.XY;
 				HL = in.HL;
+				flags = in.flags;
 				program_mem = in.program_mem;
 				current = in.current;
 		}
@@ -71,12 +74,21 @@ Program::register16_t Program::getsp() const noexcept {
 Program::register16_t Program::getbp() const noexcept {
 	return bp;
 }
-/*
-Program::register_t Program::getacc() const noexcept {
-	return acc;
+Program::register16_t Program::getAB() const noexcept {
+	return AB;
 }
-*/
-
+Program::register16_t Program::getCD() const noexcept {
+	return CD;
+}
+Program::register16_t Program::getHL() const noexcept {
+	return HL;
+}
+Program::register16_t Program::getXY() const noexcept {
+	return XY;
+}
+Program::register_t Program::getflags() const noexcept {
+	return flags;
+}
 		/*
 		std::vector<std::string>* split(const std::string& s, char delimiter)
 		{
