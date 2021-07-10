@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <array>
 #include <string>
+#include <functional>
 #include "types.hpp"
 #include "program.hpp"
 
@@ -41,22 +42,18 @@ class Machine {
 
 		e_instruction decode(register_t in);
 		const bool isProgramLoaded() noexcept;
-		void executeADD(e_argument_type arg1, e_argument_type arg2);
-		void executeSUB(e_argument_type arg1, e_argument_type arg2);
-		void executeMUL(e_argument_type arg1, e_argument_type arg2);
-		void executeDIV(e_argument_type arg1, e_argument_type arg2);
-		void executeMOV(e_argument_type arg1, e_argument_type arg2);
+		void executeCCF(const register_t& e);
 
 	protected:
-	bool is16bit(e_argument_type arg);
+		bool is16bit(e_argument_type arg) noexcept;
+		void setflag(const VM::e_flag& f) noexcept;
+		void resetflag(const VM::e_flag& f) noexcept;
+		void toggleflag(const VM::e_flag& f) noexcept;
 		void loadProgramIntoMemory();
 		void executeInstr(const register_t& instr,
-			void(Machine::*func)(e_argument_type, e_argument_type));
-		void executeMOV16(e_argument_type arg1, e_argument_type arg2);
-		void executeADD16(e_argument_type arg1, e_argument_type arg2);
-		void executeSUB16(e_argument_type arg1, e_argument_type arg2);
-		void executeMUL16(e_argument_type arg1, e_argument_type arg2);
-		void executeDIV16(e_argument_type arg1, e_argument_type arg2);
+			std::function<register16_t(register16_t,register16_t)> func);
+		void executeInstr16(e_argument_type arg1, e_argument_type arg2,
+			std::function<register16_t(register16_t,register16_t)> func);
 		register16_t* temp;
 
 	private:
@@ -74,6 +71,11 @@ class Machine {
 								//  OTHERSS< ETC
 	};
 // 	using program_memory_t = VM::program_memory_t;
+register16_t move(register16_t, register16_t);
+register16_t operator+(const register16_t, const register16_t);
+register16_t operator-(const register16_t, const register16_t);
+register16_t operator/(const register16_t, const register16_t);
+register16_t operator*(const register16_t, const register16_t);
 
 std::ostream& operator<<(std::ostream& o, const e_instruction& e);
 std::ostream& operator<<(std::ostream& o, const register_t& in);

@@ -58,6 +58,7 @@ namespace project5 {
 		{ "SHR", e_instruction::SHR },
 		{ "INC", e_instruction::INC },
 		{ "DEC", e_instruction::DEC },
+		{ "CCF", e_instruction::CCF },
 	};
 Assembler::~Assembler() {}
 Assembler::Assembler() : convertedCode{} {}
@@ -152,6 +153,8 @@ lines_of_code Assembler::convertCmd2ByteCode(const std::string& s) {
 			return translateCALL(tokens);
 		} else if (instruction == "ret") {
 			return translateRET(tokens);
+		} else if (instruction == "ccf") {
+			return translateCCF(tokens);
 		} else {
 		}
 		return lines_of_code{};
@@ -298,5 +301,11 @@ lines_of_code Assembler::translateJMPZ(token_array const* const & tokens) {
 }
 void Assembler::translateZERO(token_array const* const & tokens) {
 	}
+
+lines_of_code Assembler::translateCCF(token_array const* const & tokens) {
+	lines_of_code result{};
+	result.push_back(encode(e_instruction::CCF));
+	return result;
+}
 
 }  // namespace project5

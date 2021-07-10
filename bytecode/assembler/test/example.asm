@@ -22,4 +22,6 @@ mul $B 4
 
 div $A 3
 
+ccf
+
 halt

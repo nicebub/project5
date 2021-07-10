@@ -257,6 +257,8 @@
 		E2F8A24D267AAED500225EF6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78XPJAU3A2;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -267,6 +269,8 @@
 		E2F8A24E267AAED500225EF6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 78XPJAU3A2;
 				ENABLE_HARDENED_RUNTIME = YES;

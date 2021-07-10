@@ -5,6 +5,42 @@
 #include "machine.hpp"
 
 namespace project5 {
+	
+register16_t operator+(const register16_t a, const register16_t b) {
+	register16_t temp;
+	temp.value = a.value + b.value;
+	return temp;
+}
+
+register16_t operator-(const register16_t a, const register16_t b) {
+	register16_t temp;
+	temp.value = a.value - b.value;
+	return temp;
+}
+
+register16_t operator*(const register16_t a, const register16_t b) {
+	register16_t temp;
+	temp.value = a.value * b.value;
+	return temp;
+}
+
+register16_t operator/(const register16_t a, const register16_t b) {
+	register16_t c;
+	try {
+		c.value = a.value / b.value;
+	}
+	catch(std::exception& e) {
+		std::cerr << e.what();
+	}
+	return c;
+}
+register16_t move(register16_t a, register16_t b) {
+//	register16_t temp;
+	a.value =  b.value;
+	return a;
+}
+
+
 std::ostream& operator<<(std::ostream& o, const e_instruction& e) {
 	o << "0x" << static_cast<uint8_t>(e);
 	return o;

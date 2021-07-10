@@ -73,6 +73,7 @@ class Assembler {
 		lines_of_code translateJMP(token_array const* const &);
 		lines_of_code translateJMPZ(token_array const* const &);
 		lines_of_code translateRET(token_array const* const &);
+		lines_of_code translateCCF(token_array const* const &);
 		void translateZERO(token_array const* const &);
 
 	protected:
