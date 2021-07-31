@@ -90,6 +90,7 @@ namespace ucc{
 			List* block24_paramdeflist_paramdeflist_comma_char_star_ident(List** inParamdeflist, ucc::Identifier inIdent);
 
 			void block25_funcbody_lcbra_decls_source();
+			void block25_codeGen_helper();
 			void block26_funcbody_lcbra_decls_source_stmtlist_rcbra();
 
 			void block27_variabledecl_int_identlist_semi(List** inIdentlist);

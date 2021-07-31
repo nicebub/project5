@@ -10,12 +10,12 @@ using namespace ucc;
 namespace ucc{
 
 void Compiler::block1_start_trans_unit(){
-	code_generator.gen_label("main");
-	code_generator.gen_instr_I("enter",0);
-	code_generator.gen_instr_I("alloc", globalcount);
-	code_generator.gen_instr_I("enter",0);
-	code_generator.gen_call(code_generator.genlabelw("main",mainlabel),0);
-	code_generator.gen_instr("return");
+//	code_generator.gen_label("main");
+//	code_generator.gen_instr_I("enter",0);
+//	code_generator.gen_instr_I("alloc", globalcount);
+//	code_generator.gen_instr_I("enter",0);
+//	code_generator.gen_call(code_generator.genlabelw("main",mainlabel),0);
+//	code_generator.gen_instr("return");
 }
 void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 	auto templabel{mainlabel};
@@ -25,11 +25,21 @@ void Compiler::block2_func_funcheader_source(funcheadertype** inFuncHeaderptr){
 			templabel = currentFunc->getlabel();
 			install_parameters_into_symbol_table_curren_scope(inFuncHeaderptr);
 		}
-		code_generator.gen_label(code_generator.genlabelw((*inFuncHeaderptr)->name, templabel ));
+		else{
+			code_generator.gen_instr(".text");
+			code_generator.gen_instr(".globl _main");
+			code_generator.gen_label("_main");
+			{ // FIXME: more dynamic alignment?
+				code_generator.gen_instr(".p2align 4,0x90"); // align 16 w/ nop instr pad
+			}
+//			code_generator.gen_label(code_generator.genlabelw((*inFuncHeaderptr)->name, templabel ));
+		}
+		code_generator.gen_save(); // save rbp on stack and set to rsp
 	}
 }
  void Compiler::block3_func_funcheader_source_funcbody(){
-	 code_generator.gen_instr("returnf");
+	 code_generator.gen_instr("leave");
+//	 code_generator.gen_instr("returnf");
 	 mysymtab->closescope();
 }
 
@@ -85,12 +95,35 @@ void Compiler::block25_funcbody_lcbra_decls_source(){
 	    }
 		temp = currentFunc->getlocalcount();
 	}
-	code_generator.gen_instr_I("alloc", temp);
+	// FIXME: may have to generate code here like save registers, push, call, etc.
+	// or is that in block2 ?
+	code_generator.gen_instr_getStackMemory(temp,sizeof(int));
+	// generate code for all local variables in current symbol table
+//	code_generator.gen_instr_I("alloc", temp);
+}
+void func(std::string in, void* binding, btype self, void* cl) {
+	switch(self){
+		case btype::PARAM:
+		
+				break;
+		case btype::VAR:
+
+				break;
+		default:
+				break;
+	}
+}
+void Compiler::block25_codeGen_helper() {
+	
+	mysymtab->topClosure(func,NULL);
 }
  void Compiler::block29_stmt_expr_semi(){
-		code_generator.gen_instr_I("popI",4);
+	 //FIXME: code generation possible
+//		code_generator.gen_instr_I("popI",4);
 }
 void Compiler::block30_stmt_return_semi(){
+	// FIXME: maybe instead provide a return value to OS
+	// BUT main is written as void main() so... prob not
 	if(currentFunc == nullptr){
 		error("main function has to return a value","");
 		return;
@@ -100,8 +133,9 @@ void Compiler::block30_stmt_return_semi(){
 		error("Function has return type that is not void","");
 		return;
 	}
-
-	code_generator.gen_instr("returnf");
+	// FIXME: maybe different?
+	code_generator.gen_instr("leave");
+//	code_generator.gen_instr("returnf");
 }
 
  void Compiler::variableFetch(ReturnPacket* inPacket, bool conversionNeeded){
@@ -109,14 +143,20 @@ void Compiler::block30_stmt_return_semi(){
 		const static std::string fetch{"fetch"};
 		switch(inPacket->gettype()){
 
-			case type::INT:	code_generator.gen_instr(fetch + "I");
+			case type::INT:	
+			//FIXME: move value into a register
+			code_generator.gen_instr("mov");
+//									code_generator.gen_instr(fetch + "I");
 									break;
 
-			case type::FLOAT:	code_generator.gen_instr(fetch + "R");
+			case type::FLOAT:	
+			//FIXME: move value into a register
+				code_generator.gen_instr("mov");
+//									code_generator.gen_instr(fetch + "R");
 
 			default:
 									if(conversionNeeded){
-										code_generator.gen_instr("int");
+//										code_generator.gen_instr("int");
 									}
 									break;
 		}
@@ -139,7 +179,8 @@ void Compiler::block31_stmt_return_expr_semi(ReturnPacket* inPacket){
 
 		variableFetchWithNumericCheck(inPacket,true); //conversion to integer needed
 
-		code_generator.gen_instr("setrvI");
+		//FIXME: maybe generate more code?
+//		code_generator.gen_instr("setrvI");
 		return;
 	}
 	#ifdef DEBUG
@@ -155,16 +196,22 @@ void Compiler::block31_stmt_return_expr_semi(ReturnPacket* inPacket){
 	switch(currentFunc->getreturntype()){
 		case type::INT:
 			switch(inPacket->gettype()){
-				case type::FLOAT:	code_generator.gen_instr("int");
-				case type::INT:	code_generator.gen_instr("setrvI");
+				//FIXME: different code generation needed
+				case type::FLOAT:	// FIXME: code
+//										code_generator.gen_instr("int");
+				case type::INT:	// FIXME: code
+//										code_generator.gen_instr("setrvI");
 										break;
 				default: break;
 			}
 			break;
 		case type::FLOAT:	
 			switch( inPacket->gettype() ){
-				case type::INT:	code_generator.gen_instr("flt");
-				case type::FLOAT:	code_generator.gen_instr("setrvR");
+				//FIXME: different code generation needed
+				case type::INT:	// FIXME: code	
+//										code_generator.gen_instr("flt");
+				case type::FLOAT:		// FIXME: code
+//										code_generator.gen_instr("setrvR");
 										break;
 				default:				break;
 			}
@@ -172,7 +219,8 @@ void Compiler::block31_stmt_return_expr_semi(ReturnPacket* inPacket){
 		default: 
 			break;
 	}
-	code_generator.gen_instr("returnf");
+	code_generator.gen_instr("leave");
+//	code_generator.gen_instr("returnf");
 }
 ReturnPacket* Compiler::block32_stmt_while_source(){
 	ReturnPacket* inPacket{new ReturnPacket{}};
@@ -186,12 +234,17 @@ ReturnPacket* Compiler::block32_stmt_while_source(){
 }
  void Compiler::block33_stmt_while_source_expr_semi_source_lpar_expr_rpar(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket){
 	variableFetchWithNumericCheck(inexprPacket,true);
-	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",insourcePacket->m_pair.two));
+	//FIXME: code generatrion differs
+	code_generator.gen_instr_S("jmpeq", code_generator.genlabelw("",insourcePacket->m_pair.two));
+//	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",insourcePacket->m_pair.two));
 }
 
  void Compiler::block34_5_stmt_helper(int one, int two){
-	code_generator.gen_instr_S("jump", code_generator.genlabelw("",one));
+ 	//FIXME: code generatrion differs
+ 	code_generator.gen_instr_S("jmp", code_generator.genlabelw("",one));
 	code_generator.gen_label(code_generator.genlabelw("",two));
+//	code_generator.gen_instr_S("jump", code_generator.genlabelw("",one));
+//	code_generator.gen_label(code_generator.genlabelw("",two));
 }
 void Compiler::while_and_if_reducer(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket, int number, std::string while_or_if){
 	ReturnPacket* inPacket{inexprPacket};
@@ -207,7 +260,9 @@ void Compiler::while_and_if_reducer(ReturnPacket* insourcePacket, ReturnPacket* 
 		block34_5_stmt_helper(insourcePacket->m_pair.one,insourcePacket->m_pair.two);
 	}
 	else{
+		//FIXME: code generation changes
 		code_generator.gen_label(code_generator.genlabelw("",number));
+//		code_generator.gen_label(code_generator.genlabelw("",number));
 	}
 }
  void Compiler::block34_stmt_while_source_expr_semi_source_lpar_expr_rpar_source_stmt(ReturnPacket* insourcePacket, ReturnPacket* inexprPacket){
@@ -240,14 +295,18 @@ struct Pair Compiler::block38_ifexprstmt_if_lpar_expr_source(ReturnPacket* inexp
 	othercounter++;
 
 	variableFetchWithNumericCheck(inexprPacket,true);
-	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",rvalue.one));
+	//FIXME: code gen changes
+	code_generator.gen_instr_S("jmpe", code_generator.genlabelw("",rvalue.one));
+//	code_generator.gen_instr_S("jumpz", code_generator.genlabelw("",rvalue.one));
 	return rvalue;
 }
 void Compiler::normalStore(ucc::type intype){
 	switch(intype){
-		case(ucc::type::INT):	code_generator.gen_instr("storeI");
+		case(ucc::type::INT):	//FIXME: code gen changes
+//										code_generator.gen_instr("storeI");
 										break;
-		case(ucc::type::FLOAT):	code_generator.gen_instr("storeR");
+		case(ucc::type::FLOAT):	//FIXME: code gen changes
+//										code_generator.gen_instr("storeR");
 										break;
 		default:						break;
 	}
@@ -269,8 +328,9 @@ void Compiler::variableStore(ucc::type intype){
 	}
 	warning("expressons are of different type, data may be lost","");
 
-	code_generator.gen_instr(instruction);
-	code_generator.gen_instr("store" + letter);
+	//FIXME: code gen changes
+//	code_generator.gen_instr(instruction);
+//	code_generator.gen_instr("store" + letter);
 }
 ReturnPacket* Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** inequalexprPacketptr,ReturnPacket** inotherequalexprPacketptr){
 	ReturnPacket* outPacket{nullptr};
@@ -311,11 +371,13 @@ ReturnPacket* Compiler::block40_expr_equalexpr_equal_equalexpr(ReturnPacket** in
 ReturnPacket* Compiler::block43_equalexpr_relexpr_helper(ucc::eqtype ineqop, std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	switch(ineqop){
-		case eqtype::NEQ: 	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("neR");
+		case eqtype::NEQ: //FIXME: code gen changes
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("neR");
 									break;
-		case eqtype::EQEQ: 	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("eqR");
+		case eqtype::EQEQ://FIXME: code gen changes
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("eqR");
 									break;
 		default:					break;
 	}
@@ -335,16 +397,20 @@ ReturnPacket* Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ucc::eqtyp
 		if( relexprPacket->gettype() == otherrelexprPacket->gettype() ){
 			outPacket->settype( ucc::type::INT);
 			switch(ineqop){
-				case eqtype::NEQ:	
-										if(relexprPacket->gettype() == ucc::type::INT)
-											code_generator.gen_instr("neI");
-										else if(relexprPacket->gettype() == ucc::type::FLOAT)
-											code_generator.gen_instr("neR");
+				case eqtype::NEQ:	//FIXME: code gen changes
+										if(relexprPacket->gettype() == ucc::type::INT){
+//											code_generator.gen_instr("neI");
+										}
+										else if(relexprPacket->gettype() == ucc::type::FLOAT){
+//											code_generator.gen_instr("neR");
+										}
 										break;
-				case eqtype::EQEQ: if(relexprPacket->gettype() == ucc::type::INT)
-											code_generator.gen_instr("eqI");
-										else if(relexprPacket->gettype() == ucc::type::FLOAT)
-											code_generator.gen_instr("eqR");
+				case eqtype::EQEQ: if(relexprPacket->gettype() == ucc::type::INT){
+//											code_generator.gen_instr("eqI");
+										}
+										else if(relexprPacket->gettype() == ucc::type::FLOAT){
+//											code_generator.gen_instr("eqR");
+										}
 										break;
 				default:				break;
 			}
@@ -370,17 +436,22 @@ ReturnPacket* Compiler::block43_equalexpr_relexpr_eqop_source_relexpr(ucc::eqtyp
 ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_helper(ucc::reltype inrelop, std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	switch(inrelop){
-		case reltype::LES:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("ltR");
+		// FIXME: code gen changes
+		case reltype::LES:	// FIXME: code gen changes
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("ltR");
 									break;
-		case reltype::LEQ:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("leR");
+		case reltype::LEQ:	
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("leR");
 									break;
-		case reltype::GRE:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("gtR");
+		case reltype::GRE:	
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("gtR");
 									break;
-		case reltype::GEQ:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("geR");
+		case reltype::GEQ:	
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("geR");
 									break;
 		default:					break;
 	}
@@ -399,25 +470,34 @@ ReturnPacket* Compiler::block46_relexpr_simpleexpr_relop_source_simpleexpr(Retur
 		if( simpleexprPacket->gettype() == othersimpleexprPacket->gettype() ) {
 			outPacket->settype( ucc::type::INT);
 			switch(inrelop){
-				case reltype::LES:	if(simpleexprPacket->gettype() == type::INT) 
-												code_generator.gen_instr("ltI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("ltR");
+				// FIXME: code gen changes
+				case reltype::LES:	if(simpleexprPacket->gettype() == type::INT){
+//												code_generator.gen_instr("ltI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("ltR");
+											}
 											break;
-				case reltype::LEQ:	if(simpleexprPacket->gettype() == type::INT)
-												code_generator.gen_instr("leI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("leR");
+				case reltype::LEQ:	if(simpleexprPacket->gettype() == type::INT){
+//												code_generator.gen_instr("leI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("leR");
+											}
 												break;
-				case reltype::GRE:	if(simpleexprPacket->gettype() == type::INT)
-												code_generator.gen_instr("gtI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("gtR");
+				case reltype::GRE:	if(simpleexprPacket->gettype() == type::INT){
+//												code_generator.gen_instr("gtI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("gtR");
+											}
 												break;
-				case reltype::GEQ:	if(simpleexprPacket->gettype() == type::INT)
-												code_generator.gen_instr("geI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("geR");
+				case reltype::GEQ:	if(simpleexprPacket->gettype() == type::INT){
+//												code_generator.gen_instr("geI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("geR");
+											}
 												break;
 				default:					break;
 			}
@@ -449,11 +529,17 @@ void Compiler::variableFetchWithNumericCheckAndLvalCheck(ReturnPacket* insimpleP
 ReturnPacket* Compiler::block49_simpleexpr_addop_helper(ucc::addtype inaddop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	switch(inaddop){
-		case addtype::PLS:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("addR");
+		case addtype::PLS:	
+		//FIXME: addition
+		code_generator.gen_instr("addq");
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("addR");
 									break;
-		case addtype::MIN:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("subR");
+		case addtype::MIN:	
+		//FIXME: subtraction
+		code_generator.gen_instr("subq");
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("subR");
 									break;
 		default:					break;
 	}
@@ -472,17 +558,28 @@ ReturnPacket* Compiler::block49_simpleexpr_simpleexpr_addop_source_term(ReturnPa
 		if( simpleexprPacket->gettype() == termPacket->gettype() ){
 			outPacket->settype( simpleexprPacket->gettype());
 			switch(inaddop){
-				case addtype::PLS:	if(simpleexprPacket->gettype() == type::INT)
-												code_generator.gen_instr("addI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("addR");
+				case addtype::PLS:	
+											if(simpleexprPacket->gettype() == type::INT){
+											//FIXME: addition
+											code_generator.gen_instr("addq");
+//												code_generator.gen_instr("addI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("addR");
+											}
 											break;
-				case addtype::MIN:	if(simpleexprPacket->gettype() == type::INT)
-												code_generator.gen_instr("subI");
-											else if(simpleexprPacket->gettype() == type::FLOAT)
-												code_generator.gen_instr("subR");
+				case addtype::MIN:	
+											if(simpleexprPacket->gettype() == type::INT){
+												//FIXME: subtraction
+												code_generator.gen_instr("subq");
+//												code_generator.gen_instr("subI");
+											}
+											else if(simpleexprPacket->gettype() == type::FLOAT){
+//												code_generator.gen_instr("subR");
+											}
 											break;
-				default:					break;
+				default:					
+											break;
 			}
 		}
 		else if(simpleexprPacket->gettype() == ucc::type::INT 
@@ -507,11 +604,17 @@ ReturnPacket* Compiler::block49_simpleexpr_simpleexpr_addop_source_term(ReturnPa
 ReturnPacket* Compiler::block52_term_mulop_helper(ucc::multype inmulop,std::string need_letter_b){
 	warning("expressons are of different type, data may be lost","");
 	switch(inmulop){
-		case multype::DIV:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("divR");
+		case multype::DIV:	
+		//FIXME: divide
+		code_generator.gen_instr("idiv");
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("divR");
 									break;
-		case multype::MULT:	code_generator.gen_instr("flt" + need_letter_b);
-									code_generator.gen_instr("mulR");
+		case multype::MULT:	
+		//FIXME: multiply
+		code_generator.gen_instr("imul");
+//									code_generator.gen_instr("flt" + need_letter_b);
+//									code_generator.gen_instr("mulR");
 									break;
 		default:					break;
 	}
@@ -528,20 +631,21 @@ ReturnPacket* Compiler::block52_term_term_mulop_source_factor(ReturnPacket** int
 		if( intermPacket->gettype() == infactorPacket->gettype() ) {
 			outtermPacket->settype(  intermPacket->gettype() );
 			switch(inmulop){
+				// FIXME: cod gen changes
 				case multype::DIV:
 									if(intermPacket->gettype()== type::INT){
-										code_generator.gen_instr("divI");
+//										code_generator.gen_instr("divI");
 									}
 									else if(intermPacket->gettype()== type::FLOAT){
-										code_generator.gen_instr("divR");
+//										code_generator.gen_instr("divR");
 									}
 									break;
 				case multype::MULT:
 									if(intermPacket->gettype()== type::INT){
-										code_generator.gen_instr("mulI");
+//										code_generator.gen_instr("mulI");
 									}
 									else if(intermPacket->gettype()== type::FLOAT){
-										code_generator.gen_instr("mulR");
+//										code_generator.gen_instr("mulR");
 									}
 									break;
 				default:			break;
@@ -561,16 +665,21 @@ ReturnPacket* Compiler::block52_term_term_mulop_source_factor(ReturnPacket** int
 	}
 	return outtermPacket;
 }
+//FIXME: code generation below needs fix
 ReturnPacket* Compiler::block54_factor_constant(Constant** inConstant){
 	switch((*inConstant)->gettype()){
+		// FIXME: code gen changes
 		case type::INT:
-			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant)->getvalue());
+			code_generator.gen_instr("push " + std::to_string(dynamic_cast<IntConstant*>(*inConstant)->getvalue()));
+//			code_generator.gen_instr_I("pushcI",dynamic_cast<IntConstant*>(*inConstant)->getvalue());
 			break;
-		case type::FLOAT:
-			code_generator.gen_instr_F("pushcR",dynamic_cast<FloatConstant*>(*inConstant)->getvalue());
+		case type::FLOAT: // FIXME: code gen
+//			code_generator.gen_instr("push " + std::to_string(dynamic_cast<FloatConstant*>(*inConstant)->getvalue()));
+//			code_generator.gen_instr_F("pushcR",dynamic_cast<FloatConstant*>(*inConstant)->getvalue());
 			break;
 		case type::STR:
-			code_generator.gen_instr_S("pushs",dynamic_cast<StrConstant*>(*inConstant)->getvalue());
+			code_generator.gen_instr("push " + dynamic_cast<StrConstant*>(*inConstant)->getvalue());
+//			code_generator.gen_instr_S("pushs",dynamic_cast<StrConstant*>(*inConstant)->getvalue());
 			break;
 		default:
 			error("constant is not a correct type of constant","");
@@ -595,7 +704,9 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 					 outPacket->setnumeric(true);
 				 }
 				if(mysymtab->inCscope(inIdent.getvalue())){
-					code_generator.gen_instr_I("pusha", resultLookup->getBinding()->getoffset());
+					//FIXME: store address in register or push onto stack
+					code_generator.gen_instr("push " + (inIdent.getvalue()));
+//					code_generator.gen_instr_I("pusha", resultLookup->getBinding()->getoffset());
 				}
 				else{
 					switch(resultLookup->getself()){
@@ -608,7 +719,9 @@ ReturnPacket* Compiler::block55_factor_ident(ucc::Identifier inIdent){
 							#endif
 							int level_diff{mysymtab->getleveldif(inIdent.getvalue())};
 							if(level_diff != -1){
-								code_generator.gen_instr_tI("pushga",level_diff,resultLookup->getBinding()->getoffset());
+								//FIXME: as above push on stack or in register??
+								code_generator.gen_instr("push " + (inIdent.getvalue()));
+//								code_generator.gen_instr_tI("pushga",level_diff,resultLookup->getBinding()->getoffset());
 							}
 							else{
 								debugprint("error, somehow level difference was -1\n","");
@@ -647,9 +760,12 @@ ReturnPacket* Compiler::block57_factor_addop_factor_uminus(ucc::addtype inop, Re
 			case ucc::addtype::MIN:
 					variableFetchWithNumericCheck(*inPacketptr,false);
 					switch(inPacket->gettype()){
-						case type::INT:	code_generator.gen_instr("negI");
+						// FIXME: code gen changes
+						case type::INT:	
+//												code_generator.gen_instr("negI");
 												break;
-						case type::FLOAT:	code_generator.gen_instr("negR");
+						case type::FLOAT:	
+//												code_generator.gen_instr("negR");
 												break;
 						default:				break;
 					}
@@ -692,12 +808,14 @@ ReturnPacket* Compiler::block58_factor_adof_ident(ucc::Identifier inPacket){
 						if(((Varb*)(tempE->getBinding()))->gettype() == type::INT || ((Varb*)(tempE->getBinding()))->gettype() == type::FLOAT)
 						outPacket->setnumeric(true);
 						if(mysymtab->inCscope(inPacket.getvalue())){
-							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
+							// FIXME: code gen changes
+//							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
 						}
 						else{
 							int level_diff{mysymtab->getleveldif(inPacket.getvalue())};
 							if(level_diff != -1){
-								code_generator.gen_instr_tI("pushga", level_diff,((Varb*)(tempE->getBinding()))->getoffset());
+								// FIXME: code gen changes
+//								code_generator.gen_instr_tI("pushga", level_diff,((Varb*)(tempE->getBinding()))->getoffset());
 							}
 							else{
 								debugprint("error level differince was -1\n","");
@@ -714,7 +832,8 @@ ReturnPacket* Compiler::block58_factor_adof_ident(ucc::Identifier inPacket){
 						if(((Paramb*)(tempE->getBinding()))->gettype() == type::INT || ((Paramb*)(tempE->getBinding()))->gettype() == type::FLOAT)
 						outPacket->setnumeric(true);
 						if(mysymtab->inCscope(inPacket.getvalue())){
-							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
+							// FIXME: code gen changes
+//							code_generator.gen_instr_I("pusha", ((Varb*)(tempE->getBinding()))->getoffset());
 						}
 						else{
 							//do something else
@@ -776,8 +895,10 @@ ReturnPacket* Compiler::block60_function_call_ident_lpar_rpar(ucc::Identifier in
 				else{
 					outPacket->setnumeric(false);
 				}
-				code_generator.gen_instr_I("enter",1);
+				// FIXME: code gen changes
 				code_generator.gen_call(code_generator.genlabelw(inIdent.getvalue(), tempb->getlabel()), 0);
+//				code_generator.gen_instr_I("enter",1);
+//				code_generator.gen_call(code_generator.genlabelw(inIdent.getvalue(), tempb->getlabel()), 0);
 			}
 			else{
 				error("Function call with an unknown function name", "");
@@ -801,24 +922,30 @@ ReturnPacket* Compiler::block62_func_call_with_params_name_and_params_rpar(Retur
 		if(((* nameAndparamptr)->funcent)->getself() == btype::FUNC){
 			if( ((Funcb*)(((* nameAndparamptr)->funcent)->getBinding()))->getreturntype() != type::VOID){
 				funcCallWparam->setnumeric(true);
+				// FIXME: potentially add more to stack amount for later?
 			}
 			else{
 				funcCallWparam->setnumeric(false);
 			}
 		}
 		if( "scanf" == (*nameAndparamptr)->funcent->getName()){
-			code_generator.gen_call("$scanf",(*nameAndparamptr)->params);
+			// FIXME: code gen changes
+			code_generator.gen_call("_scanf",(*nameAndparamptr)->params);
+//			code_generator.gen_call("$scanf",(*nameAndparamptr)->params);
 		}
 		else if("printf" ==  (*nameAndparamptr)->funcent->getName()){
-			code_generator.gen_call("$printf",(*nameAndparamptr)->params);
+			// FIXME: code gen changes
+			code_generator.gen_call("_printf",(*nameAndparamptr)->params);
+//			code_generator.gen_call("$printf",(*nameAndparamptr)->params);
 		}
 		else{
 			if( ((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getlabel()==0){
 				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->setlabel(code_generator.getlabel());
 			}
-			code_generator.gen_call( code_generator.genlabelw((*nameAndparamptr)->funcent->getName(),
-				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getlabel()),
-				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getnum_param());
+			// FIXME: code gen changes
+//			code_generator.gen_call( code_generator.genlabelw((*nameAndparamptr)->funcent->getName(),
+//				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getlabel()),
+//				((Funcb*)((*nameAndparamptr)->funcent->getBinding()))->getnum_param());
 		}
 	}
 	return funcCallWparam;
@@ -838,7 +965,8 @@ ReturnPacket* Compiler::block63_name_and_params_ident_lpar_source(ucc::Identifie
 	#endif
 	if (inEntry->funcent != nullptr){
 		inEntry->funcent->setName(inPacket.getvalue());
-		code_generator.gen_instr_I("enter",1);
+		// FIXME: code gen changes
+//		code_generator.gen_instr_I("enter",1);
 	}
 	return inEntry;
 }
@@ -917,7 +1045,8 @@ ReturnPacket* Compiler::block64_name_and_params_ident_lpar_source_expr(ucc::Iden
 								switch(inPacket->gettype()){
 									case type::FLOAT:
 															warning("Paramter expression will lose data because of different type","");
-															code_generator.gen_instr("int");
+															// FIXME: code gen changes;
+//															code_generator.gen_instr("int");
 															break;
 									case type::INT:	break;
 									default:				error("Parameter type is different in declaration and function call","");
@@ -930,7 +1059,8 @@ ReturnPacket* Compiler::block64_name_and_params_ident_lpar_source_expr(ucc::Iden
 								#endif
 								switch(inPacket->gettype()){
 									case type::INT:	warning("Parameter expression is different type than in declaration","");
-															code_generator.gen_instr("flt");
+															// FIXME: code gen changes;
+//															code_generator.gen_instr("flt");
 															break;
 									case type::FLOAT:	break;
 									default:				error("Parameter type is different in declaration and function call","");
@@ -1006,10 +1136,12 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 						warning("Parameter type is different in declaration and in function call","");
 						variableFetch(inexprPacket,false);
 						if(tempB->getparam_type()[innameAndparamPacket->params]== type::FLOAT){
-							code_generator.gen_instr("flt");
+							// FIXME: code gen changes
+//							code_generator.gen_instr("flt");
 						}
 						else if(tempB->getparam_type()[innameAndparamPacket->params]== type::INT){
-							code_generator.gen_instr("int");
+							// FIXME: code gen changes
+//							code_generator.gen_instr("int");
 						}
 				}
 				else{

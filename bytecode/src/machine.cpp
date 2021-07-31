@@ -108,11 +108,11 @@ namespace project5 {
 					return CD.single[0];
 				case e_instruction::ADD:
 					executeInstr(instr, std::plus<register16_t>());
-					resetflag(VM::e_flag::N);
+					resetflag(VM::e_flag::M_N);
 					break;
 				case e_instruction::SUB:
 					executeInstr(instr, std::minus<register16_t>());
-					setflag(VM::e_flag::N);
+					setflag(VM::e_flag::M_N);
 					break;
 				case e_instruction::MUL:
 					executeInstr(instr, std::multiplies<register16_t>());

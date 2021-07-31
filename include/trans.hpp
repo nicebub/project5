@@ -27,6 +27,10 @@ class CodeGenerator{
 		void gen_instr_F(std::string name, float arg);	//use for float
 		void gen_call(std::string funcname, int numargs);
 		void gen_instr_tI(std::string name, int arg1, int arg2);
+		void gen_save();
+		void gen_restore();
+		void gen_instr_getStackMemory(size_t in, int amount);
+		void gen_instr_removeStackMemory(size_t in);
 		bool canGenerateCode() const noexcept;
 		void stop() noexcept;
 		void start() noexcept;

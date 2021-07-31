@@ -37,15 +37,14 @@ void CodeGenerator::nullout(std::string& name, int length){
 }
 
 std::string CodeGenerator::genlabelw(std::string name, int labelnum){
-	std::string temp{"$"};
-	temp += name;
+	std::string temp{name};
 	temp += std::to_string(labelnum);
 	return temp;
 }
 void CodeGenerator::gen_instr(std::string name){
 	if(canGenerate && ! lastInstructionWasReturnf ){
 		*outfile << "\t" << name << "\n";
-		if(name == "returnf"){
+		if(name == "leave"){
 			lastInstructionWasReturnf = true;
 		}
 		else{
@@ -75,7 +74,7 @@ void CodeGenerator::gen_instr_S(std::string name, std::string inS){
 
 void CodeGenerator::gen_label(std::string name){
 	if(canGenerate){
-			*outfile << name << "\n";
+			*outfile << name << ":\n";
 			lastInstructionWasReturnf = false;
 	}
 }
@@ -89,7 +88,7 @@ void CodeGenerator::gen_instr_F(std::string name, float arg){
 
 void CodeGenerator::gen_call(std::string funcname, int numargs){
 	if(canGenerate){
-			*outfile << "\tcall\t" << funcname << ", " << numargs << "\n";
+			*outfile << "\tcall\t" << funcname << "\n";
 			lastInstructionWasReturnf = false;
 	}
 }
@@ -115,4 +114,30 @@ void CodeGenerator::start() noexcept{
 	canGenerate = true;	
 }
 
+void CodeGenerator::gen_save() {
+	if(canGenerate){
+			*outfile << "\tpushq %rbp\n\tmovq %rsp, %rbp\n";
+			lastInstructionWasReturnf = false;
+	}
+}
+void CodeGenerator::gen_restore() {
+	if(canGenerate){
+			*outfile << "\tleave\n";
+			lastInstructionWasReturnf = false;
+	}
+}
 
+void CodeGenerator::gen_instr_getStackMemory(size_t in, int amount) {
+	if(canGenerate){
+		std::string x;
+			*outfile << "\tsubq $" << std::to_string(in*amount) << ", %rsp\n";
+			lastInstructionWasReturnf = false;
+	}
+}
+void CodeGenerator::gen_instr_removeStackMemory(size_t in) {
+	if(canGenerate){
+		assert(in>0);
+			*outfile << "\taddq $" << std::to_string(in) << ", %rsp\n";
+			lastInstructionWasReturnf = false;
+	}
+}

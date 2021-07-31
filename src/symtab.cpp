@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <search.h>
+#include <functional>
 
 #include "debug.hpp"
 #include "symtab.hpp"
@@ -126,6 +127,22 @@ void SymbolTable::closescope(){
 		if(!stack.empty()) {
 			stack.pop_back();
 			actualStacksize -= 1;
+		}
+	}
+}
+std::map<std::string,TableEntry*>::iterator Table::begin() {
+	return table.begin();
+}
+std::map<std::string,TableEntry*>::iterator Table::end() {
+	return table.end();
+}
+
+void SymbolTable::topClosure(std::function<void(std::string,void*,btype,void*)> func, void* cl){
+	if(func && (cl != nullptr)){
+//		for(auto &it : stack){}
+		Table* current = *stack.rbegin();
+		for(auto& element : *current) {
+			func(element.second->getName(),element.second->getBinding(),element.second->getself(),cl);
 		}
 	}
 }
@@ -292,4 +309,5 @@ int SymbolTable::getleveldif(std::string name){
 	}
 	return -1;
 }
+
 }

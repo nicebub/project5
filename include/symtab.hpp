@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <map>
 #include <deque>
+#include <functional>
 
 #include "list.hpp"
 #include "type.hpp"
@@ -40,6 +41,8 @@ namespace ucc{
 			TableEntry* lookupB(const std::string name);
 			bool install(TableEntry * temp);
 			bool empty() noexcept;
+			std::map<std::string,TableEntry*>::iterator begin();
+			std::map<std::string,TableEntry*>::iterator end();
 		private:
 			std::map<std::string,TableEntry*> table;
 	};
@@ -64,6 +67,7 @@ namespace ucc{
 			TableEntry* createFunc(std::string name, type returntype, List* paramlist); //FIXME: take in a ReturnPacket* instead?
 			TableEntry* createVar(std::string name, type t_type, int offset); //FIXME: take in a ReturnPacket* instead?
 			TableEntry* createParam(std::string name, type t_type, int offset); //FIXME: take in a ReturnPacket* instead?
+			void topClosure(std::function<void(std::string,void*,btype,void*)> func, void* cl);
 
 		private:
 			Compiler& compiler;
