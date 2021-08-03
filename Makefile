@@ -74,7 +74,7 @@ DEPEND=$(COMPILER) -MM -MG -MF
 CPPFLAGS = -Wall -std=c++17 #-DDEBUGON
 CPPFLAGS += -Wall -Wpedantic -pedantic-errors -Wno-comment -I. -I$(PATHI)
 #CPPFLAGS += -g
-CPPFLAGS += -Os
+CPPFLAGS += -Os -pipe -time
 #CPPFLAGS += -ll -lm
 ifeq ($(OS),Darwin)
 CPPFLAGS += -Wno-deprecated-register 
@@ -140,6 +140,7 @@ $(PATHD)%.d:: %.cpp %.hpp $(BUILD_PATHS)
 #$(OUTFILE):
 
 $(PATHO)%.o:: %.s
+	$(COMPILER) -E -dM $(CPPFLAGS) $(DEBUG) $<
 	$(COMPILER) $(CPPFLAGS) $(DEBUG) -c $< -o $@
 
 #$(PATHO)%.o:: %.c $(PATHI)%.h $(PATHD)%.d
@@ -195,22 +196,28 @@ $(PATHB)Test%vector_Runner$(TARGET_EXTENSION): $(PATHO)Test%vector_Runner.o $(PA
 #	$(LINK) -o $@ $^
 
 $(PATHO)ucc.tab.o: $(PATHS)ucc.tab.cpp
+#	$(COMPILER) -E -dM $(TFLAGS) $(FCFLAGS) $<
 	$(COMPILER) $(TFLAGS) $(FCFLAGS) -c $< -o $@
 
 $(PATHO)lex.yy.o: $(PATHS)lex.yy.cc
+#	$(COMPILER) -E -dM $(TFLAGS) $(FCFLAGS) $<
 	$(COMPILER) $(TFLAGS) $(FCFLAGS) -c $< -o $@
 	
 $(PATHO)%.o:: $(PATHS)%.cpp $(PATHI)%.hpp
+#	$(COMPILER) -E -dM $(TFLAGS) $(FCFLAGS) $<
 	$(COMPILER) $(TFLAGS) $(FCFLAGS) -c $< -o $@
 
 $(PATHO)%.o:: $(PATHT)%.cpp
+#	$(COMPILER) -E -dM $(TFLAGS) $(FCFLAGS) $<
 	$(COMPILER) $(TFLAGS) $(FCFLAGS) -c $< -o $@
 
 
 $(PATHO)%.o:: $(PATHS)%.cpp
+#	$(COMPILER) -E -dM $(TFLAGS) $(FCFLAGS) $<
 	$(COMPILER) $(TFLAGS) $(FCFLAGS) -c $< -o $@
 
 $(PATHO)%.o:: $(PATHU)%.cpp $(PATHU)%.hpp
+#	$(COMPILER) -E -dM $(FCFLAGS) $(TFLAGS) $<
 	$(COMPILER) $(FCFLAGS) $(TFLAGS) -c $< -o $@
 
 $(PATHD)%.d:: $(PATHT)%.c
