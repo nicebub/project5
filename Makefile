@@ -15,7 +15,7 @@ else
 #	GENERATE_RUNNER= tools/genrunners.sh
 endif
 
-.PHONY: all clean test run #regen
+.PHONY: all clean test run lint #regen
 
 vpath %.cpp src
 vpath %.s src
@@ -122,6 +122,7 @@ $(PATHS)ucc.tab.cpp : $(PATHS)ucc.ypp
 	mv $(PATHS)ucc.tab.hpp $(PATHI)
 	mv $(PATHS)location.hh $(PATHI)
 
+
 $(PATHS)lex.yy.cc : $(PATHS)ucc.l $(PATHS)ucc.tab.cpp
 	$(FLEX) $(FLOP) -o $(PATHS)lex.yy.cc $(PATHS)ucc.l
 #	mv $@ $(PATHS)
@@ -143,8 +144,13 @@ $(PATHO)%.o:: %.s
 #$(PATHO)%.o:: %.c $(PATHI)%.h $(PATHD)%.d
 #	$(COMPILER) $(CPPFLAGS) $(DEBUG) -c $< -o $@
 
+ifeq ($(shell ls ${PATHO}ucc.tab.o),)
+UCC=$(PATHO)ucc.tab.o
+else
+UCC=
+endif
 $(EXEC):: $(BUILD_PATHS) $(ASSEMBLYS) $(PATHO)ucc.tab.o $(PATHO)lex.yy.o $(OBJECTS) $(OUTFILE)   #$(DEPS)
-	$(COMPILER) $(CPPFLAGS) $(FCFLAGS) $(DEBUG) $(ASSEMBLYS) $(PATHO)ucc.tab.o $(PATHO)lex.yy.o $(OBJECTS)  -o $@
+	$(COMPILER) $(CPPFLAGS) $(FCFLAGS) $(DEBUG) $(ASSEMBLYS) $(UCC) $(PATHO)lex.yy.o $(OBJECTS)  -o $@
 
 run: $(EXEC)
 	./$(EXEC) $(EXAMPLES)expr.l
@@ -220,3 +226,9 @@ $(PATHO):
 
 $(PATHR):
 	$(MKDIR) $(PATHR)
+
+LINT = cpplint
+LINTFLAGS = --verbose=2
+
+lint:
+	 ${LINT} ${LINTFLAGS} src/*.cpp include/*.hpp
