@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <search.h>
-#include <cassert.h>
+#include <cassert>
 
 #include "debug.hpp"
 #include "symtab.hpp"
