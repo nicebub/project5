@@ -88,6 +88,7 @@ clean: test_clean
 	$(CLEANUP) ucc.tab.cpp ucc.tab.hpp
 	$(CLEANUP) $(PATHI)ucc.tab.hpp $(PATHS)ucc.tab.cpp $(PATHI)location.hh
 	$(CLEANUP) $(PATHS)lex.yy.cc
+	$(CLEANUP) $(PATHS)ucc.output
 	$(CLEANUP) $(PATHO)*.o
 	$(CLEANUP) $(PATHB)*$(TARGET_EXTENSION)
 	$(CLEANUP) $(PATHR)*.txt
