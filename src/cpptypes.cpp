@@ -3,6 +3,7 @@
 
 namespace ucc{
 	ReturnPacket::ReturnPacket() :
+									   params{0},
 										offset{0},
 										lval{false},
 										numeric{false},
@@ -12,7 +13,8 @@ namespace ucc{
 	ReturnPacket::ReturnPacket(bool lval , 
 										ucc::type ttype=ucc::type::INT, 
 										bool ifnum=false, 
-										int inoffset=0) : 
+										int inoffset=0) :
+										  params{0},
 										offset{inoffset},
 										lval{lval},
 										numeric{ifnum},

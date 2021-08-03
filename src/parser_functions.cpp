@@ -1127,7 +1127,7 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 						variableFetchWithNumericCheck(inexprPacket,false);
 					}
 				}
-				else if( outPacket->params < tempB->getnum_param()){
+				else if( innameAndparamPacket->params < tempB->getnum_param()){
 					if(inexprPacket->gettype() != tempB->getparam_type()[innameAndparamPacket->params]){
 						#ifdef DEBUG
 //						fprintf(stderr,"Function mismatch before warning: FUNCTION NAME: %s\n", innameAndparamPacket->getname());
@@ -1146,19 +1146,15 @@ ReturnPacket* Compiler::block65_name_and_params_name_and_params_comma_expr(Retur
 				}
 				else{
 					variableFetch(inexprPacket,false);
+					}
 				}
-				outPacket->settype( tempB->getparam_type()[innameAndparamPacket->params] );
-				if(outPacket->gettype() == type::INT || outPacket->gettype() == type::FLOAT)
-				outPacket->setnumeric(true);
-				else
-				outPacket->setnumeric(false);
-				outPacket->params= innameAndparamPacket->params +1;
-				outPacket->funcent= innameAndparamPacket->funcent;
-			}
-			else{
-				error("Too many parameters given for function in function call.","");
 			}
 		}
+		else{
+			error("Function is undeclared","");
+		}
+		delete tempE2;
+		tempE2=nullptr;
 	}
 	else{
 		error("Function is undeclared","");

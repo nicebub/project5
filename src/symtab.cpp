@@ -245,6 +245,7 @@ TableEntry* SymbolTable::createParam(std::string name, type t_type, int offset){
 }
 
 void SymbolTable::addtosymtab(type mytype, List* myList){
+	assert(myList != nullptr);
 		if(myList !=nullptr){
 			for(auto& element : *myList){
 				TableEntry* temp{nullptr};

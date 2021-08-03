@@ -210,15 +210,13 @@ decls:  /*empty*/
 ;
 
 variabledecl:		intt identlist semi						{
-																			if( $2 != nullptr){
 																				compiler.mysymtab->addtosymtab(type::INT, $2);
-																			}
 																		}
 		|				floatt identlist semi					{
-																			if( $2 != nullptr){
 																				compiler.mysymtab->addtosymtab(type::FLOAT, $2);
-																			}
 																		}
+		|				chart identlist semi { compiler.mysymtab->addtosymtab(type::CHAR, $2); }
+		|				chart star identlist semi {compiler.mysymtab->addtosymtab(type::STR, $3);}
 		|				error semi									{	yyerrok; compiler.error("(unexpected token in variable decl)",""); }
 ;
 
