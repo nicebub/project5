@@ -277,8 +277,8 @@ bool SymbolTable::inCscope(const std::string name){
 }
 
 int SymbolTable::getleveldif(std::string name){
-	TableEntry ** found;
-	found = nullptr;
+//	TableEntry ** found;
+//	found = nullptr;
 	if(!name.empty()){
 		int i{0};
 //		for(auto *it : stack){

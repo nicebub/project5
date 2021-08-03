@@ -31,7 +31,11 @@ BISON = `which bison`
 FLEX  = `which flex++`
 FLOP = -+
 #FLOP = -+ -d
-FCFLAGS = -I/usr/local/opt/flex/include
+ifeq ($(OS),Darwin)
+ FCFLAGS = -I/usr/local/opt/flex/include
+else
+ FCFLAGS = -I/usr/include
+endif
 #BISOP = -vtd
 BISOP = -vt
 #FLEX = `which flex++`
@@ -67,12 +71,15 @@ DEPS := $(patsubst %.cpp, $(PATHD)%.d,$(SRC_FILES))
 COMPILE=$(COMPILER) -c
 LINK=$(COMPILER)
 DEPEND=$(COMPILER) -MM -MG -MF
-CPPFLAGS = -std=c++14 #-DDEBUGON
+CPPFLAGS = -Wall -std=c++17 #-DDEBUGON
 CPPFLAGS += -Wall -Wpedantic -pedantic-errors -Wno-comment -I. -I$(PATHI)
 #CPPFLAGS += -g
 CPPFLAGS += -Os
 #CPPFLAGS += -ll -lm
-CPPFLAGS += -Wno-deprecated-register ${LDFLAGS} -Wmissing-include-dirs -Winvalid-pch -Wno-overloaded-virtual
+ifeq ($(OS),Darwin)
+CPPFLAGS += -Wno-deprecated-register 
+endif
+CPPFLAGS += ${LDFLAGS} -Wmissing-include-dirs -Winvalid-pch -Wno-overloaded-virtual
 TFLAGS = $(CPPFLAGS) $(FCFLAGS) #-DTEST 
 #BASE_RESULTS = $(patsubst $(PATHT)Test%_Runner.c,$(PATHR)Test%_Runner.txt,$(BASE_SRCT) )
 #RESULTS = $(patsubst $(PATHT)Test%_Runner.c,$(PATHR)Test%_Runner.txt,$(SRCT) )
