@@ -855,12 +855,12 @@ ReturnPacket* Compiler::block57_factor_addop_factor_uminus(ucc::addtype inop, Re
 
 ReturnPacket* Compiler::block58_factor_adof_ident(ucc::Identifier inPacket){
 	ReturnPacket* outPacket{new ReturnPacket{}};
-	TableEntry*tempE, *tempE2;
+	TableEntry*tempE; //, *tempE2;
 	if( inPacket.getvalue() != "main"){
 		if( mysymtab->lookup(inPacket.getvalue()) == nullptr)
 		error("variable undeclared, please declare variables before using them","");
 		else{
-			tempE2 = new TableEntry{inPacket.getvalue()};
+//			tempE2 = new TableEntry{inPacket.getvalue()};
 			tempE =	mysymtab->lookupB(inPacket.getvalue());
 			if(tempE != nullptr){
 				if(tempE->getself() == btype::VAR || tempE->getself() == btype::PARAM){
