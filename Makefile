@@ -31,7 +31,7 @@ BISON = `which bison`
 FLEX  = `which flex++`
 FLOP = -+
 #FLOP = -+ -d
-ifeq ($(OS),Darwin)
+ifeq ($(shell uname -s),Darwin)
  FCFLAGS = -I/usr/local/opt/flex/include
 else
  FCFLAGS = -I/usr/include
